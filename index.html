@@ -133,16 +133,23 @@ tailwind.config = {
     <div class="sticky top-[70px] z-20 -mx-4 mt-5 bg-mist/90 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="font-score text-2xl tracking-wide">Rol de juegos</h2>
-        <label class="relative">
-          <span class="sr-only">Filtrar por categoría</span>
-          <select id="filtro-rol-select"
-                  class="appearance-none rounded-lg border border-hair bg-white py-2 pl-3.5 pr-9 font-score text-[16px] text-court shadow-card focus:outline-none focus:ring-2 focus:ring-blue">
-            <option value="Todas">Todas las categorías</option>
-            <option value="Femenil">Femenil</option>
-            <option value="Varonil">Varonil</option>
-          </select>
-          <svg viewBox="0 0 24 24" class="pointer-events-none absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-        </label>
+        <div class="flex items-center gap-2">
+          <button id="btn-agregar-partido" data-solo-admin
+                  class="hidden shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep sm:inline-flex">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Agregar partido
+          </button>
+          <label class="relative">
+            <span class="sr-only">Filtrar por categoría</span>
+            <select id="filtro-rol-select"
+                    class="appearance-none rounded-lg border border-hair bg-white py-2 pl-3.5 pr-9 font-score text-[16px] text-court shadow-card focus:outline-none focus:ring-2 focus:ring-blue">
+              <option value="Todas">Todas las categorías</option>
+              <option value="Femenil">Femenil</option>
+              <option value="Varonil">Varonil</option>
+            </select>
+            <svg viewBox="0 0 24 24" class="pointer-events-none absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -338,6 +345,122 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- Modal: agregar/editar un equipo -->
+<div id="equipo-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Equipo">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 id="equipo-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar equipo</h3>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Nombre</span>
+      <input id="equipo-nombre" type="text" placeholder="Ej. Centinelas"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div class="mt-3 flex gap-3">
+      <label class="block w-24">
+        <span class="mb-1 block text-[13px] font-medium text-court">Abrev.</span>
+        <input id="equipo-abrev" type="text" maxlength="4" placeholder="Auto"
+               class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] uppercase focus:outline-none focus:ring-2 focus:ring-blue">
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Categoría</span>
+        <select id="equipo-categoria" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+          <option value="Femenil">Femenil</option>
+          <option value="Varonil">Varonil</option>
+          <option value="Ambas">Ambas</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="equipo-modal-logo" class="mt-3 hidden items-center gap-3 rounded-lg bg-mist p-2.5">
+      <span id="equipo-modal-logo-preview"></span>
+      <button id="equipo-modal-cambiar-logo" type="button" class="flex-1 rounded-lg bg-white px-3 py-2 text-[13px] font-medium text-court ring-1 ring-hair hover:bg-mist">
+        Cambiar logo
+      </button>
+    </div>
+
+    <div id="equipo-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="equipo-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="equipo-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: agregar/editar un partido -->
+<div id="partido-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-court/70 p-4 py-8" role="dialog" aria-modal="true" aria-label="Partido">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 id="partido-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar partido</h3>
+    <input id="partido-id" type="hidden">
+
+    <div class="mt-3 flex gap-3">
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Categoría</span>
+        <select id="partido-cat" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+          <option value="Femenil">Femenil</option>
+          <option value="Varonil">Varonil</option>
+        </select>
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Grupo</span>
+        <input id="partido-grupo" type="text" placeholder="Ej. Grupo A"
+               class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+      </label>
+    </div>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Fecha y hora</span>
+      <input id="partido-fecha" type="datetime-local"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Cancha / sede</span>
+      <input id="partido-sede" type="text" placeholder="Ej. Auditorio — Cancha 1"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div class="mt-3 flex gap-3">
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Local</span>
+        <select id="partido-local" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue"></select>
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Visita</span>
+        <select id="partido-visita" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue"></select>
+      </label>
+    </div>
+
+    <div class="mt-4">
+      <span class="mb-1.5 block text-[13px] font-medium text-court">Resultado (opcional)</span>
+      <div id="partido-sets-filas" class="space-y-2"></div>
+      <button id="partido-agregar-set" type="button" class="mt-2 text-[13px] font-medium text-blue hover:underline">
+        + Agregar set
+      </button>
+      <p class="mt-1 text-[12px] text-muted">Déjalo vacío si el partido todavía no se juega.</p>
+    </div>
+
+    <div id="partido-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="partido-modal-eliminar" class="hidden rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-[#B3322E] ring-1 ring-hair hover:bg-mist">
+        Eliminar
+      </button>
+      <button id="partido-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="partido-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Selectores de archivo ocultos, usados por los botones de subida -->
 <input id="input-foto" type="file" accept="image/*" class="hidden">
 <input id="input-logo" type="file" accept="image/*" class="hidden">
@@ -368,14 +491,31 @@ const GITHUB_BRANCH = 'main';
                   siempre gana sobre lo que escribas aquí a mano.
               Si la dejas vacía, o si la imagen no carga, se dibuja un escudo
               con las iniciales — la interfaz nunca se rompe.                */
-const EQUIPOS = {
+const EQUIPOS_DEMO = {
   'Centinelas':      { abrev:'CEN', logo:'', categoria:'Ambas' },
   'ICE':             { abrev:'ICE', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
   'Bacabs':          { abrev:'BAC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
   'CBTis':           { abrev:'CBT', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
   'CECyTEC':         { abrev:'CEC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
-  
+  'Tec de Campeche': { abrev:'TEC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Cobach 1':   { abrev:'CB1', logo:'', categoria:'Femenil' },
+  'CBTis 11':   { abrev:'C11', logo:'', categoria:'Femenil' },
+  'Jaguares':   { abrev:'JAG', logo:'', categoria:'Femenil' },
+  'Águilas':    { abrev:'AGU', logo:'', categoria:'Femenil' },
+  'Lobos':      { abrev:'LOB', logo:'', categoria:'Femenil' },
+  'Delfines':   { abrev:'DEL', logo:'', categoria:'Femenil' },
+  'Halcones':   { abrev:'HAL', logo:'', categoria:'Varonil' },
+  'Tiburones':  { abrev:'TIB', logo:'', categoria:'Varonil' },
+  'Pumas':      { abrev:'PUM', logo:'', categoria:'Varonil' },
+  'Toros':      { abrev:'TOR', logo:'', categoria:'Varonil' },
+  'Cóndores':   { abrev:'CON', logo:'', categoria:'Varonil' },
+  'Zorros':     { abrev:'ZOR', logo:'', categoria:'Varonil' }
 };
+/* A partir de aquí, EQUIPOS es lo que realmente se usa en toda la página.
+   Empieza como el demo de arriba; en cuanto exista data/equipos.json en tu
+   repositorio (se crea solo la primera vez que agregas/editas un equipo desde
+   el modo administrador), ese archivo se vuelve la fuente real. */
+let EQUIPOS = JSON.parse(JSON.stringify(EQUIPOS_DEMO));
 
 /* --- Partidos --------------------------------------------------------------
    cat   : 'Femenil' o 'Varonil' (obligatorio)
@@ -388,7 +528,7 @@ const EQUIPOS = {
    avanzaA : llave a la que pasa el ganador
    ranura  : 'local' o 'visita' -> lugar que ocupa el ganador en esa llave
    logoLocal / logoVisita: opcionales, sobrescriben el logo del catálogo.      */
-const PARTIDOS = [
+const PARTIDOS_DEMO = [
 
   /* ---------- FASE DE GRUPOS: ya jugados ---------- */
   { fase:'grupos', cat:'Femenil', grupo:'Grupo A', fecha:'2026-09-12T17:00', sede:'Auditorio — Cancha 1',
@@ -461,6 +601,11 @@ const PARTIDOS = [
   { fase:'final', cat:'Varonil', llave:'F1', fecha:'2026-10-24T14:00', sede:'Auditorio — Cancha central',
     local:'', visita:'' }
 ];
+/* Igual que EQUIPOS: PARTIDOS es lo que realmente se usa en toda la página.
+   Empieza con el demo de arriba; en cuanto exista data/partidos.json (se crea
+   solo al agregar tu primer partido real desde el modo administrador), ese
+   archivo se vuelve la fuente real — rol, resultados, tabla y liguilla. */
+let PARTIDOS = JSON.parse(JSON.stringify(PARTIDOS_DEMO));
 
 /* La tabla de posiciones cuenta solo la fase de grupos.
    Ponlo en false si quieres que la liguilla también sume puntos. */
@@ -680,15 +825,28 @@ function pintaEquipos() {
     .sort((a, b) => a[0].localeCompare(b[0], 'es'));
 
   const grid = $('#equipos-grid');
-  if (!lista.length) { grid.innerHTML = vacio('No hay equipos registrados con este filtro.'); return; }
 
-  grid.innerHTML = lista.map(([nombre, e]) => `
+  const tarjetaAgregar = esAdmin() ? `
+    <button id="btn-agregar-equipo" class="grid min-h-[168px] place-items-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/60 text-muted transition hover:border-blue hover:text-blue">
+      ${icono('mas', 'h-7 w-7')}
+      <span class="text-[13px] font-medium">Agregar equipo</span>
+    </button>` : '';
+
+  if (!lista.length && !esAdmin()) { grid.innerHTML = vacio('No hay equipos registrados con este filtro.'); return; }
+
+  grid.innerHTML = tarjetaAgregar + lista.map(([nombre, e]) => `
     <article class="relative flex flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center shadow-card ring-1 ring-hair/70">
       ${esAdmin() ? `
-      <button data-editar-logo="${nombre}" title="Cambiar logo"
-              class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
-        ${icono('lapiz', 'h-3.5 w-3.5')}
-      </button>` : ''}
+      <div class="absolute right-2.5 top-2.5 flex gap-1.5">
+        <button data-editar-equipo="${nombre}" title="Editar equipo"
+                class="grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+          ${icono('lapiz', 'h-3.5 w-3.5')}
+        </button>
+        <button data-borrar-equipo="${nombre}" title="Eliminar equipo"
+                class="grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-mist">
+          ${icono('cerrar', 'h-3.5 w-3.5')}
+        </button>
+      </div>` : ''}
       ${escudo(nombre, 60, e.logo)}
       <p class="font-score text-[18px] leading-tight text-court">${nombre}</p>
       <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium ${COLOR_CAT[e.categoria]}">
@@ -696,7 +854,9 @@ function pintaEquipos() {
       </span>
     </article>`).join('');
 
-  $$('[data-editar-logo]', grid).forEach(b => b.addEventListener('click', () => pideLogo(b.dataset.editarLogo)));
+  if (esAdmin()) $('#btn-agregar-equipo').addEventListener('click', () => abreEquipoModal());
+  $$('[data-editar-equipo]', grid).forEach(b => b.addEventListener('click', () => abreEquipoModal(b.dataset.editarEquipo)));
+  $$('[data-borrar-equipo]', grid).forEach(b => b.addEventListener('click', () => borraEquipo(b.dataset.borrarEquipo)));
 }
 
 /* ==========================================================================
@@ -751,7 +911,12 @@ function tarjetaPartido(p) {
     </div>`;
 
   return `
-  <article class="rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+  <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+    ${esAdmin() && p.fase === 'grupos' ? `
+    <button data-editar-partido="${p.id}" title="Editar partido"
+            class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+      ${icono('lapiz', 'h-3.5 w-3.5')}
+    </button>` : ''}
     <div class="flex items-start gap-4">
       <div class="w-[66px] shrink-0 border-r border-hair pr-3">
         <p class="num font-score text-[21px] leading-none text-court">${soloHora(p.fecha)}</p>
@@ -785,6 +950,8 @@ function pintaRol() {
       <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${tituloDia(dia)}</h3>
       <div class="space-y-3">${partidos.map(tarjetaPartido).join('')}</div>
     </section>`).join('');
+
+  $$('[data-editar-partido]', cont).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
 }
 
 /* ==========================================================================
@@ -866,8 +1033,13 @@ function tarjetaResultado(p) {
     </div>`;
 
   return `
-  <article class="rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
-    <div class="mb-3 flex flex-wrap items-center gap-2 text-[12.5px]">
+  <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+    ${esAdmin() && p.fase === 'grupos' ? `
+    <button data-editar-partido="${p.id}" title="Editar resultado"
+            class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+      ${icono('lapiz', 'h-3.5 w-3.5')}
+    </button>` : ''}
+    <div class="mb-3 flex flex-wrap items-center gap-2 pr-8 text-[12.5px]">
       <span class="rounded-md ${p.fase === 'grupos' ? 'bg-sky text-blue' : 'bg-sun/25 text-court'} px-2 py-0.5 font-medium">
         ${p.grupo || FASES[p.fase]}
       </span>
@@ -900,6 +1072,8 @@ function pintaResultados(rama) {
       <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${tituloDia(dia)}</h3>
       <div class="space-y-3">${partidos.map(tarjetaResultado).join('')}</div>
     </section>`).join('');
+
+  $$('[data-editar-partido]', cont).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
 }
 
 /* ---------- Tabla de posiciones: PJ, PG, PP, SF, SC, Pts ---------- */
@@ -1116,7 +1290,8 @@ function pintaGaleria() {
 
   $('#galeria-grid').innerHTML = tarjetaAgregar + FOTOS.map((f, i) => `
     <button data-foto="${i}" class="group relative block aspect-square overflow-hidden rounded-2xl bg-mist shadow-card ring-1 ring-hair/70">
-      <img src="${f.url || marcador(i, f.titulo)}" alt="${f.titulo}" loading="lazy"
+      <img src="${f.url || marcador(i, f.titulo)}" alt="${f.titulo}" loading="lazy" data-idx="${i}"
+           onerror="sinFoto(this)"
            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]">
       <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-court/85 to-transparent px-3 pb-2.5 pt-8 text-left text-[12.5px] font-medium text-white">
         ${f.titulo}
@@ -1127,12 +1302,25 @@ function pintaGaleria() {
   $$('[data-foto]').forEach(b => b.addEventListener('click', () => abreFoto(+b.dataset.foto)));
 }
 
+/* Si la imagen real todavía no carga (por ejemplo, justo después de subirla,
+   mientras Netlify termina de publicar el cambio), se muestra el marcador de
+   posición en vez de un ícono roto. En cuanto recargues la página unos
+   segundos después, ya se ve la foto real. */
+function sinFoto(img) {
+  const i = +img.dataset.idx;
+  const f = FOTOS[i];
+  if (!f) return;
+  img.onerror = null;
+  img.src = marcador(i, f.titulo);
+}
+
 let fotoActual = 0;
 const lb = $('#lightbox');
 
 function abreFoto(i) {
   fotoActual = (i + FOTOS.length) % FOTOS.length;
   const f = FOTOS[fotoActual];
+  $('#lb-img').onerror = () => { $('#lb-img').onerror = null; $('#lb-img').src = marcador(fotoActual, f.titulo); };
   $('#lb-img').src = f.url || marcador(fotoActual, f.titulo);
   $('#lb-img').alt = f.titulo;
   $('#lb-cap').textContent = `${f.titulo} — ${f.pie}`;
@@ -1344,6 +1532,15 @@ $('#foto-modal-cancelar').addEventListener('click', () => {
   $('#foto-modal').classList.replace('flex', 'hidden');
 });
 
+/* ---------- Aviso flotante de confirmación (arriba, se cierra solo) ---------- */
+function avisaFlotante(mensaje) {
+  const el = document.createElement('div');
+  el.className = 'fixed left-1/2 top-4 z-[60] -translate-x-1/2 flex items-center gap-2 rounded-xl bg-court px-4 py-2.5 text-[13.5px] text-white shadow-lift';
+  el.innerHTML = `${icono('correcto', 'h-4 w-4 shrink-0 text-[#7CE0A8]')}<span>${mensaje}</span>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
 $('#foto-modal-subir').addEventListener('click', async () => {
   const titulo = $('#foto-titulo').value.trim();
   const pie = $('#foto-pie').value.trim();
@@ -1366,8 +1563,228 @@ $('#foto-modal-subir').addEventListener('click', async () => {
     archivoFotoPendiente = null;
     $('#foto-modal').classList.replace('flex', 'hidden');
     repintaTodo();
+    avisaFlotante('Foto agregada. Ábrela en Galería para verla.');
   } catch (err) {
     avisaEn('#foto-modal-aviso', false, 'No se pudo subir: ' + err.message);
+  }
+});
+
+/* ---------- Agregar / editar / eliminar equipos ---------- */
+
+let equipoOriginalEnModal = null;
+
+function abreEquipoModal(nombre = null) {
+  const e = nombre ? EQUIPOS[nombre] : null;
+  equipoOriginalEnModal = nombre;
+
+  $('#equipo-modal-titulo').textContent = nombre ? 'Editar equipo' : 'Agregar equipo';
+  $('#equipo-nombre').value = nombre || '';
+  $('#equipo-abrev').value = e ? e.abrev : '';
+  $('#equipo-categoria').value = e ? e.categoria : 'Ambas';
+
+  $('#equipo-modal-logo').classList.toggle('hidden', !nombre);
+  $('#equipo-modal-logo').classList.toggle('flex', !!nombre);
+  if (nombre) $('#equipo-modal-logo-preview').innerHTML = escudo(nombre, 44, e.logo);
+
+  $('#equipo-modal-aviso').classList.add('hidden');
+  $('#equipo-modal').classList.replace('hidden', 'flex');
+}
+
+$('#equipo-modal-cancelar').addEventListener('click', () => $('#equipo-modal').classList.replace('flex', 'hidden'));
+
+$('#equipo-modal-cambiar-logo').addEventListener('click', () => {
+  if (!equipoOriginalEnModal) return;
+  $('#equipo-modal').classList.replace('flex', 'hidden');
+  pideLogo(equipoOriginalEnModal);
+});
+
+$('#equipo-modal-guardar').addEventListener('click', async () => {
+  const nombreNuevo = $('#equipo-nombre').value.trim();
+  let abrev = $('#equipo-abrev').value.trim().toUpperCase();
+  const categoria = $('#equipo-categoria').value;
+  const nombreOriginal = equipoOriginalEnModal;
+
+  if (!nombreNuevo) { avisaEn('#equipo-modal-aviso', false, 'Ponle un nombre al equipo.'); return; }
+  if (!nombreOriginal && EQUIPOS[nombreNuevo]) { avisaEn('#equipo-modal-aviso', false, 'Ya existe un equipo con ese nombre.'); return; }
+  if (!abrev) abrev = nombreNuevo.replace(/[^A-Za-zÀ-ÿ]/g, '').slice(0, 3).toUpperCase() || 'EQU';
+
+  let renombrado = false;
+
+  if (nombreOriginal && nombreOriginal !== nombreNuevo) {
+    const reordenado = {};
+    Object.entries(EQUIPOS).forEach(([n, datos]) => { reordenado[n === nombreOriginal ? nombreNuevo : n] = datos; });
+    EQUIPOS = reordenado;
+    EQUIPOS[nombreNuevo].abrev = abrev;
+    EQUIPOS[nombreNuevo].categoria = categoria;
+    PARTIDOS.forEach(p => {
+      if (p.local === nombreOriginal) p.local = nombreNuevo;
+      if (p.visita === nombreOriginal) p.visita = nombreNuevo;
+    });
+    renombrado = true;
+  } else if (nombreOriginal) {
+    EQUIPOS[nombreOriginal].abrev = abrev;
+    EQUIPOS[nombreOriginal].categoria = categoria;
+  } else {
+    EQUIPOS[nombreNuevo] = { abrev, categoria, logo: '' };
+  }
+
+  try {
+    const { sha } = await ghLeeJSON('data/equipos.json', {});
+    await ghEscribeJSON('data/equipos.json', EQUIPOS, sha, nombreOriginal ? `Edita equipo: ${nombreNuevo}` : `Agrega equipo: ${nombreNuevo}`);
+
+    if (renombrado) {
+      const { sha: shaP } = await ghLeeJSON('data/partidos.json', []);
+      await ghEscribeJSON('data/partidos.json', PARTIDOS, shaP, `Renombra equipo en partidos: ${nombreOriginal} → ${nombreNuevo}`);
+    }
+
+    if (!nombreOriginal) {
+      equipoOriginalEnModal = nombreNuevo;
+      $('#equipo-modal-titulo').textContent = 'Editar equipo';
+      $('#equipo-modal-logo').classList.remove('hidden');
+      $('#equipo-modal-logo').classList.add('flex');
+      $('#equipo-modal-logo-preview').innerHTML = escudo(nombreNuevo, 44, '');
+      avisaEn('#equipo-modal-aviso', true, 'Equipo creado. Si quieres, agrégale un logo.');
+    } else {
+      $('#equipo-modal').classList.replace('flex', 'hidden');
+    }
+    repintaTodo();
+    avisaFlotante(nombreOriginal ? `Se guardaron los cambios de ${nombreNuevo}.` : `Se agregó a ${nombreNuevo}.`);
+  } catch (err) {
+    avisaEn('#equipo-modal-aviso', false, 'No se pudo guardar: ' + err.message);
+  }
+});
+
+async function borraEquipo(nombre) {
+  const enUso = PARTIDOS.some(p => p.local === nombre || p.visita === nombre);
+  const aviso = enUso
+    ? `${nombre} tiene partidos registrados. Si lo eliminas, esos partidos seguirán mostrando su nombre pero ya no podrás elegirlo para partidos nuevos. ¿Eliminarlo de todas formas?`
+    : `¿Eliminar a ${nombre}? No se puede deshacer.`;
+  if (!confirm(aviso)) return;
+
+  const nuevo = { ...EQUIPOS };
+  delete nuevo[nombre];
+  EQUIPOS = nuevo;
+
+  try {
+    const { sha } = await ghLeeJSON('data/equipos.json', {});
+    await ghEscribeJSON('data/equipos.json', EQUIPOS, sha, `Elimina equipo: ${nombre}`);
+    repintaTodo();
+    avisaFlotante(`Se eliminó a ${nombre}.`);
+  } catch (err) {
+    alert('No se pudo eliminar: ' + err.message);
+  }
+}
+
+/* ---------- Agregar / editar / eliminar partidos (fase de grupos) ---------- */
+
+function opcionesEquipos(seleccionado) {
+  return '<option value="">Selecciona…</option>' + Object.keys(EQUIPOS).sort((a, b) => a.localeCompare(b, 'es'))
+    .map(n => `<option value="${n}" ${n === seleccionado ? 'selected' : ''}>${n}</option>`).join('');
+}
+
+function filaSet(local = '', visita = '') {
+  const fila = document.createElement('div');
+  fila.className = 'flex items-center gap-2';
+  fila.setAttribute('data-fila-set', '');
+  fila.innerHTML = `
+    <input type="number" min="0" max="99" value="${local}" data-set-local placeholder="Local"
+           class="w-16 rounded-lg border border-hair bg-white px-2 py-1.5 text-center text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    <span class="text-muted">–</span>
+    <input type="number" min="0" max="99" value="${visita}" data-set-visita placeholder="Visita"
+           class="w-16 rounded-lg border border-hair bg-white px-2 py-1.5 text-center text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    <button type="button" data-quitar-set class="ml-1 grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-mist" aria-label="Quitar set">
+      ${icono('cerrar', 'h-3.5 w-3.5')}
+    </button>`;
+  fila.querySelector('[data-quitar-set]').addEventListener('click', () => fila.remove());
+  return fila;
+}
+
+function abrePartidoModal(id = null) {
+  const p = id ? PARTIDOS.find(x => x.id === id) : null;
+
+  if (id && !p) { alert('Ese partido ya no existe (puede que ya lo hayan borrado en otra sesión).'); return; }
+  if (p && p.fase !== 'grupos') { alert('Los partidos de liguilla todavía se editan desde el código, para no descuadrar el bracket.'); return; }
+
+  $('#partido-modal-titulo').textContent = p ? 'Editar partido' : 'Agregar partido';
+  $('#partido-id').value = p ? p.id : '';
+  $('#partido-cat').value = p ? p.cat : 'Femenil';
+  $('#partido-grupo').value = p ? (p.grupo || '') : '';
+  $('#partido-fecha').value = p ? p.fecha : '';
+  $('#partido-sede').value = p ? p.sede : '';
+  $('#partido-local').innerHTML = opcionesEquipos(p ? p.local : '');
+  $('#partido-visita').innerHTML = opcionesEquipos(p ? p.visita : '');
+
+  $('#partido-sets-filas').innerHTML = '';
+  (p && p.sets ? p.sets : []).forEach(([l, v]) => $('#partido-sets-filas').appendChild(filaSet(l, v)));
+
+  $('#partido-modal-eliminar').classList.toggle('hidden', !p);
+  $('#partido-modal-aviso').classList.add('hidden');
+  $('#partido-modal').classList.replace('hidden', 'flex');
+}
+
+$('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
+$('#partido-modal-cancelar').addEventListener('click', () => $('#partido-modal').classList.replace('flex', 'hidden'));
+$('#partido-agregar-set').addEventListener('click', () => $('#partido-sets-filas').appendChild(filaSet()));
+
+$('#partido-modal-guardar').addEventListener('click', async () => {
+  const idActual = $('#partido-id').value || null;
+  const cat = $('#partido-cat').value;
+  const grupo = $('#partido-grupo').value.trim();
+  const fecha = $('#partido-fecha').value;
+  const sede = $('#partido-sede').value.trim();
+  const local = $('#partido-local').value;
+  const visita = $('#partido-visita').value;
+
+  if (!cat || !fecha || !sede || !local || !visita) { avisaEn('#partido-modal-aviso', false, 'Completa categoría, fecha, cancha y ambos equipos.'); return; }
+  if (local === visita) { avisaEn('#partido-modal-aviso', false, 'El equipo local y el visitante no pueden ser el mismo.'); return; }
+
+  const sets = [];
+  $$('#partido-sets-filas [data-fila-set]').forEach(fila => {
+    const l = fila.querySelector('[data-set-local]').value;
+    const v = fila.querySelector('[data-set-visita]').value;
+    if (l !== '' && v !== '') sets.push([parseInt(l, 10), parseInt(v, 10)]);
+  });
+
+  if (idActual) {
+    const idx = PARTIDOS.findIndex(p => p.id === idActual);
+    if (idx === -1) { avisaEn('#partido-modal-aviso', false, 'Ese partido ya no existe.'); return; }
+    const actualizado = { ...PARTIDOS[idx], cat, grupo, fecha, sede, local, visita };
+    if (sets.length) actualizado.sets = sets; else delete actualizado.sets;
+    PARTIDOS[idx] = actualizado;
+  } else {
+    const nuevo = { id: 'p' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat, grupo, fecha, sede, local, visita };
+    if (sets.length) nuevo.sets = sets;
+    PARTIDOS.push(nuevo);
+  }
+
+  try {
+    const { sha } = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, sha, idActual ? `Edita partido: ${local} vs ${visita}` : `Agrega partido: ${local} vs ${visita}`);
+    $('#partido-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+    avisaFlotante(idActual ? 'Partido actualizado.' : 'Partido agregado.');
+  } catch (err) {
+    avisaEn('#partido-modal-aviso', false, 'No se pudo guardar: ' + err.message);
+  }
+});
+
+$('#partido-modal-eliminar').addEventListener('click', async () => {
+  const id = $('#partido-id').value;
+  if (!id) return;
+  if (!confirm('¿Eliminar este partido? No se puede deshacer.')) return;
+
+  const idx = PARTIDOS.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  PARTIDOS.splice(idx, 1);
+
+  try {
+    const { sha } = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, sha, 'Elimina partido');
+    $('#partido-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+    avisaFlotante('Partido eliminado.');
+  } catch (err) {
+    avisaEn('#partido-modal-aviso', false, 'No se pudo eliminar: ' + err.message);
   }
 });
 
