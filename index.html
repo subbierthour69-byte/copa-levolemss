@@ -256,40 +256,137 @@ tailwind.config = {
   </figure>
 </div>
 
+<!-- ============ MODO ADMINISTRADOR (solo funciona con tu propio token de GitHub) ============ -->
+
+<!-- Botón flotante, discreto, para entrar/salir del modo administrador -->
+<button id="admin-toggle" title="Modo administrador"
+        class="fixed bottom-4 left-4 z-30 grid h-11 w-11 place-items-center rounded-full bg-court text-white shadow-lift ring-1 ring-white/10 sm:bottom-6 sm:left-6">
+  <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/>
+  </svg>
+</button>
+
+<!-- Modal: guardar/quitar el token de GitHub -->
+<div id="admin-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Modo administrador">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <div class="flex items-start justify-between gap-3">
+      <h3 class="font-score text-[20px] tracking-wide text-court">Modo administrador</h3>
+      <button id="admin-modal-cerrar" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted hover:bg-mist" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div id="admin-modal-sin-token">
+      <p class="mt-2 text-[13.5px] leading-relaxed text-muted">
+        Pega aquí tu token de GitHub para poder subir fotos y logos desde la página.
+        Se guarda solo en este navegador; nadie más lo puede usar sin tenerlo.
+      </p>
+      <input id="admin-token-input" type="password" placeholder="ghp_..."
+             class="mt-3 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+      <button id="admin-token-guardar"
+              class="mt-3 w-full rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card transition hover:bg-deep">
+        Activar modo administrador
+      </button>
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
+         class="mt-3 block text-center text-[12.5px] text-blue hover:underline">
+        ¿No tienes un token? Crea uno aquí
+      </a>
+    </div>
+
+    <div id="admin-modal-con-token" class="hidden">
+      <p class="mt-2 flex items-center gap-2 text-[13.5px] text-[#1F7A4C]">
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+        Modo administrador activo en este navegador.
+      </p>
+      <button id="admin-token-salir"
+              class="mt-3 w-full rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-[#B3322E] ring-1 ring-hair transition hover:bg-mist">
+        Cerrar sesión de administrador
+      </button>
+    </div>
+
+    <div id="admin-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+  </div>
+</div>
+
+<!-- Modal: título y pie al subir una foto a la Galería -->
+<div id="foto-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Agregar foto">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 class="font-score text-[20px] tracking-wide text-court">Agregar foto</h3>
+    <p class="mt-1 text-[13px] text-muted">Se sube directo a tu repositorio de GitHub.</p>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Título</span>
+      <input id="foto-titulo" type="text" placeholder="Ej. Punto de set"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Pie de foto</span>
+      <input id="foto-pie" type="text" placeholder="Ej. Halcones vs Tiburones — Jornada 1"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div id="foto-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="foto-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="foto-modal-subir" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Subir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Selectores de archivo ocultos, usados por los botones de subida -->
+<input id="input-foto" type="file" accept="image/*" class="hidden">
+<input id="input-logo" type="file" accept="image/*" class="hidden">
+
 <script>
 /* ==========================================================================
    1. DATOS — edita solo esta sección
    ========================================================================== */
 
+/* --- Repositorio de GitHub (para el modo administrador) --------------------
+   Datos de TU repositorio, donde vive este mismo archivo. El botón de subir
+   fotos/logos usa esto para saber a dónde escribir. Si alguna vez mueves el
+   sitio a otro repositorio, solo cambia estos tres valores.                 */
+const GITHUB_OWNER  = 'subbierthour69-byte';
+const GITHUB_REPO   = 'copa-levolemss';
+const GITHUB_BRANCH = 'main';
+
 /* --- Catálogo de equipos ---------------------------------------------------
    categoria: 'Femenil' | 'Varonil' | 'Ambas' (participa en las dos ramas)
    abrev    : se usa en la tabla de posiciones en pantallas chicas
-   logo     : ruta de la imagen (ej. 'logos/centinelas.png'). Si la dejas
-              vacía, o si el archivo no carga, se dibuja un escudo con las
-              iniciales — la interfaz nunca se rompe.                        */
+   logo     : ruta o URL de la imagen. Puede ser:
+                - una ruta local, ej. 'logos/centinelas.png' (el archivo debe
+                  vivir en esa carpeta, junto a este HTML), o
+                - un enlace directo de Google Drive, ej.
+                  'https://drive.google.com/thumbnail?id=TU_ID_AQUI&sz=w512'
+                  (ver instrucciones para obtener ese enlace), o
+                - lo que suba el modo administrador (ver sección 10) — eso
+                  siempre gana sobre lo que escribas aquí a mano.
+              Si la dejas vacía, o si la imagen no carga, se dibuja un escudo
+              con las iniciales — la interfaz nunca se rompe.                */
 const EQUIPOS = {
-  'BACABS PREPA': { abrev:'BBS', logo:'', categoria:'Femenil' },
-'BACABS PREPA': { abrev:'BBS', logo:'', categoria:'Femenil' },
-  'ICE':        { abrev:'ICE', logo:'', categoria:'Ambas' },
-  'TEC CAMPECHE':   { abrev:'T.CAM', logo:'', categoria:'Femenil' },
-  'CECYTEC':   { abrev:'CT', logo:'', categoria:'Ambas' },
-  'ESCARCEGA':    { abrev:'SCAR', logo:'', categoria:'Femenil' },
-  'CENTINELAS':      { abrev:'CENT', logo:'', categoria:'Femenil' },
-  'CBTIS':   { abrev:'DEL', logo:'', categoria:'Ambas' },
-  'TEC CHINA':      { abrev:'T CH', logo:'', categoria:'Ambas' },
-  'SEYBA PLAYA':      { abrev:'SP', logo:'', categoria:'Varonil' },
-  'Wicho':   { abrev:'W', logo:'', categoria:'Varonil' },
-  'CATANA':   { abrev:'CT', logo:'', categoria:'Varonil' },
-  'TEC CAMPECHE':   { abrev:'T.CAM', logo:'', categoria:'Femenil' },
-  'CECYTEC':   { abrev:'CT', logo:'', categoria:'Ambas' },
-  'ESCARCEGA':    { abrev:'SCAR', logo:'', categoria:'Femenil' },
-  'CENTINELAS':      { abrev:'CENT', logo:'', categoria:'Femenil' },
-  'CBTIS':   { abrev:'DEL', logo:'', categoria:'Ambas' },
-  'TEC CHINA':      { abrev:'T CH', logo:'', categoria:'Ambas' },
-  'SEYBA PLAYA':      { abrev:'SP', logo:'', categoria:'Varonil' },
-  'Wicho':   { abrev:'W', logo:'', categoria:'Varonil' },
-  'JOSE':   { abrev:'W', logo:'', categoria:'Varonil' },
-  
+  'Centinelas':      { abrev:'CEN', logo:'', categoria:'Ambas' },
+  'ICE':             { abrev:'ICE', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Bacabs':          { abrev:'BAC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'CBTis':           { abrev:'CBT', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'CECyTEC':         { abrev:'CEC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Tec de Campeche': { abrev:'TEC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Cobach 1':   { abrev:'CB1', logo:'', categoria:'Femenil' },
+  'CBTis 11':   { abrev:'C11', logo:'', categoria:'Femenil' },
+  'Jaguares':   { abrev:'JAG', logo:'', categoria:'Femenil' },
+  'Águilas':    { abrev:'AGU', logo:'', categoria:'Femenil' },
+  'Lobos':      { abrev:'LOB', logo:'', categoria:'Femenil' },
+  'Delfines':   { abrev:'DEL', logo:'', categoria:'Femenil' },
+  'Halcones':   { abrev:'HAL', logo:'', categoria:'Varonil' },
+  'Tiburones':  { abrev:'TIB', logo:'', categoria:'Varonil' },
+  'Pumas':      { abrev:'PUM', logo:'', categoria:'Varonil' },
+  'Toros':      { abrev:'TOR', logo:'', categoria:'Varonil' },
+  'Cóndores':   { abrev:'CON', logo:'', categoria:'Varonil' },
+  'Zorros':     { abrev:'ZOR', logo:'', categoria:'Varonil' }
 };
 
 /* --- Partidos --------------------------------------------------------------
@@ -381,9 +478,10 @@ const PARTIDOS = [
    Ponlo en false si quieres que la liguilla también sume puntos. */
 const TABLA_SOLO_GRUPOS = true;
 
-/* Galería: escribe la ruta en "url" (ej. 'fotos/saque.jpg').
-   Si la dejas vacía se muestra un marcador con los colores de la liga. */
-const FOTOS = [
+/* Galería de respaldo: solo se usa mientras no exista data/galeria.json en tu
+   repositorio (o si por algo no carga). En cuanto subas tu primera foto desde
+   el modo administrador, ese archivo se crea solo y esta lista deja de usarse. */
+const FOTOS_DEMO = [
   { url:'', titulo:'Saque de apertura',     pie:'Centinelas vs Cobach 1 — Jornada 1' },
   { url:'', titulo:'Bloqueo doble',         pie:'Halcones vs Tiburones — Jornada 1' },
   { url:'', titulo:'Punto de set',          pie:'Jaguares vs Águilas — Jornada 2' },
@@ -394,6 +492,7 @@ const FOTOS = [
   { url:'', titulo:'Premiación parcial',    pie:'Mesa de control' },
   { url:'', titulo:'Calentamiento',         pie:'Auditorio — Cancha 2' }
 ];
+let FOTOS = FOTOS_DEMO;
 
 /* ==========================================================================
    2. UTILIDADES
@@ -465,7 +564,12 @@ const ICONOS = {
   archivo:      '<path d="M7 3.5h7l4 4V19a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 016 19V5A1.5 1.5 0 017 3.5z"/><path d="M14 3.5V8h4.2"/><path d="M9 12.5h6M9 15.5h6M9 9.5h2"/>',
   descargar:    '<path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/>',
   correcto:     '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>',
-  alerta:       '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.2h.01"/>'
+  alerta:       '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.2h.01"/>',
+  candado:      '<rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/>',
+  lapiz:        '<path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M13.5 7.5l3 3"/>',
+  mas:          '<path d="M12 5v14M5 12h14"/>',
+  subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
+  cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -591,13 +695,20 @@ function pintaEquipos() {
   if (!lista.length) { grid.innerHTML = vacio('No hay equipos registrados con este filtro.'); return; }
 
   grid.innerHTML = lista.map(([nombre, e]) => `
-    <article class="flex flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center shadow-card ring-1 ring-hair/70">
+    <article class="relative flex flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center shadow-card ring-1 ring-hair/70">
+      ${esAdmin() ? `
+      <button data-editar-logo="${nombre}" title="Cambiar logo"
+              class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+        ${icono('lapiz', 'h-3.5 w-3.5')}
+      </button>` : ''}
       ${escudo(nombre, 60, e.logo)}
       <p class="font-score text-[18px] leading-tight text-court">${nombre}</p>
       <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium ${COLOR_CAT[e.categoria]}">
         ${icono(ICONO_CAT[e.categoria], 'h-3 w-3')}${e.categoria}
       </span>
     </article>`).join('');
+
+  $$('[data-editar-logo]', grid).forEach(b => b.addEventListener('click', () => pideLogo(b.dataset.editarLogo)));
 }
 
 /* ==========================================================================
@@ -1009,7 +1120,13 @@ function marcador(i, titulo) {
 }
 
 function pintaGaleria() {
-  $('#galeria-grid').innerHTML = FOTOS.map((f, i) => `
+  const tarjetaAgregar = esAdmin() ? `
+    <button id="btn-agregar-foto" class="grid aspect-square place-items-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/60 text-muted transition hover:border-blue hover:text-blue">
+      ${icono('mas', 'h-7 w-7')}
+      <span class="text-[13px] font-medium">Agregar foto</span>
+    </button>` : '';
+
+  $('#galeria-grid').innerHTML = tarjetaAgregar + FOTOS.map((f, i) => `
     <button data-foto="${i}" class="group relative block aspect-square overflow-hidden rounded-2xl bg-mist shadow-card ring-1 ring-hair/70">
       <img src="${f.url || marcador(i, f.titulo)}" alt="${f.titulo}" loading="lazy"
            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]">
@@ -1018,6 +1135,7 @@ function pintaGaleria() {
       </span>
     </button>`).join('');
 
+  if (esAdmin()) $('#btn-agregar-foto').addEventListener('click', () => $('#input-foto').click());
   $$('[data-foto]').forEach(b => b.addEventListener('click', () => abreFoto(+b.dataset.foto)));
 }
 
@@ -1051,8 +1169,232 @@ document.addEventListener('keydown', e => {
 });
 
 /* ==========================================================================
-   10. ARRANQUE
+   10. MODO ADMINISTRADOR (subir fotos y logos directo a GitHub)
    ========================================================================== */
+/* Cómo funciona: el token de GitHub que TÚ pegas se guarda solo en localStorage
+   de tu navegador. Los botones de subir solo aparecen si hay un token guardado
+   — un visitante normal nunca los ve, y aunque los viera, sin tu token la API
+   de GitHub simplemente rechaza la petición. Eso es lo que realmente impide
+   que alguien más suba o cambie algo: no es un candado visual, es tu cuenta.
+
+   Usa un token de tipo "fine-grained", limitado SOLO a este repositorio, con
+   permiso "Contents: Read and write" y nada más. Si alguna vez sospechas que
+   se filtró, revócalo desde github.com/settings/tokens y crea uno nuevo. */
+
+const TOKEN_KEY = 'lv_gh_token';
+const token = () => localStorage.getItem(TOKEN_KEY) || '';
+const esAdmin = () => !!token();
+
+const slug = s => s.toString().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const LIMITE_IMAGEN = 900 * 1024; // ~900 KB: límite práctico de la API simple de GitHub
+
+function archivoABase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function ghApi(path, opciones = {}) {
+  const r = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+    ...opciones,
+    headers: {
+      Authorization: `Bearer ${token()}`,
+      Accept: 'application/vnd.github+json',
+      ...(opciones.headers || {})
+    }
+  });
+  return r;
+}
+
+/** Sube o reemplaza un archivo binario (imagen) en el repositorio. */
+async function ghSubeArchivo(path, base64, mensaje) {
+  let sha;
+  const actual = await ghApi(path);
+  if (actual.ok) sha = (await actual.json()).sha;
+
+  const r = await ghApi(path, {
+    method: 'PUT',
+    body: JSON.stringify({ message: mensaje, content: base64, branch: GITHUB_BRANCH, ...(sha && { sha }) })
+  });
+  if (!r.ok) throw new Error(await ghErrorMsg(r));
+  return r.json();
+}
+
+/** Lee un JSON del repo. Si no existe todavía, regresa valorPorDefecto y sha nulo. */
+async function ghLeeJSON(path, valorPorDefecto) {
+  const r = await ghApi(path);
+  if (r.status === 404) return { valor: valorPorDefecto, sha: null };
+  if (!r.ok) throw new Error(await ghErrorMsg(r));
+  const datos = await r.json();
+  const texto = decodeURIComponent(escape(atob(datos.content.replace(/\n/g, ''))));
+  return { valor: JSON.parse(texto), sha: datos.sha };
+}
+
+/** Escribe (crea o actualiza) un JSON en el repo. */
+async function ghEscribeJSON(path, valor, sha, mensaje) {
+  const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(valor, null, 2))));
+  const r = await ghApi(path, {
+    method: 'PUT',
+    body: JSON.stringify({ message: mensaje, content: base64, branch: GITHUB_BRANCH, ...(sha && { sha }) })
+  });
+  if (!r.ok) throw new Error(await ghErrorMsg(r));
+  return r.json();
+}
+
+async function ghErrorMsg(r) {
+  if (r.status === 401) return 'Tu token no es válido o ya venció.';
+  if (r.status === 403) return 'Tu token no tiene permiso de escritura en este repositorio.';
+  if (r.status === 404) return 'No se encontró el repositorio (revisa GITHUB_OWNER/GITHUB_REPO).';
+  try { return (await r.json()).message || `Error ${r.status}`; } catch { return `Error ${r.status}`; }
+}
+
+/* ---------- Aviso reutilizable dentro de cualquier modal ---------- */
+function avisaEn(id, exito, mensaje) {
+  const el = $(id);
+  el.classList.remove('hidden');
+  el.className = (exito
+    ? 'mt-3 flex items-center gap-2 rounded-lg bg-[#E6F4EC] px-3 py-2 text-[13px] text-[#1F7A4C]'
+    : 'mt-3 flex items-center gap-2 rounded-lg bg-[#FDEAEA] px-3 py-2 text-[13px] text-[#B3322E]');
+  el.innerHTML = `${icono(exito ? 'correcto' : 'alerta', 'h-4 w-4 shrink-0')}<span>${mensaje}</span>`;
+}
+
+/* ---------- Modal: activar / cerrar sesión de administrador ---------- */
+
+function actualizaModalAdmin() {
+  $('#admin-modal-sin-token').classList.toggle('hidden', esAdmin());
+  $('#admin-modal-con-token').classList.toggle('hidden', !esAdmin());
+  $('#admin-modal-aviso').classList.add('hidden');
+}
+
+$('#admin-toggle').addEventListener('click', () => {
+  actualizaModalAdmin();
+  $('#admin-modal').classList.replace('hidden', 'flex');
+});
+$('#admin-modal-cerrar').addEventListener('click', () => $('#admin-modal').classList.replace('flex', 'hidden'));
+
+$('#admin-token-guardar').addEventListener('click', () => {
+  const valor = $('#admin-token-input').value.trim();
+  if (!valor) { avisaEn('#admin-modal-aviso', false, 'Pega tu token antes de continuar.'); return; }
+  localStorage.setItem(TOKEN_KEY, valor);
+  $('#admin-token-input').value = '';
+  $('#admin-modal').classList.replace('flex', 'hidden');
+  repintaTodo();
+});
+
+$('#admin-token-salir').addEventListener('click', () => {
+  localStorage.removeItem(TOKEN_KEY);
+  $('#admin-modal').classList.replace('flex', 'hidden');
+  repintaTodo();
+});
+
+/* ---------- Subir/reemplazar el logo de un equipo ---------- */
+
+let equipoEnEdicion = null;
+
+function pideLogo(nombreEquipo) {
+  equipoEnEdicion = nombreEquipo;
+  $('#input-logo').click();
+}
+
+$('#input-logo').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file || !equipoEnEdicion) return;
+
+  if (file.size > LIMITE_IMAGEN) {
+    alert(`Esa imagen pesa demasiado (máximo ${Math.round(LIMITE_IMAGEN / 1024)} KB). Comprímela, por ejemplo en squoosh.app, e inténtalo de nuevo.`);
+    return;
+  }
+
+  try {
+    const base64 = await archivoABase64(file);
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const ruta = `logos/${slug(equipoEnEdicion)}.${ext}`;
+
+    await ghSubeArchivo(ruta, base64, `Logo de ${equipoEnEdicion}`);
+
+    const { valor: mapa, sha } = await ghLeeJSON('data/logos.json', {});
+    mapa[equipoEnEdicion] = ruta;
+    await ghEscribeJSON('data/logos.json', mapa, sha, `Actualiza logo de ${equipoEnEdicion}`);
+
+    EQUIPOS[equipoEnEdicion].logo = ruta;
+    repintaTodo();
+  } catch (err) {
+    alert('No se pudo subir el logo: ' + err.message);
+  }
+});
+
+/* ---------- Subir una foto a la Galería ---------- */
+
+let archivoFotoPendiente = null;
+
+$('#input-foto').addEventListener('change', e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  if (file.size > LIMITE_IMAGEN) {
+    alert(`Esa imagen pesa demasiado (máximo ${Math.round(LIMITE_IMAGEN / 1024)} KB). Comprímela, por ejemplo en squoosh.app, e inténtalo de nuevo.`);
+    return;
+  }
+
+  archivoFotoPendiente = file;
+  $('#foto-titulo').value = '';
+  $('#foto-pie').value = '';
+  $('#foto-modal-aviso').classList.add('hidden');
+  $('#foto-modal').classList.replace('hidden', 'flex');
+});
+
+$('#foto-modal-cancelar').addEventListener('click', () => {
+  archivoFotoPendiente = null;
+  $('#foto-modal').classList.replace('flex', 'hidden');
+});
+
+$('#foto-modal-subir').addEventListener('click', async () => {
+  const titulo = $('#foto-titulo').value.trim();
+  const pie = $('#foto-pie').value.trim();
+  if (!titulo) { avisaEn('#foto-modal-aviso', false, 'Ponle al menos un título a la foto.'); return; }
+  if (!archivoFotoPendiente) { avisaEn('#foto-modal-aviso', false, 'Selecciona una imagen primero.'); return; }
+
+  try {
+    const file = archivoFotoPendiente;
+    const base64 = await archivoABase64(file);
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const ruta = `galeria/${Date.now()}-${slug(titulo) || 'foto'}.${ext}`;
+
+    await ghSubeArchivo(ruta, base64, `Agrega foto: ${titulo}`);
+
+    const { valor: fotos, sha } = await ghLeeJSON('data/galeria.json', []);
+    fotos.unshift({ url: ruta, titulo, pie });
+    await ghEscribeJSON('data/galeria.json', fotos, sha, `Agrega foto a la galería: ${titulo}`);
+
+    FOTOS = fotos;
+    archivoFotoPendiente = null;
+    $('#foto-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+  } catch (err) {
+    avisaEn('#foto-modal-aviso', false, 'No se pudo subir: ' + err.message);
+  }
+});
+
+/* ==========================================================================
+   11. ARRANQUE
+   ========================================================================== */
+
+function repintaTodo() {
+  pintaEquipos();
+  pintaProximo();
+  pintaRol();
+  ['Femenil', 'Varonil'].forEach(montaRama);
+  pintaBracket();
+  pintaGaleria();
+}
 
 pintaTabs();
 
@@ -1074,15 +1416,34 @@ grupoBotones($('#filtro-liguilla'), ['Femenil', 'Varonil'], estado.ramaLiguilla,
   pintaBracket();
 });
 
-pintaEquipos();
-pintaProximo();
-pintaRol();
-['Femenil', 'Varonil'].forEach(montaRama);
-pintaBracket();
-pintaGaleria();
+repintaTodo();
 
 const inicial = location.hash.slice(1);
 abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
+
+/* Carga, sin bloquear el primer dibujo, lo que se haya publicado desde el modo
+   administrador: data/logos.json y data/galeria.json. Si todavía no existen
+   (nadie ha subido nada aún) o falla la red, la página se queda con los
+   valores de arriba — nunca se rompe. */
+(async () => {
+  try {
+    const r = await fetch('data/logos.json?t=' + Date.now());
+    if (r.ok) {
+      const mapa = await r.json();
+      Object.entries(mapa).forEach(([nombre, url]) => { if (EQUIPOS[nombre]) EQUIPOS[nombre].logo = url; });
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
+  try {
+    const r = await fetch('data/galeria.json?t=' + Date.now());
+    if (r.ok) {
+      const fotos = await r.json();
+      if (Array.isArray(fotos)) FOTOS = fotos;
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
+  repintaTodo();
+})();
 </script>
 </body>
 </html>
