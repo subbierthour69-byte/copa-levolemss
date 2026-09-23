@@ -605,7 +605,15 @@ const PARTIDOS_DEMO = [
    Empieza con el demo de arriba; en cuanto exista data/partidos.json (se crea
    solo al agregar tu primer partido real desde el modo administrador), ese
    archivo se vuelve la fuente real — rol, resultados, tabla y liguilla. */
-let PARTIDOS = JSON.parse(JSON.stringify(PARTIDOS_DEMO));
+/* A los partidos de ejemplo de arriba, y a cualquiera que llegue de
+   data/partidos.json sin id (por ejemplo si se editó el archivo a mano),
+   se les asigna un identificador aquí. Sin esto, un partido "de fábrica"
+   no se puede editar ni borrar desde la página. */
+function aseguraIds(lista) {
+  lista.forEach(p => { if (!p.id) p.id = 'p' + Math.random().toString(36).slice(2, 9); });
+  return lista;
+}
+let PARTIDOS = aseguraIds(JSON.parse(JSON.stringify(PARTIDOS_DEMO)));
 
 /* La tabla de posiciones cuenta solo la fase de grupos.
    Ponlo en false si quieres que la liguilla también sume puntos. */
@@ -1846,7 +1854,7 @@ abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
     const r = await fetch('data/partidos.json?t=' + Date.now());
     if (r.ok) {
       const lista = await r.json();
-      if (Array.isArray(lista) && lista.length) PARTIDOS = lista;
+      if (Array.isArray(lista) && lista.length) PARTIDOS = aseguraIds(lista);
     }
   } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
 
