@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E2647">
+<title>LEVOLEMSS 2026 — Liga Estudiantil de Voleibol</title>
+<meta name="description" content="Equipos registrados, rol de juegos, resultados, tablas de posiciones, liguilla, documentos y galería de la LEVOLEMSS 2026.">
+
+<!-- Tailwind (CDN de desarrollo). Para producción instala Tailwind con npm y compila el CSS. -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        court: '#0E2647', deep: '#163A69', blue: '#1B57B5', sky: '#E9F0FB',
+        sun: '#FFC93C', rose: '#B3327A', mist: '#F4F7FB', muted: '#5A6B85', hair: '#DFE7F1'
+      },
+      fontFamily: {
+        score: ['"Barlow Condensed"', 'Oswald', 'system-ui', 'sans-serif'],
+        sans:  ['"Public Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif']
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(14,38,71,.05), 0 10px 26px -14px rgba(14,38,71,.28)',
+        lift: '0 2px 4px rgba(14,38,71,.06), 0 18px 40px -18px rgba(14,38,71,.45)',
+        bar:  '0 -8px 24px -16px rgba(14,38,71,.45)'
+      }
+    }
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: #F4F7FB; }
+
+  .net {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.10) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.10) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .num { font-variant-numeric: tabular-nums; }
+
+  .panel[hidden], .subpanel[hidden] { display: none; }
+  .panel { animation: rise .28s ease-out both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .noscroll { scrollbar-width: none; }
+  .noscroll::-webkit-scrollbar { display: none; }
+
+  :focus-visible { outline: 2px solid #1B57B5; outline-offset: 2px; border-radius: 6px; }
+
+  /* Conectores del bracket (solo pantallas grandes) */
+  .llave { position: relative; }
+  .conn-r::after, .conn-l::before {
+    content: ''; position: absolute; top: 50%; width: 16px; height: 2px; background: #DFE7F1;
+  }
+  .conn-r::after { right: -16px; }
+  .conn-l::before { left: -16px; }
+  .par { position: relative; }
+  .par::after { content: ''; position: absolute; top: 25%; bottom: 25%; width: 2px; background: #DFE7F1; }
+  .par-der::after { right: -16px; }
+  .par-izq::after { left: -16px; }
+  @media (max-width: 1023px) {
+    .conn-r::after, .conn-l::before, .par::after { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+
+<body class="font-sans text-court antialiased">
+
+<!-- ============ BARRA SUPERIOR ============ -->
+<header class="sticky top-0 z-40 bg-court text-white">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="flex items-center gap-3 py-3.5">
+      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sun">
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2"/>
+        </svg>
+      </span>
+      <div class="min-w-0 flex-1">
+        <h1 class="font-score text-[21px] leading-none tracking-wide sm:text-[26px]">LEVOLEMSS 2026</h1>
+        <p class="mt-1 truncate text-[12.5px] text-white/65 sm:text-[13px]">Liga Estudiantil de Voleibol</p>
+      </div>
+      <span class="hidden shrink-0 rounded-lg bg-sun px-3 py-1.5 font-score text-[15px] text-court sm:inline-block">
+        Temporada 2026
+      </span>
+    </div>
+
+    <!-- Pestañas en escritorio -->
+    <nav class="hidden pb-3 sm:block">
+      <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga"
+           class="noscroll inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-white/10 p-1"></div>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ CONTENIDO ============ -->
+<main class="mx-auto max-w-6xl px-4 pb-28 pt-5 sm:px-6 sm:pb-16">
+
+  <!-- ---------- EQUIPOS REGISTRADOS (primera sección) ---------- -->
+  <section id="panel-equipos" class="panel" role="tabpanel" aria-labelledby="tab-d-equipos" tabindex="-1">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Equipos registrados</h2>
+        <p class="mt-1 text-[14px] text-muted">Escuadras inscritas en la temporada 2026, por categoría.</p>
+      </div>
+      <div id="filtro-equipos" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+    </div>
+    <div id="equipos-grid" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"></div>
+  </section>
+
+  <!-- ---------- ROL DE JUEGOS ---------- -->
+  <section id="panel-rol" class="panel" role="tabpanel" aria-labelledby="tab-d-rol" tabindex="-1" hidden>
+    <article class="net overflow-hidden rounded-[22px] bg-deep text-white shadow-lift">
+      <div class="bg-gradient-to-br from-court/85 via-court/60 to-blue/45 p-5 sm:p-7">
+        <p class="text-[13px] text-white/70">Próximo partido</p>
+        <div id="proximo" class="mt-3"></div>
+      </div>
+    </article>
+
+    <div class="sticky top-[70px] z-20 -mx-4 mt-5 bg-mist/90 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="font-score text-2xl tracking-wide">Rol de juegos</h2>
+        <div class="flex items-center gap-2">
+          <button id="btn-agregar-partido" data-solo-admin
+                  class="hidden shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep sm:inline-flex">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Agregar partido
+          </button>
+          <label class="relative">
+            <span class="sr-only">Filtrar por categoría</span>
+            <select id="filtro-rol-select"
+                    class="appearance-none rounded-lg border border-hair bg-white py-2 pl-3.5 pr-9 font-score text-[16px] text-court shadow-card focus:outline-none focus:ring-2 focus:ring-blue">
+              <option value="Todas">Todas las categorías</option>
+              <option value="Femenil">Femenil</option>
+              <option value="Varonil">Varonil</option>
+            </select>
+            <svg viewBox="0 0 24 24" class="pointer-events-none absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="rol-lista" class="mt-5 space-y-7"></div>
+  </section>
+
+  <!-- ---------- RAMAS (se generan con JavaScript) ---------- -->
+  <section id="panel-femenil" class="panel" role="tabpanel" aria-labelledby="tab-d-femenil" tabindex="-1" hidden></section>
+  <section id="panel-varonil" class="panel" role="tabpanel" aria-labelledby="tab-d-varonil" tabindex="-1" hidden></section>
+
+  <!-- ---------- LIGUILLA ---------- -->
+  <section id="panel-liguilla" class="panel" role="tabpanel" aria-labelledby="tab-d-liguilla" tabindex="-1" hidden>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Liguilla</h2>
+        <p class="mt-1 text-[14px] text-muted">Eliminación directa. El ganador avanza en cuanto se captura el marcador.</p>
+      </div>
+      <div id="filtro-liguilla" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+    </div>
+    <div id="bracket" class="mt-6"></div>
+  </section>
+
+  <!-- ---------- DOCUMENTOS ---------- -->
+  <section id="panel-documentos" class="panel" role="tabpanel" aria-labelledby="tab-d-documentos" tabindex="-1" hidden>
+    <h2 class="font-score text-2xl tracking-wide">Documentos</h2>
+    <p class="mt-1 max-w-[62ch] text-[15px] leading-relaxed text-muted">
+      Descarga los formatos oficiales desde Drive o sube la documentación de tu equipo con el formulario.
+    </p>
+
+    <div class="mt-5 grid gap-6 lg:grid-cols-2">
+
+      <!-- Descargar: carpeta de Google Drive -->
+      <div class="rounded-2xl bg-white p-5 shadow-card ring-1 ring-hair/70 sm:p-6">
+        <h3 class="font-score text-[20px] tracking-wide text-court">
+          <svg viewBox="0 0 24 24" class="mr-2 -mt-0.5 inline h-4 w-4 text-blue" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5V6a1.5 1.5 0 011.5-1.5h4l2 2H19A1.5 1.5 0 0120.5 8v.5"/><path d="M3.7 9.5h16.1a1 1 0 01.98 1.2l-1.4 7A2 2 0 0117.4 19.4H6.1a2 2 0 01-1.98-1.7l-1.4-7a1 1 0 01.98-1.2z"/></svg>Descargar documentos
+        </h3>
+        <p class="mt-1 text-[13.5px] leading-relaxed text-muted">
+          Cédulas, reglamento y demás archivos del torneo, directo desde la carpeta compartida.
+        </p>
+
+        <div class="mt-4 rounded-xl bg-mist p-1.5 ring-1 ring-hair">
+          <!-- Vista embebida de la carpeta de Drive. Requiere que la carpeta esté
+               compartida como "Cualquier persona con el enlace puede ver". -->
+          <iframe src="https://drive.google.com/embeddedfolderview?id=1lYRuHT5ow-zslxAuHG_afJc-QRnaMV0p#grid"
+                  class="h-[480px] w-full rounded-lg bg-white" loading="lazy"
+                  title="Carpeta de documentos del torneo en Google Drive"></iframe>
+        </div>
+      </div>
+
+      <!-- Subir: formulario de Google Forms -->
+      <div class="rounded-2xl bg-white p-5 shadow-card ring-1 ring-hair/70 sm:p-6">
+        <h3 class="font-score text-[20px] tracking-wide text-court">
+          <svg viewBox="0 0 24 24" class="mr-2 -mt-0.5 inline h-4 w-4 text-blue" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/></svg>Subir documento
+        </h3>
+        <p class="mt-1 text-[13.5px] leading-relaxed text-muted">
+          Para delegados de equipo: llena el formulario y adjunta tu archivo.
+        </p>
+
+        <div class="mt-4 rounded-xl bg-mist p-1.5 ring-1 ring-hair">
+          <!-- Alto adaptable: crece con la pantalla sin quedar demasiado corto en
+               móvil ni demasiado largo en escritorio. Ajusta los límites si tu
+               formulario tiene muchas más (o menos) preguntas. -->
+          <iframe src="https://forms.gle/FKvU7byRhVt8r1369?embedded=true"
+                  class="h-[85vh] max-h-[820px] min-h-[560px] w-full rounded-lg bg-white" loading="lazy"
+                  title="Formulario para subir documentos del equipo">Cargando el formulario…</iframe>
+        </div>
+
+        <a href="https://forms.gle/FKvU7byRhVt8r1369"
+           target="_blank" rel="noopener"
+           class="mt-4 inline-flex items-center gap-2 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card transition hover:bg-deep">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M9 5H6.5A2.5 2.5 0 004 7.5v10A2.5 2.5 0 006.5 20h10a2.5 2.5 0 002.5-2.5V15"/></svg>
+          Abrir el formulario en una pestaña nueva
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ---------- GALERÍA ---------- -->
+  <section id="panel-galeria" class="panel" role="tabpanel" aria-labelledby="tab-d-galeria" tabindex="-1" hidden>
+    <h2 class="font-score text-2xl tracking-wide">Galería</h2>
+    <p class="mt-1 max-w-[62ch] text-[15px] leading-relaxed text-muted">
+      Fotos de las jornadas. Toca una imagen para verla en grande.
+    </p>
+    <div id="galeria-grid" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"></div>
+  </section>
+
+</main>
+
+<!-- ============ BARRA INFERIOR (MÓVIL, deslizable) ============ -->
+<nav id="tabs-mobile" role="tablist" aria-label="Secciones de la liga"
+     class="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-white/95 shadow-bar backdrop-blur sm:hidden"
+     style="padding-bottom: env(safe-area-inset-bottom);">
+  <div class="noscroll flex overflow-x-auto"></div>
+</nav>
+
+<!-- ============ VISOR DE FOTO ============ -->
+<div id="lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/92 p-4" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+  <button id="lb-close" class="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-xl bg-white/10 text-white hover:bg-white/20" aria-label="Cerrar foto">
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <button id="lb-prev" class="absolute left-2 grid h-12 w-12 place-items-center rounded-xl text-white hover:bg-white/10 sm:left-6" aria-label="Foto anterior">
+    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button id="lb-next" class="absolute right-2 grid h-12 w-12 place-items-center rounded-xl text-white hover:bg-white/10 sm:right-6" aria-label="Foto siguiente">
+    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+  <figure class="max-h-full w-full max-w-3xl text-center">
+    <img id="lb-img" alt="" class="mx-auto max-h-[70vh] w-auto rounded-2xl object-contain">
+    <figcaption id="lb-cap" class="mt-4 text-[15px] text-white/80"></figcaption>
+  </figure>
+</div>
+
+<!-- ============ MODO ADMINISTRADOR (solo funciona con tu propio token de GitHub) ============ -->
+
+<!-- Botón flotante, discreto, para entrar/salir del modo administrador -->
+<button id="admin-toggle" title="Modo administrador"
+        class="fixed bottom-4 left-4 z-30 grid h-11 w-11 place-items-center rounded-full bg-court text-white shadow-lift ring-1 ring-white/10 sm:bottom-6 sm:left-6">
+  <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/>
+  </svg>
+</button>
+
+<!-- Modal: guardar/quitar el token de GitHub -->
+<div id="admin-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Modo administrador">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <div class="flex items-start justify-between gap-3">
+      <h3 class="font-score text-[20px] tracking-wide text-court">Modo administrador</h3>
+      <button id="admin-modal-cerrar" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted hover:bg-mist" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div id="admin-modal-sin-token">
+      <p class="mt-2 text-[13.5px] leading-relaxed text-muted">
+        Pega aquí tu token de GitHub para poder subir fotos y logos desde la página.
+        Se guarda solo en este navegador; nadie más lo puede usar sin tenerlo.
+      </p>
+      <input id="admin-token-input" type="password" placeholder="ghp_..."
+             class="mt-3 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+      <button id="admin-token-guardar"
+              class="mt-3 w-full rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card transition hover:bg-deep">
+        Activar modo administrador
+      </button>
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
+         class="mt-3 block text-center text-[12.5px] text-blue hover:underline">
+        ¿No tienes un token? Crea uno aquí
+      </a>
+    </div>
+
+    <div id="admin-modal-con-token" class="hidden">
+      <p class="mt-2 flex items-center gap-2 text-[13.5px] text-[#1F7A4C]">
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+        Modo administrador activo en este navegador.
+      </p>
+      <button id="admin-token-salir"
+              class="mt-3 w-full rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-[#B3322E] ring-1 ring-hair transition hover:bg-mist">
+        Cerrar sesión de administrador
+      </button>
+    </div>
+
+    <div id="admin-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+  </div>
+</div>
+
+<!-- Modal: título y pie al subir una foto a la Galería -->
+<div id="foto-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Agregar foto">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 class="font-score text-[20px] tracking-wide text-court">Agregar foto</h3>
+    <p class="mt-1 text-[13px] text-muted">Se sube directo a tu repositorio de GitHub.</p>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Título</span>
+      <input id="foto-titulo" type="text" placeholder="Ej. Punto de set"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Pie de foto</span>
+      <input id="foto-pie" type="text" placeholder="Ej. Halcones vs Tiburones — Jornada 1"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div id="foto-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="foto-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="foto-modal-subir" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Subir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: agregar/editar un equipo -->
+<div id="equipo-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Equipo">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 id="equipo-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar equipo</h3>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Nombre</span>
+      <input id="equipo-nombre" type="text" placeholder="Ej. Centinelas"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div class="mt-3 flex gap-3">
+      <label class="block w-24">
+        <span class="mb-1 block text-[13px] font-medium text-court">Abrev.</span>
+        <input id="equipo-abrev" type="text" maxlength="4" placeholder="Auto"
+               class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] uppercase focus:outline-none focus:ring-2 focus:ring-blue">
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Categoría</span>
+        <select id="equipo-categoria" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+          <option value="Femenil">Femenil</option>
+          <option value="Varonil">Varonil</option>
+          <option value="Ambas">Ambas</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="equipo-modal-logo" class="mt-3 hidden items-center gap-3 rounded-lg bg-mist p-2.5">
+      <span id="equipo-modal-logo-preview"></span>
+      <button id="equipo-modal-cambiar-logo" type="button" class="flex-1 rounded-lg bg-white px-3 py-2 text-[13px] font-medium text-court ring-1 ring-hair hover:bg-mist">
+        Cambiar logo
+      </button>
+    </div>
+
+    <div id="equipo-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="equipo-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="equipo-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: agregar/editar un partido -->
+<div id="partido-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-court/70 p-4 py-8" role="dialog" aria-modal="true" aria-label="Partido">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 id="partido-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar partido</h3>
+    <input id="partido-id" type="hidden">
+
+    <div class="mt-3 flex gap-3">
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Categoría</span>
+        <select id="partido-cat" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+          <option value="Femenil">Femenil</option>
+          <option value="Varonil">Varonil</option>
+        </select>
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Grupo</span>
+        <input id="partido-grupo" type="text" placeholder="Ej. Grupo A"
+               class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+      </label>
+    </div>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Fecha y hora</span>
+      <input id="partido-fecha" type="datetime-local"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Cancha / sede</span>
+      <input id="partido-sede" type="text" placeholder="Ej. Auditorio — Cancha 1"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div class="mt-3 flex gap-3">
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Local</span>
+        <select id="partido-local" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue"></select>
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Visita</span>
+        <select id="partido-visita" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue"></select>
+      </label>
+    </div>
+
+    <div class="mt-4">
+      <span class="mb-1.5 block text-[13px] font-medium text-court">Resultado (opcional)</span>
+      <div id="partido-sets-filas" class="space-y-2"></div>
+      <button id="partido-agregar-set" type="button" class="mt-2 text-[13px] font-medium text-blue hover:underline">
+        + Agregar set
+      </button>
+      <p class="mt-1 text-[12px] text-muted">Déjalo vacío si el partido todavía no se juega.</p>
+    </div>
+
+    <div id="partido-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="partido-modal-eliminar" class="hidden rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-[#B3322E] ring-1 ring-hair hover:bg-mist">
+        Eliminar
+      </button>
+      <button id="partido-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="partido-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Selectores de archivo ocultos, usados por los botones de subida -->
+<input id="input-foto" type="file" accept="image/*" class="hidden">
+<input id="input-logo" type="file" accept="image/*" class="hidden">
+
+<script>
+/* ==========================================================================
+   1. DATOS — edita solo esta sección
+   ========================================================================== */
+
+/* --- Repositorio de GitHub (para el modo administrador) --------------------
+   Datos de TU repositorio, donde vive este mismo archivo. El botón de subir
+   fotos/logos usa esto para saber a dónde escribir. Si alguna vez mueves el
+   sitio a otro repositorio, solo cambia estos tres valores.                 */
+const GITHUB_OWNER  = 'subbierthour69-byte';
+const GITHUB_REPO   = 'copa-levolemss';
+const GITHUB_BRANCH = 'main';
+
+/* --- Catálogo de equipos ---------------------------------------------------
+   categoria: 'Femenil' | 'Varonil' | 'Ambas' (participa en las dos ramas)
+   abrev    : se usa en la tabla de posiciones en pantallas chicas
+   logo     : ruta o URL de la imagen. Puede ser:
+                - una ruta local, ej. 'logos/centinelas.png' (el archivo debe
+                  vivir en esa carpeta, junto a este HTML), o
+                - un enlace directo de Google Drive, ej.
+                  'https://drive.google.com/thumbnail?id=TU_ID_AQUI&sz=w512'
+                  (ver instrucciones para obtener ese enlace), o
+                - lo que suba el modo administrador (ver sección 10) — eso
+                  siempre gana sobre lo que escribas aquí a mano.
+              Si la dejas vacía, o si la imagen no carga, se dibuja un escudo
+              con las iniciales — la interfaz nunca se rompe.                */
+const EQUIPOS_DEMO = {
+  'Centinelas':      { abrev:'CEN', logo:'', categoria:'Ambas' },
+  'ICE':             { abrev:'ICE', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Bacabs':          { abrev:'BAC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'CBTis':           { abrev:'CBT', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'CECyTEC':         { abrev:'CEC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Tec de Campeche': { abrev:'TEC', logo:'', categoria:'Ambas' },      // pendiente: enlace de Drive
+  'Cobach 1':   { abrev:'CB1', logo:'', categoria:'Femenil' },
+  'CBTis 11':   { abrev:'C11', logo:'', categoria:'Femenil' },
+  'Jaguares':   { abrev:'JAG', logo:'', categoria:'Femenil' },
+  'Águilas':    { abrev:'AGU', logo:'', categoria:'Femenil' },
+  'Lobos':      { abrev:'LOB', logo:'', categoria:'Femenil' },
+  'Delfines':   { abrev:'DEL', logo:'', categoria:'Femenil' },
+  'Halcones':   { abrev:'HAL', logo:'', categoria:'Varonil' },
+  'Tiburones':  { abrev:'TIB', logo:'', categoria:'Varonil' },
+  'Pumas':      { abrev:'PUM', logo:'', categoria:'Varonil' },
+  'Toros':      { abrev:'TOR', logo:'', categoria:'Varonil' },
+  'Cóndores':   { abrev:'CON', logo:'', categoria:'Varonil' },
+  'Zorros':     { abrev:'ZOR', logo:'', categoria:'Varonil' }
+};
+/* A partir de aquí, EQUIPOS es lo que realmente se usa en toda la página.
+   Empieza como el demo de arriba; en cuanto exista data/equipos.json en tu
+   repositorio (se crea solo la primera vez que agregas/editas un equipo desde
+   el modo administrador), ese archivo se vuelve la fuente real. */
+let EQUIPOS = JSON.parse(JSON.stringify(EQUIPOS_DEMO));
+
+/* --- Partidos --------------------------------------------------------------
+   cat   : 'Femenil' o 'Varonil' (obligatorio)
+   fase  : 'grupos' | 'cuartos' | 'semis' | 'final'
+   sets  : agrégalo cuando el partido termine -> [[25,18],[25,20]]
+           Al agregarlo, el partido sale del Rol, entra a Resultados, suma en
+           la tabla y, si es de liguilla, avanza al ganador en el bracket.
+   Solo para liguilla:
+   llave   : identificador de la llave ('C1'...'C4', 'S1', 'S2', 'F1')
+   avanzaA : llave a la que pasa el ganador
+   ranura  : 'local' o 'visita' -> lugar que ocupa el ganador en esa llave
+   logoLocal / logoVisita: opcionales, sobrescriben el logo del catálogo.      */
+const PARTIDOS_DEMO = [
+
+  /* ---------- FASE DE GRUPOS: ya jugados ---------- */
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo A', fecha:'2026-09-12T17:00', sede:'Auditorio — Cancha 1',
+    local:'Centinelas', visita:'Cobach 1', sets:[[25,19],[23,25],[25,21],[25,17]] },
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo A', fecha:'2026-09-12T19:00', sede:'Auditorio — Cancha 1',
+    local:'ICE', visita:'CBTis 11', sets:[[25,20],[25,27],[25,18],[25,14]] },
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo B', fecha:'2026-09-13T10:00', sede:'Domo Deportivo',
+    local:'Jaguares', visita:'Águilas', sets:[[21,25],[25,23],[19,25],[25,22],[12,15]] },
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo B', fecha:'2026-09-13T12:00', sede:'Domo Deportivo',
+    local:'Lobos', visita:'Delfines', sets:[[25,15],[25,21],[25,23]] },
+
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo A', fecha:'2026-09-12T18:00', sede:'Auditorio — Cancha 2',
+    local:'Halcones', visita:'Tiburones', sets:[[25,22],[25,18],[22,25],[25,20]] },
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo A', fecha:'2026-09-13T14:00', sede:'Domo Deportivo',
+    local:'ICE', visita:'Centinelas', sets:[[25,23],[18,25],[25,19],[20,25],[15,11]] },
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo B', fecha:'2026-09-13T16:00', sede:'Cancha Universitaria',
+    local:'Pumas', visita:'Toros', sets:[[25,16],[25,22],[25,19]] },
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo B', fecha:'2026-09-13T18:00', sede:'Cancha Universitaria',
+    local:'Cóndores', visita:'Zorros', sets:[[22,25],[25,20],[25,18],[26,24]] },
+
+  /* ---------- FASE DE GRUPOS: por jugarse ---------- */
+  /* Partido de prueba: aparece en Rol de juegos por no tener "sets" */
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo A', fecha:'2026-09-27T09:00', sede:'Auditorio — Cancha 1',
+    local:'Centinelas', visita:'ICE' },
+
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo B', fecha:'2026-09-27T11:00', sede:'Auditorio — Cancha 1',
+    local:'Jaguares', visita:'Lobos' },
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo A', fecha:'2026-09-27T13:00', sede:'Auditorio — Cancha 2',
+    local:'Halcones', visita:'ICE' },
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo B', fecha:'2026-09-27T15:00', sede:'Domo Deportivo',
+    local:'Pumas', visita:'Cóndores' },
+  { fase:'grupos', cat:'Femenil', grupo:'Grupo A', fecha:'2026-10-03T10:00', sede:'Domo Deportivo',
+    local:'Cobach 1', visita:'CBTis 11' },
+  { fase:'grupos', cat:'Varonil', grupo:'Grupo B', fecha:'2026-10-03T12:00', sede:'Domo Deportivo',
+    local:'Toros', visita:'Zorros' },
+
+  /* ---------- LIGUILLA FEMENIL ---------- */
+  { fase:'cuartos', cat:'Femenil', llave:'C1', avanzaA:'S1', ranura:'local',  fecha:'2026-10-10T10:00', sede:'Auditorio — Cancha 1',
+    local:'Centinelas', visita:'Delfines', sets:[[25,18],[25,20],[25,22]] },
+  { fase:'cuartos', cat:'Femenil', llave:'C2', avanzaA:'S1', ranura:'visita', fecha:'2026-10-10T12:00', sede:'Auditorio — Cancha 1',
+    local:'Jaguares', visita:'CBTis 11', sets:[[23,25],[25,21],[25,19],[25,23]] },
+  { fase:'cuartos', cat:'Femenil', llave:'C3', avanzaA:'S2', ranura:'local',  fecha:'2026-10-10T14:00', sede:'Domo Deportivo',
+    local:'ICE', visita:'Lobos', sets:[[25,21],[22,25],[25,17],[25,15]] },
+  { fase:'cuartos', cat:'Femenil', llave:'C4', avanzaA:'S2', ranura:'visita', fecha:'2026-10-10T16:00', sede:'Domo Deportivo',
+    local:'Águilas', visita:'Cobach 1', sets:[[25,23],[25,18],[19,25],[25,21]] },
+
+  { fase:'semis', cat:'Femenil', llave:'S1', avanzaA:'F1', ranura:'local',  fecha:'2026-10-17T11:00', sede:'Auditorio — Cancha 1',
+    local:'', visita:'', sets:[[25,22],[25,19],[23,25],[25,20]] },
+  { fase:'semis', cat:'Femenil', llave:'S2', avanzaA:'F1', ranura:'visita', fecha:'2026-10-17T13:00', sede:'Auditorio — Cancha 1',
+    local:'', visita:'' },
+
+  { fase:'final', cat:'Femenil', llave:'F1', fecha:'2026-10-24T12:00', sede:'Auditorio — Cancha central',
+    local:'', visita:'' },
+
+  /* ---------- LIGUILLA VARONIL ---------- */
+  { fase:'cuartos', cat:'Varonil', llave:'C1', avanzaA:'S1', ranura:'local',  fecha:'2026-10-11T10:00', sede:'Auditorio — Cancha 2',
+    local:'Halcones', visita:'Zorros', sets:[[25,17],[25,23],[25,20]] },
+  { fase:'cuartos', cat:'Varonil', llave:'C2', avanzaA:'S1', ranura:'visita', fecha:'2026-10-11T12:00', sede:'Auditorio — Cancha 2',
+    local:'Pumas', visita:'Centinelas', sets:[[25,19],[21,25],[25,22],[25,18]] },
+  { fase:'cuartos', cat:'Varonil', llave:'C3', avanzaA:'S2', ranura:'local',  fecha:'2026-10-11T14:00', sede:'Domo Deportivo',
+    local:'ICE', visita:'Toros' },
+  { fase:'cuartos', cat:'Varonil', llave:'C4', avanzaA:'S2', ranura:'visita', fecha:'2026-10-11T16:00', sede:'Domo Deportivo',
+    local:'Cóndores', visita:'Tiburones' },
+
+  { fase:'semis', cat:'Varonil', llave:'S1', avanzaA:'F1', ranura:'local',  fecha:'2026-10-18T11:00', sede:'Auditorio — Cancha 2',
+    local:'', visita:'' },
+  { fase:'semis', cat:'Varonil', llave:'S2', avanzaA:'F1', ranura:'visita', fecha:'2026-10-18T13:00', sede:'Auditorio — Cancha 2',
+    local:'', visita:'' },
+
+  { fase:'final', cat:'Varonil', llave:'F1', fecha:'2026-10-24T14:00', sede:'Auditorio — Cancha central',
+    local:'', visita:'' }
+];
+/* Igual que EQUIPOS: PARTIDOS es lo que realmente se usa en toda la página.
+   Empieza con el demo de arriba; en cuanto exista data/partidos.json (se crea
+   solo al agregar tu primer partido real desde el modo administrador), ese
+   archivo se vuelve la fuente real — rol, resultados, tabla y liguilla. */
+let PARTIDOS = JSON.parse(JSON.stringify(PARTIDOS_DEMO));
+
+/* La tabla de posiciones cuenta solo la fase de grupos.
+   Ponlo en false si quieres que la liguilla también sume puntos. */
+const TABLA_SOLO_GRUPOS = true;
+
+/* Galería de respaldo: solo se usa mientras no exista data/galeria.json en tu
+   repositorio (o si por algo no carga). En cuanto subas tu primera foto desde
+   el modo administrador, ese archivo se crea solo y esta lista deja de usarse. */
+const FOTOS_DEMO = [
+  { url:'', titulo:'Saque de apertura',     pie:'Centinelas vs Cobach 1 — Jornada 1' },
+  { url:'', titulo:'Bloqueo doble',         pie:'Halcones vs Tiburones — Jornada 1' },
+  { url:'', titulo:'Punto de set',          pie:'Jaguares vs Águilas — Jornada 2' },
+  { url:'', titulo:'Tiempo fuera',          pie:'Banca de Pumas' },
+  { url:'', titulo:'Recepción baja',        pie:'ICE — Cancha 1' },
+  { url:'', titulo:'Festejo en la duela',   pie:'Cierre de la Jornada 2' },
+  { url:'', titulo:'Afición en las gradas', pie:'Domo Deportivo' },
+  { url:'', titulo:'Premiación parcial',    pie:'Mesa de control' },
+  { url:'', titulo:'Calentamiento',         pie:'Auditorio — Cancha 2' }
+];
+let FOTOS = FOTOS_DEMO;
+
+/* ==========================================================================
+   2. UTILIDADES
+   ========================================================================== */
+
+const $  = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+const fecha    = iso => new Date(iso.replace(' ', 'T'));
+const claveDia = iso => iso.slice(0, 10);
+
+const tituloDia = iso => {
+  const d = fecha(iso);
+  return `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+};
+function hora(iso) {
+  const d = fecha(iso);
+  let h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, '0');
+  const suf = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return `${h}:${m} ${suf}`;
+}
+const soloHora  = iso => hora(iso).replace(/ (am|pm)/, '');
+const meridiano = iso => hora(iso).slice(-2);
+
+const jugado      = p => Array.isArray(p.sets) && p.sets.length > 0;
+const setsGanados = p => p.sets.reduce((a, s) => [a[0] + (s[0] > s[1] ? 1 : 0), a[1] + (s[1] > s[0] ? 1 : 0)], [0, 0]);
+const ganador     = p => { const [a, b] = setsGanados(p); return a > b ? p.local : p.visita; };
+
+const FASES = { grupos:'Fase de grupos', cuartos:'Cuartos de final', semis:'Semifinal', final:'Final' };
+
+function iniciales(nombre) {
+  if (!nombre) return '?';
+  const e = EQUIPOS[nombre];
+  if (e && e.abrev) return e.abrev;
+  const p = nombre.trim().split(/\s+/);
+  return (p.length > 1 ? p[0][0] + p[1][0] : nombre.slice(0, 3)).toUpperCase();
+}
+
+function agrupaPorDia(lista) {
+  const mapa = new Map();
+  lista.forEach(p => {
+    const k = claveDia(p.fecha);
+    if (!mapa.has(k)) mapa.set(k, []);
+    mapa.get(k).push(p);
+  });
+  return [...mapa.entries()];
+}
+
+const vacio = m => `<div class="rounded-2xl border border-dashed border-hair bg-white/60 px-5 py-8 text-center text-[14.5px] leading-relaxed text-muted">${m}</div>`;
+
+/* ---------- Iconos: SVG incrustados, sin depender de ninguna librería externa ---------- */
+
+const ICONOS = {
+  volleyball:   '<circle cx="12" cy="12" r="9"/><path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2"/>',
+  equipos:      '<path d="M12 3l7 3v5c0 5-3.2 8.5-7 10-3.8-1.5-7-5-7-10V6l7-3z"/><path d="M12 3v15"/>',
+  rol:          '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M7.5 13h1M7.5 16h1M12 13h1M12 16h1M16.5 13h1"/>',
+  femenil:      '<circle cx="12" cy="9" r="5"/><path d="M12 14v6M9 18h6"/>',
+  varonil:      '<circle cx="10" cy="14" r="5"/><path d="M14 10l6-6M14 4h6v6"/>',
+  ambas:        '<circle cx="8" cy="15" r="4"/><path d="M8 19v3M6.3 21h3.4"/><circle cx="15" cy="8" r="4"/><path d="M18 5l3-3M18 2h3v3"/>',
+  liguilla:     '<path d="M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 6H4.5v1a3 3 0 003 3M17 6h2.5v1a3 3 0 01-3 3"/><path d="M12 13v4M8.5 20h7"/>',
+  documentos:   '<path d="M3.5 8.5V6a1.5 1.5 0 011.5-1.5h4l2 2H19A1.5 1.5 0 0120.5 8v.5"/><path d="M3.7 9.5h16.1a1 1 0 01.98 1.2l-1.4 7A2 2 0 0117.4 19.4H6.1a2 2 0 01-1.98-1.7l-1.4-7a1 1 0 01.98-1.2z"/>',
+  galeria:      '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M4 17l5-5 4 4 3-3 4 4"/>',
+  ubicacion:    '<path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/>',
+  archivo:      '<path d="M7 3.5h7l4 4V19a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 016 19V5A1.5 1.5 0 017 3.5z"/><path d="M14 3.5V8h4.2"/><path d="M9 12.5h6M9 15.5h6M9 9.5h2"/>',
+  descargar:    '<path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/>',
+  correcto:     '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>',
+  alerta:       '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.2h.01"/>',
+  candado:      '<rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/>',
+  lapiz:        '<path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M13.5 7.5l3 3"/>',
+  mas:          '<path d="M12 5v14M5 12h14"/>',
+  subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
+  cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>'
+};
+
+function icono(nombre, clase = '') {
+  return `<svg viewBox="0 0 24 24" class="${clase}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONOS[nombre] || ICONOS.archivo}</svg>`;
+}
+
+/* ---------- Escudos: logo real, o círculo con iniciales ---------- */
+
+function respaldo(nombre, px) {
+  if (!nombre) {
+    return `<span class="inline-grid shrink-0 place-items-center rounded-full border border-dashed border-hair text-muted"
+                  style="width:${px}px;height:${px}px;font-size:${Math.round(px * .42)}px">?</span>`;
+  }
+  return `<span class="inline-grid shrink-0 place-items-center rounded-full bg-sky font-score text-blue ring-1 ring-hair"
+                style="width:${px}px;height:${px}px;font-size:${Math.round(px * .40)}px">${iniciales(nombre)}</span>`;
+}
+
+function escudo(nombre, px = 34, url) {
+  const logo = url || (EQUIPOS[nombre] && EQUIPOS[nombre].logo) || '';
+  if (!logo) return respaldo(nombre, px);
+  return `<img src="${logo}" alt="" data-nombre="${nombre}" data-px="${px}" onerror="sinLogo(this)"
+               class="shrink-0 rounded-full bg-white object-cover ring-1 ring-hair"
+               style="width:${px}px;height:${px}px">`;
+}
+function sinLogo(img) { img.outerHTML = respaldo(img.dataset.nombre, +img.dataset.px); }
+
+/* ==========================================================================
+   3. PESTAÑAS PRINCIPALES
+   ========================================================================== */
+
+const TABS = [
+  { id:'equipos',    icono:'equipos',    texto:'Equipos',       corto:'Equipos' },
+  { id:'rol',        icono:'rol',        texto:'Rol de Juegos', corto:'Rol' },
+  { id:'femenil',    icono:'femenil',    texto:'Femenil',       corto:'Femenil' },
+  { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
+  { id:'liguilla',   icono:'liguilla',   texto:'Liguilla',      corto:'Liguilla' },
+  { id:'documentos', icono:'documentos', texto:'Documentos',    corto:'Docs' },
+  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' }
+];
+
+const estado = {
+  tab: 'equipos',
+  filtroEquipos: 'Todas',
+  ramaRol: 'Todas',
+  ramaLiguilla: 'Femenil',
+  sub: { Femenil:'resultados', Varonil:'resultados' }
+};
+
+function pintaTabs() {
+  $('#tabs-desktop').innerHTML = TABS.map(t => `
+    <button role="tab" id="tab-d-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}"
+            class="shrink-0 rounded-lg px-3.5 py-2 font-score text-[17px] tracking-wide transition-colors">
+      ${icono(t.icono, 'mr-1.5 -mt-0.5 inline h-3.5 w-3.5')}${t.texto}
+    </button>`).join('');
+
+  $('#tabs-mobile > div').innerHTML = TABS.map(t => `
+    <button role="tab" id="tab-m-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}"
+            class="flex w-[74px] shrink-0 flex-col items-center gap-0.5 px-1 pb-2 pt-2 text-[10px] font-medium transition-colors">
+      <span data-dot class="h-[3px] w-5 rounded-full bg-transparent"></span>
+      ${icono(t.icono, 'h-[18px] w-[18px]')}
+      <span class="truncate">${t.corto}</span>
+    </button>`).join('');
+
+  $$('[data-tab]').forEach(b => b.addEventListener('click', () => abreTab(b.dataset.tab)));
+}
+
+function abreTab(id) {
+  estado.tab = id;
+
+  TABS.forEach(t => {
+    const activo = t.id === id;
+    $('#panel-' + t.id).hidden = !activo;
+
+    const d = $('#tab-d-' + t.id);
+    d.setAttribute('aria-selected', activo);
+    d.className = 'shrink-0 rounded-lg px-3.5 py-2 font-score text-[17px] tracking-wide transition-colors ' +
+      (activo ? 'bg-white text-court' : 'text-white/70 hover:text-white');
+
+    const m = $('#tab-m-' + t.id);
+    m.setAttribute('aria-selected', activo);
+    m.className = 'flex w-[74px] shrink-0 flex-col items-center gap-0.5 px-1 pb-2 pt-2 text-[10px] font-medium transition-colors ' +
+      (activo ? 'text-blue' : 'text-muted');
+    $('[data-dot]', m).className = 'h-[3px] w-5 rounded-full ' + (activo ? 'bg-blue' : 'bg-transparent');
+  });
+
+  history.replaceState(null, '', '#' + id);
+  window.scrollTo({ top: 0 });
+}
+
+/* Grupo de botones reutilizable (chips de filtro) */
+function grupoBotones(contenedor, opciones, valorActual, alCambiar) {
+  contenedor.innerHTML = opciones.map(o => `
+    <button data-valor="${o}" class="shrink-0 rounded-lg px-3.5 py-1.5 font-score text-[16px] tracking-wide transition-colors"></button>`).join('');
+  $$('[data-valor]', contenedor).forEach(b => b.addEventListener('click', () => alCambiar(b.dataset.valor)));
+  marcaGrupo(contenedor, valorActual);
+}
+function marcaGrupo(contenedor, valor) {
+  $$('[data-valor]', contenedor).forEach(b => {
+    const activo = b.dataset.valor === valor;
+    b.setAttribute('aria-pressed', activo);
+    b.className = 'shrink-0 rounded-lg px-3.5 py-1.5 font-score text-[16px] tracking-wide transition-colors ' +
+      (activo ? 'bg-court text-white' : 'text-muted hover:text-court');
+  });
+}
+
+/* ==========================================================================
+   4. EQUIPOS REGISTRADOS
+   ========================================================================== */
+
+const COLOR_CAT = { Femenil:'bg-[#FCE8F3] text-rose', Varonil:'bg-sky text-blue', Ambas:'bg-sun/25 text-court' };
+const ICONO_CAT = { Femenil:'femenil', Varonil:'varonil', Ambas:'ambas' };
+
+function coincideCategoria(categoriaEquipo, filtro) {
+  return filtro === 'Todas' || categoriaEquipo === filtro || categoriaEquipo === 'Ambas';
+}
+
+function pintaEquipos() {
+  const lista = Object.entries(EQUIPOS)
+    .filter(([, e]) => coincideCategoria(e.categoria, estado.filtroEquipos))
+    .sort((a, b) => a[0].localeCompare(b[0], 'es'));
+
+  const grid = $('#equipos-grid');
+
+  const tarjetaAgregar = esAdmin() ? `
+    <button id="btn-agregar-equipo" class="grid min-h-[168px] place-items-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/60 text-muted transition hover:border-blue hover:text-blue">
+      ${icono('mas', 'h-7 w-7')}
+      <span class="text-[13px] font-medium">Agregar equipo</span>
+    </button>` : '';
+
+  if (!lista.length && !esAdmin()) { grid.innerHTML = vacio('No hay equipos registrados con este filtro.'); return; }
+
+  grid.innerHTML = tarjetaAgregar + lista.map(([nombre, e]) => `
+    <article class="relative flex flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center shadow-card ring-1 ring-hair/70">
+      ${esAdmin() ? `
+      <div class="absolute right-2.5 top-2.5 flex gap-1.5">
+        <button data-editar-equipo="${nombre}" title="Editar equipo"
+                class="grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+          ${icono('lapiz', 'h-3.5 w-3.5')}
+        </button>
+        <button data-borrar-equipo="${nombre}" title="Eliminar equipo"
+                class="grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-mist">
+          ${icono('cerrar', 'h-3.5 w-3.5')}
+        </button>
+      </div>` : ''}
+      ${escudo(nombre, 60, e.logo)}
+      <p class="font-score text-[18px] leading-tight text-court">${nombre}</p>
+      <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium ${COLOR_CAT[e.categoria]}">
+        ${icono(ICONO_CAT[e.categoria], 'h-3 w-3')}${e.categoria}
+      </span>
+    </article>`).join('');
+
+  if (esAdmin()) $('#btn-agregar-equipo').addEventListener('click', () => abreEquipoModal());
+  $$('[data-editar-equipo]', grid).forEach(b => b.addEventListener('click', () => abreEquipoModal(b.dataset.editarEquipo)));
+  $$('[data-borrar-equipo]', grid).forEach(b => b.addEventListener('click', () => borraEquipo(b.dataset.borrarEquipo)));
+}
+
+/* ==========================================================================
+   5. ROL DE JUEGOS  (solo partidos SIN la propiedad sets)
+   ========================================================================== */
+
+const porJugar = () => PARTIDOS.filter(p => !jugado(p) && p.local && p.visita);
+const filtraRama = lista => estado.ramaRol === 'Todas' ? lista : lista.filter(p => p.cat === estado.ramaRol);
+
+function pintaProximo() {
+  const ahora = new Date();
+  const lista = filtraRama(porJugar()).sort((a, b) => fecha(a.fecha) - fecha(b.fecha));
+  const p = lista.find(x => fecha(x.fecha) >= ahora) || lista[0];
+
+  if (!p) {
+    $('#proximo').innerHTML = `<p class="font-score text-2xl">No hay partidos programados con este filtro.</p>`;
+    return;
+  }
+
+  const equipo = (nombre, logo) => `
+    <div class="flex items-center gap-3">
+      ${escudo(nombre, 42, logo)}
+      <p class="min-w-0 font-score text-[24px] leading-tight sm:text-[32px]">${nombre}</p>
+    </div>`;
+
+  $('#proximo').innerHTML = `
+    <div class="flex items-center gap-4 sm:gap-6">
+      <div class="min-w-0 flex-1 space-y-2">
+        ${equipo(p.local, p.logoLocal)}
+        <p class="pl-[54px] font-score text-[15px] text-sun">contra</p>
+        ${equipo(p.visita, p.logoVisita)}
+      </div>
+      <div class="shrink-0 rounded-2xl bg-white/10 px-4 py-3 text-center sm:px-6 sm:py-4">
+        <p class="num font-score text-[30px] leading-none sm:text-[40px]">${soloHora(p.fecha)}</p>
+        <p class="mt-1 text-[12px] text-white/70">${meridiano(p.fecha)}</p>
+      </div>
+    </div>
+
+    <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/15 pt-4 text-[13.5px] sm:grid-cols-4">
+      <div><dt class="text-white/55">Fecha</dt><dd class="mt-0.5 font-medium">${tituloDia(p.fecha)}</dd></div>
+      <div><dt class="text-white/55">Categoría</dt><dd class="mt-0.5 font-medium">${p.cat}</dd></div>
+      <div><dt class="text-white/55">Fase</dt><dd class="mt-0.5 font-medium">${p.grupo || FASES[p.fase]}</dd></div>
+      <div class="col-span-2 sm:col-span-1"><dt class="text-white/55">Cancha</dt><dd class="mt-0.5 font-medium">${p.sede}</dd></div>
+    </dl>`;
+}
+
+function tarjetaPartido(p) {
+  const linea = (nombre, logo) => `
+    <div class="flex items-center gap-2.5">
+      ${escudo(nombre, 30, logo)}
+      <p class="min-w-0 truncate font-score text-[19px] leading-none text-court">${nombre}</p>
+    </div>`;
+
+  return `
+  <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+    ${esAdmin() && p.fase === 'grupos' ? `
+    <button data-editar-partido="${p.id}" title="Editar partido"
+            class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+      ${icono('lapiz', 'h-3.5 w-3.5')}
+    </button>` : ''}
+    <div class="flex items-start gap-4">
+      <div class="w-[66px] shrink-0 border-r border-hair pr-3">
+        <p class="num font-score text-[21px] leading-none text-court">${soloHora(p.fecha)}</p>
+        <p class="mt-1 text-[12px] text-muted">${meridiano(p.fecha)}</p>
+      </div>
+      <div class="min-w-0 flex-1 space-y-2">
+        ${linea(p.local, p.logoLocal)}
+        ${linea(p.visita, p.logoVisita)}
+        <p class="mt-1 flex items-center gap-1 text-[13px] leading-relaxed text-muted">${icono('ubicacion', 'h-3 w-3 shrink-0')}${p.sede}</p>
+      </div>
+      <div class="hidden shrink-0 space-y-1.5 text-right sm:block">
+        <span class="block rounded-md bg-sky px-2.5 py-1 text-[12.5px] font-medium text-blue">${p.cat}</span>
+        <span class="block text-[12.5px] text-muted">${p.grupo || FASES[p.fase]}</span>
+      </div>
+    </div>
+    <div class="mt-3 flex gap-2 sm:hidden">
+      <span class="rounded-md bg-sky px-2 py-0.5 text-[12px] font-medium text-blue">${p.cat}</span>
+      <span class="rounded-md bg-mist px-2 py-0.5 text-[12px] text-muted">${p.grupo || FASES[p.fase]}</span>
+    </div>
+  </article>`;
+}
+
+function pintaRol() {
+  const lista = filtraRama(porJugar()).sort((a, b) => fecha(a.fecha) - fecha(b.fecha));
+  const cont = $('#rol-lista');
+
+  if (!lista.length) { cont.innerHTML = vacio('No hay partidos pendientes con este filtro.'); return; }
+
+  cont.innerHTML = agrupaPorDia(lista).map(([dia, partidos]) => `
+    <section>
+      <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${tituloDia(dia)}</h3>
+      <div class="space-y-3">${partidos.map(tarjetaPartido).join('')}</div>
+    </section>`).join('');
+
+  $$('[data-editar-partido]', cont).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
+}
+
+/* ==========================================================================
+   6. PANEL DE RAMA: resultados + tabla de posiciones
+   ========================================================================== */
+
+const SUBS = [
+  { id:'resultados', texto:'Resultados' },
+  { id:'posiciones', texto:'Posiciones' }
+];
+
+function montaRama(rama) {
+  const panel = $('#panel-' + rama.toLowerCase());
+
+  panel.innerHTML = `
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Rama ${rama.toLowerCase()}</h2>
+        <p class="mt-1 text-[14px] text-muted">Resultados y posiciones exclusivos de esta rama.</p>
+      </div>
+      <div role="tablist" aria-label="Secciones de la rama ${rama.toLowerCase()}"
+           class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70">
+        ${SUBS.map(s => `
+          <button role="tab" data-sub="${s.id}" data-rama="${rama}" aria-controls="sub-${rama}-${s.id}"
+                  class="shrink-0 rounded-lg px-4 py-2 font-score text-[17px] tracking-wide transition-colors">
+            ${s.texto}
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <div id="sub-${rama}-resultados" class="subpanel" role="tabpanel"><div data-res class="space-y-7"></div></div>
+      <div id="sub-${rama}-posiciones" class="subpanel" role="tabpanel" hidden>
+        <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
+        <p class="mt-1 max-w-[62ch] text-[14px] leading-relaxed text-muted">
+          ${TABLA_SOLO_GRUPOS ? 'Solo cuenta la fase de grupos de esta rama.' : 'Cuenta todos los partidos jugados de esta rama.'}
+          Se ordena por puntos; si hay empate, decide la diferencia de sets y luego los juegos ganados.
+        </p>
+        <div data-tabla class="mt-4"></div>
+      </div>
+    </div>`;
+
+  $$('[data-sub]', panel).forEach(b => b.addEventListener('click', () => abreSub(rama, b.dataset.sub)));
+
+  pintaResultados(rama);
+  pintaTabla(rama);
+  abreSub(rama, estado.sub[rama]);
+}
+
+function abreSub(rama, sub) {
+  estado.sub[rama] = sub;
+  const panel = $('#panel-' + rama.toLowerCase());
+
+  SUBS.forEach(s => {
+    const activo = s.id === sub;
+    $('#sub-' + rama + '-' + s.id).hidden = !activo;
+    const b = $(`[data-sub="${s.id}"][data-rama="${rama}"]`, panel);
+    b.setAttribute('aria-selected', activo);
+    b.className = 'shrink-0 rounded-lg px-4 py-2 font-score text-[17px] tracking-wide transition-colors ' +
+      (activo ? 'bg-court text-white' : 'text-muted hover:text-court');
+  });
+}
+
+/* ---------- Resultados ---------- */
+
+function tarjetaResultado(p) {
+  const [gl, gv] = setsGanados(p);
+  const ganaLocal = gl > gv;
+
+  const fila = (nombre, logo, sets, marcador, gana) => `
+    <div class="flex items-center gap-3 ${gana ? '' : 'text-muted'}">
+      <span class="h-8 w-[3px] shrink-0 rounded-full ${gana ? 'bg-sun' : 'bg-transparent'}"></span>
+      ${escudo(nombre, 32, logo)}
+      <p class="min-w-0 flex-1 truncate font-score text-[20px] leading-none ${gana ? 'text-court' : ''}">${nombre}</p>
+      <div class="hidden gap-1.5 sm:flex">
+        ${sets.map(s => `<span class="num w-7 rounded-md bg-mist py-0.5 text-center text-[13px] font-medium">${s}</span>`).join('')}
+      </div>
+      <span class="num w-8 shrink-0 text-right font-score text-[26px] leading-none ${gana ? 'text-court' : ''}">${marcador}</span>
+    </div>`;
+
+  return `
+  <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+    ${esAdmin() && p.fase === 'grupos' ? `
+    <button data-editar-partido="${p.id}" title="Editar resultado"
+            class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+      ${icono('lapiz', 'h-3.5 w-3.5')}
+    </button>` : ''}
+    <div class="mb-3 flex flex-wrap items-center gap-2 pr-8 text-[12.5px]">
+      <span class="rounded-md ${p.fase === 'grupos' ? 'bg-sky text-blue' : 'bg-sun/25 text-court'} px-2 py-0.5 font-medium">
+        ${p.grupo || FASES[p.fase]}
+      </span>
+      <span class="text-muted">${tituloDia(p.fecha)}</span>
+      <span class="hidden text-muted sm:inline">${p.sede}</span>
+    </div>
+    <div class="space-y-2.5">
+      ${fila(p.local,  p.logoLocal,  p.sets.map(s => s[0]), gl, ganaLocal)}
+      ${fila(p.visita, p.logoVisita, p.sets.map(s => s[1]), gv, !ganaLocal)}
+    </div>
+    <p class="mt-3 border-t border-hair pt-2.5 text-[12.5px] text-muted sm:hidden">
+      Parciales: ${p.sets.map(s => s[0] + '-' + s[1]).join(', ')}
+    </p>
+  </article>`;
+}
+
+function pintaResultados(rama) {
+  const cont = $('[data-res]', $('#panel-' + rama.toLowerCase()));
+  const llaves = bracketResuelto(rama);
+
+  const lista = PARTIDOS
+    .filter(p => p.cat === rama && jugado(p))
+    .map(p => p.fase === 'grupos' ? p : { ...p, ...llaves[p.llave] })
+    .sort((a, b) => fecha(b.fecha) - fecha(a.fecha));
+
+  if (!lista.length) { cont.innerHTML = vacio(`Todavía no hay resultados en la rama ${rama.toLowerCase()}.`); return; }
+
+  cont.innerHTML = agrupaPorDia(lista).map(([dia, partidos]) => `
+    <section>
+      <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${tituloDia(dia)}</h3>
+      <div class="space-y-3">${partidos.map(tarjetaResultado).join('')}</div>
+    </section>`).join('');
+
+  $$('[data-editar-partido]', cont).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
+}
+
+/* ---------- Tabla de posiciones: PJ, PG, PP, SF, SC, Pts ---------- */
+
+function pintaTabla(rama) {
+  const destino = $('[data-tabla]', $('#panel-' + rama.toLowerCase()));
+  const jugados = PARTIDOS.filter(p =>
+    p.cat === rama && jugado(p) && p.local && p.visita &&
+    (!TABLA_SOLO_GRUPOS || p.fase === 'grupos'));
+
+  const t = {};
+  const toca = n => (t[n] ||= { eq:n, pj:0, pg:0, pp:0, sf:0, sc:0, pts:0 });
+
+  jugados.forEach(p => {
+    const [gl, gv] = setsGanados(p);
+    const L = toca(p.local), V = toca(p.visita);
+    L.pj++; V.pj++;
+    L.sf += gl; L.sc += gv; V.sf += gv; V.sc += gl;
+    if (gl > gv) { L.pg++; V.pp++; L.pts += gv <= 1 ? 3 : 2; V.pts += gv <= 1 ? 0 : 1; }
+    else         { V.pg++; L.pp++; V.pts += gl <= 1 ? 3 : 2; L.pts += gl <= 1 ? 0 : 1; }
+  });
+
+  const filas = Object.values(t).sort((a, b) =>
+    b.pts - a.pts || (b.sf - b.sc) - (a.sf - a.sc) || b.pg - a.pg || b.sf - a.sf);
+
+  if (!filas.length) {
+    destino.innerHTML = vacio(`La tabla de la rama ${rama.toLowerCase()} se llena conforme se capturan los resultados.`);
+    return;
+  }
+
+  destino.innerHTML = `
+  <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+    <table class="w-full text-[14px]">
+      <caption class="sr-only">Tabla de posiciones de la rama ${rama.toLowerCase()}</caption>
+      <thead>
+        <tr class="border-b border-hair text-[12.5px] text-muted">
+          <th scope="col" class="py-2.5 pl-4 pr-2 text-left font-medium">Equipo</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium">PJ</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium">PG</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium">PP</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium">SF</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium">SC</th>
+          <th scope="col" class="py-2.5 pl-2 pr-4 text-center font-medium">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filas.map((f, i) => `
+          <tr class="border-b border-hair/60 last:border-0 ${i === 0 ? 'bg-sun/10' : ''}">
+            <td class="py-2.5 pl-3 pr-2">
+              <div class="flex items-center gap-2.5">
+                <span class="num w-5 shrink-0 text-center font-score text-[16px] ${i === 0 ? 'text-court' : 'text-muted'}">${i + 1}</span>
+                ${escudo(f.eq, 26)}
+                <span class="truncate font-medium sm:hidden">${iniciales(f.eq)}</span>
+                <span class="hidden truncate sm:inline">${f.eq}</span>
+              </div>
+            </td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.pj}</td>
+            <td class="num px-2 py-2.5 text-center">${f.pg}</td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.pp}</td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.sf}</td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.sc}</td>
+            <td class="num py-2.5 pl-2 pr-4 text-center font-score text-[20px]">${f.pts}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-2.5 px-1 text-[12.5px] leading-relaxed text-muted">
+    PJ: jugados. PG/PP: ganados/perdidos. SF/SC: sets a favor y en contra.
+    Victoria 3-0 o 3-1: 3 pts. Victoria 3-2: 2 pts. Derrota 2-3: 1 pt. Derrota 0-3 o 1-3: 0 pts.
+  </p>`;
+}
+
+/* ==========================================================================
+   7. LIGUILLA — el ganador avanza solo al capturar los sets
+   ========================================================================== */
+
+function bracketResuelto(rama) {
+  const m = {};
+  PARTIDOS.filter(p => p.cat === rama && p.fase !== 'grupos')
+          .forEach(p => { m[p.llave] = { ...p }; });
+
+  ['cuartos', 'semis'].forEach(f => {
+    Object.values(m)
+      .filter(p => p.fase === f)
+      .sort((a, b) => a.llave.localeCompare(b.llave))
+      .forEach(p => {
+        if (!jugado(p) || !p.local || !p.visita) return;
+        const destino = m[p.avanzaA];
+        if (destino) destino[p.ranura] = ganador(p);
+      });
+  });
+  return m;
+}
+
+function bloqueLlave(p, ancho = 'w-full') {
+  const listo = jugado(p) && p.local && p.visita;
+  const [gl, gv] = listo ? setsGanados(p) : [null, null];
+
+  const lado = (nombre, logo, marcador, gana) => `
+    <div class="flex items-center gap-2.5 px-3 py-2 ${gana ? 'bg-sun/15' : ''}">
+      ${escudo(nombre, 26, logo)}
+      <span class="min-w-0 flex-1 truncate font-score text-[17px] leading-none ${nombre ? (gana ? 'text-court' : 'text-muted') : 'text-muted/70 italic'}">
+        ${nombre || 'Por definir'}
+      </span>
+      <span class="num w-4 shrink-0 text-right font-score text-[18px] ${gana ? 'text-court' : 'text-muted'}">
+        ${marcador === null ? '' : marcador}
+      </span>
+    </div>`;
+
+  return `
+  <div class="llave ${ancho}">
+    <div class="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-hair/70">
+      <p class="border-b border-hair bg-mist px-3 py-1 text-[11px] text-muted">
+        ${FASES[p.fase]}${p.fecha ? ' — ' + tituloDia(p.fecha).replace(/^\w+ /, '') : ''}
+      </p>
+      ${lado(p.local,  p.logoLocal,  gl, listo && gl > gv)}
+      <div class="h-px bg-hair"></div>
+      ${lado(p.visita, p.logoVisita, gv, listo && gv > gl)}
+    </div>
+  </div>`;
+}
+
+function trofeo(campeon) {
+  return `
+  <div class="flex flex-col items-center gap-2 py-4">
+    <span class="text-sun">${icono('liguilla', 'h-12 w-12')}</span>
+    <p class="text-[12px] text-muted">Campeón</p>
+    <p class="text-center font-score text-[22px] leading-tight ${campeon ? 'text-court' : 'text-muted/70'}">
+      ${campeon || 'Por definir'}
+    </p>
+  </div>`;
+}
+
+function pintaBracket() {
+  const rama = estado.ramaLiguilla;
+  const m = bracketResuelto(rama);
+  const destino = $('#bracket');
+
+  const faltan = ['C1','C2','C3','C4','S1','S2','F1'].filter(k => !m[k]);
+  if (faltan.length) {
+    destino.innerHTML = vacio(`Falta definir en PARTIDOS las llaves ${faltan.join(', ')} de la rama ${rama.toLowerCase()}.`);
+    return;
+  }
+
+  const final = m.F1;
+  const campeon = jugado(final) && final.local && final.visita ? ganador(final) : '';
+
+  const escritorio = `
+  <div class="hidden lg:grid lg:grid-cols-[1fr_1fr_minmax(200px,1.1fr)_1fr_1fr] lg:items-center lg:gap-x-8">
+    <div class="par par-der flex flex-col gap-10">${bloqueLlave(m.C1)}${bloqueLlave(m.C2)}</div>
+    <div class="flex flex-col justify-center"><div class="conn-l conn-r">${bloqueLlave(m.S1)}</div></div>
+    <div class="rounded-2xl bg-white p-4 shadow-lift ring-1 ring-hair/70">
+      ${trofeo(campeon)}
+      ${bloqueLlave(final)}
+    </div>
+    <div class="flex flex-col justify-center"><div class="conn-l conn-r">${bloqueLlave(m.S2)}</div></div>
+    <div class="par par-izq flex flex-col gap-10">${bloqueLlave(m.C3)}${bloqueLlave(m.C4)}</div>
+  </div>`;
+
+  const ronda = (titulo, llaves) => `
+    <section>
+      <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${titulo}</h3>
+      <div class="grid gap-3 sm:grid-cols-2">${llaves.map(k => bloqueLlave(m[k])).join('')}</div>
+    </section>`;
+
+  const movil = `
+  <div class="space-y-7 lg:hidden">
+    ${ronda('Cuartos de final', ['C1','C2','C3','C4'])}
+    ${ronda('Semifinales', ['S1','S2'])}
+    <section>
+      <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">Final</h3>
+      <div class="rounded-2xl bg-white p-4 shadow-lift ring-1 ring-hair/70">
+        ${trofeo(campeon)}
+        ${bloqueLlave(final)}
+      </div>
+    </section>
+  </div>`;
+
+  destino.innerHTML = escritorio + movil;
+}
+
+/* ==========================================================================
+   8. DOCUMENTOS
+   ========================================================================== */
+/* La descarga (carpeta de Drive) y la subida (Google Forms) están embebidas
+   directamente como iframes en el HTML de esta sección — no necesitan JS. */
+
+/* ==========================================================================
+   9. GALERÍA
+   ========================================================================== */
+
+function marcador(i, titulo) {
+  const fondos = [['#0E2647','#1B57B5'], ['#1B57B5','#4A8AD6'], ['#163A69','#0E2647']];
+  const [a, b] = fondos[i % fondos.length];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>
+    <rect width="400" height="400" fill="url(#g)"/>
+    <g fill="none" stroke="#FFC93C" stroke-opacity=".9" stroke-width="7" stroke-linecap="round">
+      <circle cx="200" cy="200" r="66"/>
+      <path d="M144 168c48-12 106-4 150 26M158 252c14-42 46-80 92-98M200 134c26 36 36 90 24 144"/>
+    </g>
+    <text x="200" y="330" fill="#FFFFFF" fill-opacity=".72" font-family="sans-serif" font-size="19" text-anchor="middle">${titulo}</text>
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function pintaGaleria() {
+  const tarjetaAgregar = esAdmin() ? `
+    <button id="btn-agregar-foto" class="grid aspect-square place-items-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/60 text-muted transition hover:border-blue hover:text-blue">
+      ${icono('mas', 'h-7 w-7')}
+      <span class="text-[13px] font-medium">Agregar foto</span>
+    </button>` : '';
+
+  $('#galeria-grid').innerHTML = tarjetaAgregar + FOTOS.map((f, i) => `
+    <button data-foto="${i}" class="group relative block aspect-square overflow-hidden rounded-2xl bg-mist shadow-card ring-1 ring-hair/70">
+      <img src="${f.url || marcador(i, f.titulo)}" alt="${f.titulo}" loading="lazy" data-idx="${i}"
+           onerror="sinFoto(this)"
+           class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]">
+      <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-court/85 to-transparent px-3 pb-2.5 pt-8 text-left text-[12.5px] font-medium text-white">
+        ${f.titulo}
+      </span>
+    </button>`).join('');
+
+  if (esAdmin()) $('#btn-agregar-foto').addEventListener('click', () => $('#input-foto').click());
+  $$('[data-foto]').forEach(b => b.addEventListener('click', () => abreFoto(+b.dataset.foto)));
+}
+
+/* Si la imagen real todavía no carga (por ejemplo, justo después de subirla,
+   mientras Netlify termina de publicar el cambio), se muestra el marcador de
+   posición en vez de un ícono roto. En cuanto recargues la página unos
+   segundos después, ya se ve la foto real. */
+function sinFoto(img) {
+  const i = +img.dataset.idx;
+  const f = FOTOS[i];
+  if (!f) return;
+  img.onerror = null;
+  img.src = marcador(i, f.titulo);
+}
+
+let fotoActual = 0;
+const lb = $('#lightbox');
+
+function abreFoto(i) {
+  fotoActual = (i + FOTOS.length) % FOTOS.length;
+  const f = FOTOS[fotoActual];
+  $('#lb-img').onerror = () => { $('#lb-img').onerror = null; $('#lb-img').src = marcador(fotoActual, f.titulo); };
+  $('#lb-img').src = f.url || marcador(fotoActual, f.titulo);
+  $('#lb-img').alt = f.titulo;
+  $('#lb-cap').textContent = `${f.titulo} — ${f.pie}`;
+  lb.classList.replace('hidden', 'flex');
+  document.body.style.overflow = 'hidden';
+  $('#lb-close').focus();
+}
+function cierraFoto() {
+  lb.classList.replace('flex', 'hidden');
+  document.body.style.overflow = '';
+}
+
+$('#lb-close').addEventListener('click', cierraFoto);
+$('#lb-prev').addEventListener('click', () => abreFoto(fotoActual - 1));
+$('#lb-next').addEventListener('click', () => abreFoto(fotoActual + 1));
+lb.addEventListener('click', e => { if (e.target === lb) cierraFoto(); });
+document.addEventListener('keydown', e => {
+  if (lb.classList.contains('hidden')) return;
+  if (e.key === 'Escape')     cierraFoto();
+  if (e.key === 'ArrowLeft')  abreFoto(fotoActual - 1);
+  if (e.key === 'ArrowRight') abreFoto(fotoActual + 1);
+});
+
+/* ==========================================================================
+   10. MODO ADMINISTRADOR (subir fotos y logos directo a GitHub)
+   ========================================================================== */
+/* Cómo funciona: el token de GitHub que TÚ pegas se guarda solo en localStorage
+   de tu navegador. Los botones de subir solo aparecen si hay un token guardado
+   — un visitante normal nunca los ve, y aunque los viera, sin tu token la API
+   de GitHub simplemente rechaza la petición. Eso es lo que realmente impide
+   que alguien más suba o cambie algo: no es un candado visual, es tu cuenta.
+
+   Usa un token de tipo "fine-grained", limitado SOLO a este repositorio, con
+   permiso "Contents: Read and write" y nada más. Si alguna vez sospechas que
+   se filtró, revócalo desde github.com/settings/tokens y crea uno nuevo. */
+
+const TOKEN_KEY = 'lv_gh_token';
+const token = () => localStorage.getItem(TOKEN_KEY) || '';
+const esAdmin = () => !!token();
+
+const slug = s => s.toString().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const LIMITE_IMAGEN = 900 * 1024; // ~900 KB: límite práctico de la API simple de GitHub
+
+function archivoABase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function ghApi(path, opciones = {}) {
+  const r = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+    ...opciones,
+    headers: {
+      Authorization: `Bearer ${token()}`,
+      Accept: 'application/vnd.github+json',
+      ...(opciones.headers || {})
+    }
+  });
+  return r;
+}
+
+/** Sube o reemplaza un archivo binario (imagen) en el repositorio. */
+async function ghSubeArchivo(path, base64, mensaje) {
+  let sha;
+  const actual = await ghApi(path);
+  if (actual.ok) sha = (await actual.json()).sha;
+
+  const r = await ghApi(path, {
+    method: 'PUT',
+    body: JSON.stringify({ message: mensaje, content: base64, branch: GITHUB_BRANCH, ...(sha && { sha }) })
+  });
+  if (!r.ok) throw new Error(await ghErrorMsg(r));
+  return r.json();
+}
+
+/** Lee un JSON del repo. Si no existe todavía, regresa valorPorDefecto y sha nulo. */
+async function ghLeeJSON(path, valorPorDefecto) {
+  const r = await ghApi(path);
+  if (r.status === 404) return { valor: valorPorDefecto, sha: null };
+  if (!r.ok) throw new Error(await ghErrorMsg(r));
+  const datos = await r.json();
+  const texto = decodeURIComponent(escape(atob(datos.content.replace(/\n/g, ''))));
+  return { valor: JSON.parse(texto), sha: datos.sha };
+}
+
+/** Escribe (crea o actualiza) un JSON en el repo. */
+async function ghEscribeJSON(path, valor, sha, mensaje) {
+  const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(valor, null, 2))));
+  const r = await ghApi(path, {
+    method: 'PUT',
+    body: JSON.stringify({ message: mensaje, content: base64, branch: GITHUB_BRANCH, ...(sha && { sha }) })
+  });
+  if (!r.ok) throw new Error(await ghErrorMsg(r));
+  return r.json();
+}
+
+async function ghErrorMsg(r) {
+  if (r.status === 401) return 'Tu token no es válido o ya venció.';
+  if (r.status === 403) return 'Tu token no tiene permiso de escritura en este repositorio.';
+  if (r.status === 404) return 'No se encontró el repositorio (revisa GITHUB_OWNER/GITHUB_REPO).';
+  try { return (await r.json()).message || `Error ${r.status}`; } catch { return `Error ${r.status}`; }
+}
+
+/* ---------- Aviso reutilizable dentro de cualquier modal ---------- */
+function avisaEn(id, exito, mensaje) {
+  const el = $(id);
+  el.classList.remove('hidden');
+  el.className = (exito
+    ? 'mt-3 flex items-center gap-2 rounded-lg bg-[#E6F4EC] px-3 py-2 text-[13px] text-[#1F7A4C]'
+    : 'mt-3 flex items-center gap-2 rounded-lg bg-[#FDEAEA] px-3 py-2 text-[13px] text-[#B3322E]');
+  el.innerHTML = `${icono(exito ? 'correcto' : 'alerta', 'h-4 w-4 shrink-0')}<span>${mensaje}</span>`;
+}
+
+/* ---------- Modal: activar / cerrar sesión de administrador ---------- */
+
+function actualizaModalAdmin() {
+  $('#admin-modal-sin-token').classList.toggle('hidden', esAdmin());
+  $('#admin-modal-con-token').classList.toggle('hidden', !esAdmin());
+  $('#admin-modal-aviso').classList.add('hidden');
+}
+
+$('#admin-toggle').addEventListener('click', () => {
+  actualizaModalAdmin();
+  $('#admin-modal').classList.replace('hidden', 'flex');
+});
+$('#admin-modal-cerrar').addEventListener('click', () => $('#admin-modal').classList.replace('flex', 'hidden'));
+
+$('#admin-token-guardar').addEventListener('click', () => {
+  const valor = $('#admin-token-input').value.trim();
+  if (!valor) { avisaEn('#admin-modal-aviso', false, 'Pega tu token antes de continuar.'); return; }
+  localStorage.setItem(TOKEN_KEY, valor);
+  $('#admin-token-input').value = '';
+  $('#admin-modal').classList.replace('flex', 'hidden');
+  repintaTodo();
+});
+
+$('#admin-token-salir').addEventListener('click', () => {
+  localStorage.removeItem(TOKEN_KEY);
+  $('#admin-modal').classList.replace('flex', 'hidden');
+  repintaTodo();
+});
+
+/* ---------- Subir/reemplazar el logo de un equipo ---------- */
+
+let equipoEnEdicion = null;
+
+function pideLogo(nombreEquipo) {
+  equipoEnEdicion = nombreEquipo;
+  $('#input-logo').click();
+}
+
+$('#input-logo').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file || !equipoEnEdicion) return;
+
+  if (file.size > LIMITE_IMAGEN) {
+    alert(`Esa imagen pesa demasiado (máximo ${Math.round(LIMITE_IMAGEN / 1024)} KB). Comprímela, por ejemplo en squoosh.app, e inténtalo de nuevo.`);
+    return;
+  }
+
+  try {
+    const base64 = await archivoABase64(file);
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const ruta = `logos/${slug(equipoEnEdicion)}.${ext}`;
+
+    await ghSubeArchivo(ruta, base64, `Logo de ${equipoEnEdicion}`);
+
+    const { valor: mapa, sha } = await ghLeeJSON('data/logos.json', {});
+    mapa[equipoEnEdicion] = ruta;
+    await ghEscribeJSON('data/logos.json', mapa, sha, `Actualiza logo de ${equipoEnEdicion}`);
+
+    EQUIPOS[equipoEnEdicion].logo = ruta;
+    repintaTodo();
+  } catch (err) {
+    alert('No se pudo subir el logo: ' + err.message);
+  }
+});
+
+/* ---------- Subir una foto a la Galería ---------- */
+
+let archivoFotoPendiente = null;
+
+$('#input-foto').addEventListener('change', e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  if (file.size > LIMITE_IMAGEN) {
+    alert(`Esa imagen pesa demasiado (máximo ${Math.round(LIMITE_IMAGEN / 1024)} KB). Comprímela, por ejemplo en squoosh.app, e inténtalo de nuevo.`);
+    return;
+  }
+
+  archivoFotoPendiente = file;
+  $('#foto-titulo').value = '';
+  $('#foto-pie').value = '';
+  $('#foto-modal-aviso').classList.add('hidden');
+  $('#foto-modal').classList.replace('hidden', 'flex');
+});
+
+$('#foto-modal-cancelar').addEventListener('click', () => {
+  archivoFotoPendiente = null;
+  $('#foto-modal').classList.replace('flex', 'hidden');
+});
+
+/* ---------- Aviso flotante de confirmación (arriba, se cierra solo) ---------- */
+function avisaFlotante(mensaje) {
+  const el = document.createElement('div');
+  el.className = 'fixed left-1/2 top-4 z-[60] -translate-x-1/2 flex items-center gap-2 rounded-xl bg-court px-4 py-2.5 text-[13.5px] text-white shadow-lift';
+  el.innerHTML = `${icono('correcto', 'h-4 w-4 shrink-0 text-[#7CE0A8]')}<span>${mensaje}</span>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+$('#foto-modal-subir').addEventListener('click', async () => {
+  const titulo = $('#foto-titulo').value.trim();
+  const pie = $('#foto-pie').value.trim();
+  if (!titulo) { avisaEn('#foto-modal-aviso', false, 'Ponle al menos un título a la foto.'); return; }
+  if (!archivoFotoPendiente) { avisaEn('#foto-modal-aviso', false, 'Selecciona una imagen primero.'); return; }
+
+  try {
+    const file = archivoFotoPendiente;
+    const base64 = await archivoABase64(file);
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const ruta = `galeria/${Date.now()}-${slug(titulo) || 'foto'}.${ext}`;
+
+    await ghSubeArchivo(ruta, base64, `Agrega foto: ${titulo}`);
+
+    const { valor: fotos, sha } = await ghLeeJSON('data/galeria.json', []);
+    fotos.unshift({ url: ruta, titulo, pie });
+    await ghEscribeJSON('data/galeria.json', fotos, sha, `Agrega foto a la galería: ${titulo}`);
+
+    FOTOS = fotos;
+    archivoFotoPendiente = null;
+    $('#foto-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+    avisaFlotante('Foto agregada. Ábrela en Galería para verla.');
+  } catch (err) {
+    avisaEn('#foto-modal-aviso', false, 'No se pudo subir: ' + err.message);
+  }
+});
+
+/* ---------- Agregar / editar / eliminar equipos ---------- */
+
+let equipoOriginalEnModal = null;
+
+function abreEquipoModal(nombre = null) {
+  const e = nombre ? EQUIPOS[nombre] : null;
+  equipoOriginalEnModal = nombre;
+
+  $('#equipo-modal-titulo').textContent = nombre ? 'Editar equipo' : 'Agregar equipo';
+  $('#equipo-nombre').value = nombre || '';
+  $('#equipo-abrev').value = e ? e.abrev : '';
+  $('#equipo-categoria').value = e ? e.categoria : 'Ambas';
+
+  $('#equipo-modal-logo').classList.toggle('hidden', !nombre);
+  $('#equipo-modal-logo').classList.toggle('flex', !!nombre);
+  if (nombre) $('#equipo-modal-logo-preview').innerHTML = escudo(nombre, 44, e.logo);
+
+  $('#equipo-modal-aviso').classList.add('hidden');
+  $('#equipo-modal').classList.replace('hidden', 'flex');
+}
+
+$('#equipo-modal-cancelar').addEventListener('click', () => $('#equipo-modal').classList.replace('flex', 'hidden'));
+
+$('#equipo-modal-cambiar-logo').addEventListener('click', () => {
+  if (!equipoOriginalEnModal) return;
+  $('#equipo-modal').classList.replace('flex', 'hidden');
+  pideLogo(equipoOriginalEnModal);
+});
+
+$('#equipo-modal-guardar').addEventListener('click', async () => {
+  const nombreNuevo = $('#equipo-nombre').value.trim();
+  let abrev = $('#equipo-abrev').value.trim().toUpperCase();
+  const categoria = $('#equipo-categoria').value;
+  const nombreOriginal = equipoOriginalEnModal;
+
+  if (!nombreNuevo) { avisaEn('#equipo-modal-aviso', false, 'Ponle un nombre al equipo.'); return; }
+  if (!nombreOriginal && EQUIPOS[nombreNuevo]) { avisaEn('#equipo-modal-aviso', false, 'Ya existe un equipo con ese nombre.'); return; }
+  if (!abrev) abrev = nombreNuevo.replace(/[^A-Za-zÀ-ÿ]/g, '').slice(0, 3).toUpperCase() || 'EQU';
+
+  let renombrado = false;
+
+  if (nombreOriginal && nombreOriginal !== nombreNuevo) {
+    const reordenado = {};
+    Object.entries(EQUIPOS).forEach(([n, datos]) => { reordenado[n === nombreOriginal ? nombreNuevo : n] = datos; });
+    EQUIPOS = reordenado;
+    EQUIPOS[nombreNuevo].abrev = abrev;
+    EQUIPOS[nombreNuevo].categoria = categoria;
+    PARTIDOS.forEach(p => {
+      if (p.local === nombreOriginal) p.local = nombreNuevo;
+      if (p.visita === nombreOriginal) p.visita = nombreNuevo;
+    });
+    renombrado = true;
+  } else if (nombreOriginal) {
+    EQUIPOS[nombreOriginal].abrev = abrev;
+    EQUIPOS[nombreOriginal].categoria = categoria;
+  } else {
+    EQUIPOS[nombreNuevo] = { abrev, categoria, logo: '' };
+  }
+
+  try {
+    const { sha } = await ghLeeJSON('data/equipos.json', {});
+    await ghEscribeJSON('data/equipos.json', EQUIPOS, sha, nombreOriginal ? `Edita equipo: ${nombreNuevo}` : `Agrega equipo: ${nombreNuevo}`);
+
+    if (renombrado) {
+      const { sha: shaP } = await ghLeeJSON('data/partidos.json', []);
+      await ghEscribeJSON('data/partidos.json', PARTIDOS, shaP, `Renombra equipo en partidos: ${nombreOriginal} → ${nombreNuevo}`);
+    }
+
+    if (!nombreOriginal) {
+      equipoOriginalEnModal = nombreNuevo;
+      $('#equipo-modal-titulo').textContent = 'Editar equipo';
+      $('#equipo-modal-logo').classList.remove('hidden');
+      $('#equipo-modal-logo').classList.add('flex');
+      $('#equipo-modal-logo-preview').innerHTML = escudo(nombreNuevo, 44, '');
+      avisaEn('#equipo-modal-aviso', true, 'Equipo creado. Si quieres, agrégale un logo.');
+    } else {
+      $('#equipo-modal').classList.replace('flex', 'hidden');
+    }
+    repintaTodo();
+    avisaFlotante(nombreOriginal ? `Se guardaron los cambios de ${nombreNuevo}.` : `Se agregó a ${nombreNuevo}.`);
+  } catch (err) {
+    avisaEn('#equipo-modal-aviso', false, 'No se pudo guardar: ' + err.message);
+  }
+});
+
+async function borraEquipo(nombre) {
+  const enUso = PARTIDOS.some(p => p.local === nombre || p.visita === nombre);
+  const aviso = enUso
+    ? `${nombre} tiene partidos registrados. Si lo eliminas, esos partidos seguirán mostrando su nombre pero ya no podrás elegirlo para partidos nuevos. ¿Eliminarlo de todas formas?`
+    : `¿Eliminar a ${nombre}? No se puede deshacer.`;
+  if (!confirm(aviso)) return;
+
+  const nuevo = { ...EQUIPOS };
+  delete nuevo[nombre];
+  EQUIPOS = nuevo;
+
+  try {
+    const { sha } = await ghLeeJSON('data/equipos.json', {});
+    await ghEscribeJSON('data/equipos.json', EQUIPOS, sha, `Elimina equipo: ${nombre}`);
+    repintaTodo();
+    avisaFlotante(`Se eliminó a ${nombre}.`);
+  } catch (err) {
+    alert('No se pudo eliminar: ' + err.message);
+  }
+}
+
+/* ---------- Agregar / editar / eliminar partidos (fase de grupos) ---------- */
+
+function opcionesEquipos(seleccionado) {
+  return '<option value="">Selecciona…</option>' + Object.keys(EQUIPOS).sort((a, b) => a.localeCompare(b, 'es'))
+    .map(n => `<option value="${n}" ${n === seleccionado ? 'selected' : ''}>${n}</option>`).join('');
+}
+
+function filaSet(local = '', visita = '') {
+  const fila = document.createElement('div');
+  fila.className = 'flex items-center gap-2';
+  fila.setAttribute('data-fila-set', '');
+  fila.innerHTML = `
+    <input type="number" min="0" max="99" value="${local}" data-set-local placeholder="Local"
+           class="w-16 rounded-lg border border-hair bg-white px-2 py-1.5 text-center text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    <span class="text-muted">–</span>
+    <input type="number" min="0" max="99" value="${visita}" data-set-visita placeholder="Visita"
+           class="w-16 rounded-lg border border-hair bg-white px-2 py-1.5 text-center text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    <button type="button" data-quitar-set class="ml-1 grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-mist" aria-label="Quitar set">
+      ${icono('cerrar', 'h-3.5 w-3.5')}
+    </button>`;
+  fila.querySelector('[data-quitar-set]').addEventListener('click', () => fila.remove());
+  return fila;
+}
+
+function abrePartidoModal(id = null) {
+  const p = id ? PARTIDOS.find(x => x.id === id) : null;
+
+  if (id && !p) { alert('Ese partido ya no existe (puede que ya lo hayan borrado en otra sesión).'); return; }
+  if (p && p.fase !== 'grupos') { alert('Los partidos de liguilla todavía se editan desde el código, para no descuadrar el bracket.'); return; }
+
+  $('#partido-modal-titulo').textContent = p ? 'Editar partido' : 'Agregar partido';
+  $('#partido-id').value = p ? p.id : '';
+  $('#partido-cat').value = p ? p.cat : 'Femenil';
+  $('#partido-grupo').value = p ? (p.grupo || '') : '';
+  $('#partido-fecha').value = p ? p.fecha : '';
+  $('#partido-sede').value = p ? p.sede : '';
+  $('#partido-local').innerHTML = opcionesEquipos(p ? p.local : '');
+  $('#partido-visita').innerHTML = opcionesEquipos(p ? p.visita : '');
+
+  $('#partido-sets-filas').innerHTML = '';
+  (p && p.sets ? p.sets : []).forEach(([l, v]) => $('#partido-sets-filas').appendChild(filaSet(l, v)));
+
+  $('#partido-modal-eliminar').classList.toggle('hidden', !p);
+  $('#partido-modal-aviso').classList.add('hidden');
+  $('#partido-modal').classList.replace('hidden', 'flex');
+}
+
+$('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
+$('#partido-modal-cancelar').addEventListener('click', () => $('#partido-modal').classList.replace('flex', 'hidden'));
+$('#partido-agregar-set').addEventListener('click', () => $('#partido-sets-filas').appendChild(filaSet()));
+
+$('#partido-modal-guardar').addEventListener('click', async () => {
+  const idActual = $('#partido-id').value || null;
+  const cat = $('#partido-cat').value;
+  const grupo = $('#partido-grupo').value.trim();
+  const fecha = $('#partido-fecha').value;
+  const sede = $('#partido-sede').value.trim();
+  const local = $('#partido-local').value;
+  const visita = $('#partido-visita').value;
+
+  if (!cat || !fecha || !sede || !local || !visita) { avisaEn('#partido-modal-aviso', false, 'Completa categoría, fecha, cancha y ambos equipos.'); return; }
+  if (local === visita) { avisaEn('#partido-modal-aviso', false, 'El equipo local y el visitante no pueden ser el mismo.'); return; }
+
+  const sets = [];
+  $$('#partido-sets-filas [data-fila-set]').forEach(fila => {
+    const l = fila.querySelector('[data-set-local]').value;
+    const v = fila.querySelector('[data-set-visita]').value;
+    if (l !== '' && v !== '') sets.push([parseInt(l, 10), parseInt(v, 10)]);
+  });
+
+  if (idActual) {
+    const idx = PARTIDOS.findIndex(p => p.id === idActual);
+    if (idx === -1) { avisaEn('#partido-modal-aviso', false, 'Ese partido ya no existe.'); return; }
+    const actualizado = { ...PARTIDOS[idx], cat, grupo, fecha, sede, local, visita };
+    if (sets.length) actualizado.sets = sets; else delete actualizado.sets;
+    PARTIDOS[idx] = actualizado;
+  } else {
+    const nuevo = { id: 'p' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat, grupo, fecha, sede, local, visita };
+    if (sets.length) nuevo.sets = sets;
+    PARTIDOS.push(nuevo);
+  }
+
+  try {
+    const { sha } = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, sha, idActual ? `Edita partido: ${local} vs ${visita}` : `Agrega partido: ${local} vs ${visita}`);
+    $('#partido-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+    avisaFlotante(idActual ? 'Partido actualizado.' : 'Partido agregado.');
+  } catch (err) {
+    avisaEn('#partido-modal-aviso', false, 'No se pudo guardar: ' + err.message);
+  }
+});
+
+$('#partido-modal-eliminar').addEventListener('click', async () => {
+  const id = $('#partido-id').value;
+  if (!id) return;
+  if (!confirm('¿Eliminar este partido? No se puede deshacer.')) return;
+
+  const idx = PARTIDOS.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  PARTIDOS.splice(idx, 1);
+
+  try {
+    const { sha } = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, sha, 'Elimina partido');
+    $('#partido-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+    avisaFlotante('Partido eliminado.');
+  } catch (err) {
+    avisaEn('#partido-modal-aviso', false, 'No se pudo eliminar: ' + err.message);
+  }
+});
+
+/* ==========================================================================
+   11. ARRANQUE
+   ========================================================================== */
+
+function repintaTodo() {
+  pintaEquipos();
+  pintaProximo();
+  pintaRol();
+  ['Femenil', 'Varonil'].forEach(montaRama);
+  pintaBracket();
+  pintaGaleria();
+}
+
+pintaTabs();
+
+grupoBotones($('#filtro-equipos'), ['Todas', 'Femenil', 'Varonil'], estado.filtroEquipos, valor => {
+  estado.filtroEquipos = valor;
+  marcaGrupo($('#filtro-equipos'), valor);
+  pintaEquipos();
+});
+
+$('#filtro-rol-select').addEventListener('change', e => {
+  estado.ramaRol = e.target.value;
+  pintaProximo();
+  pintaRol();
+});
+
+grupoBotones($('#filtro-liguilla'), ['Femenil', 'Varonil'], estado.ramaLiguilla, valor => {
+  estado.ramaLiguilla = valor;
+  marcaGrupo($('#filtro-liguilla'), valor);
+  pintaBracket();
+});
+
+repintaTodo();
+
+const inicial = location.hash.slice(1);
+abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
+
+/* Carga, sin bloquear el primer dibujo, lo que se haya publicado desde el modo
+   administrador: data/logos.json y data/galeria.json. Si todavía no existen
+   (nadie ha subido nada aún) o falla la red, la página se queda con los
+   valores de arriba — nunca se rompe. */
+(async () => {
+  try {
+    const r = await fetch('data/logos.json?t=' + Date.now());
+    if (r.ok) {
+      const mapa = await r.json();
+      Object.entries(mapa).forEach(([nombre, url]) => { if (EQUIPOS[nombre]) EQUIPOS[nombre].logo = url; });
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
+  try {
+    const r = await fetch('data/galeria.json?t=' + Date.now());
+    if (r.ok) {
+      const fotos = await r.json();
+      if (Array.isArray(fotos)) FOTOS = fotos;
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
+  repintaTodo();
+})();
+</script>
+</body>
+</html>
