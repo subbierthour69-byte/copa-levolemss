@@ -1,0 +1,550 @@
+[
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-12T17:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "Centinelas",
+    "visita": "Cobach 1",
+    "sets": [
+      [
+        25,
+        19
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        25,
+        21
+      ],
+      [
+        25,
+        17
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-12T19:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "ICE",
+    "visita": "CBTis 11",
+    "sets": [
+      [
+        25,
+        20
+      ],
+      [
+        25,
+        27
+      ],
+      [
+        25,
+        18
+      ],
+      [
+        25,
+        14
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-13T10:00",
+    "sede": "Domo Deportivo",
+    "local": "Jaguares",
+    "visita": "Águilas",
+    "sets": [
+      [
+        21,
+        25
+      ],
+      [
+        25,
+        23
+      ],
+      [
+        19,
+        25
+      ],
+      [
+        25,
+        22
+      ],
+      [
+        12,
+        15
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-13T12:00",
+    "sede": "Domo Deportivo",
+    "local": "Lobos",
+    "visita": "Delfines",
+    "sets": [
+      [
+        25,
+        15
+      ],
+      [
+        25,
+        21
+      ],
+      [
+        25,
+        23
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-12T18:00",
+    "sede": "Auditorio — Cancha 2",
+    "local": "Halcones",
+    "visita": "Tiburones",
+    "sets": [
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        18
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        25,
+        20
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-13T14:00",
+    "sede": "Domo Deportivo",
+    "local": "ICE",
+    "visita": "Centinelas",
+    "sets": [
+      [
+        25,
+        23
+      ],
+      [
+        18,
+        25
+      ],
+      [
+        25,
+        19
+      ],
+      [
+        20,
+        25
+      ],
+      [
+        15,
+        11
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-13T16:00",
+    "sede": "Cancha Universitaria",
+    "local": "Pumas",
+    "visita": "Toros",
+    "sets": [
+      [
+        25,
+        16
+      ],
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        19
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-13T18:00",
+    "sede": "Cancha Universitaria",
+    "local": "Cóndores",
+    "visita": "Zorros",
+    "sets": [
+      [
+        22,
+        25
+      ],
+      [
+        25,
+        20
+      ],
+      [
+        25,
+        18
+      ],
+      [
+        26,
+        24
+      ]
+    ]
+  },
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T09:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "Centinelas",
+    "visita": "ICE"
+  },
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T11:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "Jaguares",
+    "visita": "Lobos"
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T13:00",
+    "sede": "Auditorio — Cancha 2",
+    "local": "Halcones",
+    "visita": "ICE"
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T15:00",
+    "sede": "Domo Deportivo",
+    "local": "Pumas",
+    "visita": "Cóndores"
+  },
+  {
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-03T10:00",
+    "sede": "Domo Deportivo",
+    "local": "Cobach 1",
+    "visita": "CBTis 11"
+  },
+  {
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo B",
+    "fecha": "2026-10-03T12:00",
+    "sede": "Domo Deportivo",
+    "local": "Toros",
+    "visita": "Zorros"
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Femenil",
+    "llave": "C1",
+    "avanzaA": "S1",
+    "ranura": "local",
+    "fecha": "2026-10-10T10:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "Centinelas",
+    "visita": "Delfines",
+    "sets": [
+      [
+        25,
+        18
+      ],
+      [
+        25,
+        20
+      ],
+      [
+        25,
+        22
+      ]
+    ]
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Femenil",
+    "llave": "C2",
+    "avanzaA": "S1",
+    "ranura": "visita",
+    "fecha": "2026-10-10T12:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "Jaguares",
+    "visita": "CBTis 11",
+    "sets": [
+      [
+        23,
+        25
+      ],
+      [
+        25,
+        21
+      ],
+      [
+        25,
+        19
+      ],
+      [
+        25,
+        23
+      ]
+    ]
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Femenil",
+    "llave": "C3",
+    "avanzaA": "S2",
+    "ranura": "local",
+    "fecha": "2026-10-10T14:00",
+    "sede": "Domo Deportivo",
+    "local": "ICE",
+    "visita": "Lobos",
+    "sets": [
+      [
+        25,
+        21
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        25,
+        17
+      ],
+      [
+        25,
+        15
+      ]
+    ]
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Femenil",
+    "llave": "C4",
+    "avanzaA": "S2",
+    "ranura": "visita",
+    "fecha": "2026-10-10T16:00",
+    "sede": "Domo Deportivo",
+    "local": "Águilas",
+    "visita": "Cobach 1",
+    "sets": [
+      [
+        25,
+        23
+      ],
+      [
+        25,
+        18
+      ],
+      [
+        19,
+        25
+      ],
+      [
+        25,
+        21
+      ]
+    ]
+  },
+  {
+    "fase": "semis",
+    "cat": "Femenil",
+    "llave": "S1",
+    "avanzaA": "F1",
+    "ranura": "local",
+    "fecha": "2026-10-17T11:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "",
+    "visita": "",
+    "sets": [
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        19
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        25,
+        20
+      ]
+    ]
+  },
+  {
+    "fase": "semis",
+    "cat": "Femenil",
+    "llave": "S2",
+    "avanzaA": "F1",
+    "ranura": "visita",
+    "fecha": "2026-10-17T13:00",
+    "sede": "Auditorio — Cancha 1",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "fase": "final",
+    "cat": "Femenil",
+    "llave": "F1",
+    "fecha": "2026-10-24T12:00",
+    "sede": "Auditorio — Cancha central",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Varonil",
+    "llave": "C1",
+    "avanzaA": "S1",
+    "ranura": "local",
+    "fecha": "2026-10-11T10:00",
+    "sede": "Auditorio — Cancha 2",
+    "local": "Halcones",
+    "visita": "Zorros",
+    "sets": [
+      [
+        25,
+        17
+      ],
+      [
+        25,
+        23
+      ],
+      [
+        25,
+        20
+      ]
+    ]
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Varonil",
+    "llave": "C2",
+    "avanzaA": "S1",
+    "ranura": "visita",
+    "fecha": "2026-10-11T12:00",
+    "sede": "Auditorio — Cancha 2",
+    "local": "Pumas",
+    "visita": "Centinelas",
+    "sets": [
+      [
+        25,
+        19
+      ],
+      [
+        21,
+        25
+      ],
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        18
+      ]
+    ]
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Varonil",
+    "llave": "C3",
+    "avanzaA": "S2",
+    "ranura": "local",
+    "fecha": "2026-10-11T14:00",
+    "sede": "Domo Deportivo",
+    "local": "ICE",
+    "visita": "Toros"
+  },
+  {
+    "fase": "cuartos",
+    "cat": "Varonil",
+    "llave": "C4",
+    "avanzaA": "S2",
+    "ranura": "visita",
+    "fecha": "2026-10-11T16:00",
+    "sede": "Domo Deportivo",
+    "local": "Cóndores",
+    "visita": "Tiburones"
+  },
+  {
+    "fase": "semis",
+    "cat": "Varonil",
+    "llave": "S1",
+    "avanzaA": "F1",
+    "ranura": "local",
+    "fecha": "2026-10-18T11:00",
+    "sede": "Auditorio — Cancha 2",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "fase": "semis",
+    "cat": "Varonil",
+    "llave": "S2",
+    "avanzaA": "F1",
+    "ranura": "visita",
+    "fecha": "2026-10-18T13:00",
+    "sede": "Auditorio — Cancha 2",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "fase": "final",
+    "cat": "Varonil",
+    "llave": "F1",
+    "fecha": "2026-10-24T14:00",
+    "sede": "Auditorio — Cancha central",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "ptazz7wb",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "A",
+    "fecha": "2026-09-27T09:46",
+    "sede": "CANCHA 1",
+    "local": "CENTINELAS",
+    "visita": "BACABS"
+  }
+]
