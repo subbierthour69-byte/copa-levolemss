@@ -1827,10 +1827,29 @@ const inicial = location.hash.slice(1);
 abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
 
 /* Carga, sin bloquear el primer dibujo, lo que se haya publicado desde el modo
-   administrador: data/logos.json y data/galeria.json. Si todavía no existen
-   (nadie ha subido nada aún) o falla la red, la página se queda con los
-   valores de arriba — nunca se rompe. */
+   administrador: data/equipos.json, data/partidos.json, data/logos.json y
+   data/galeria.json. Si alguno todavía no existe (nadie ha guardado nada ahí
+   aún) o falla la red, la página se queda con los valores de arriba — nunca
+   se rompe. Esto es lo que hace que los equipos y partidos que agregas o
+   editas se sigan viendo igual aunque recargues la página o entres desde
+   otro celular, y no solo mientras la pestaña sigue abierta. */
 (async () => {
+  try {
+    const r = await fetch('data/equipos.json?t=' + Date.now());
+    if (r.ok) {
+      const mapa = await r.json();
+      if (mapa && typeof mapa === 'object' && Object.keys(mapa).length) EQUIPOS = mapa;
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
+  try {
+    const r = await fetch('data/partidos.json?t=' + Date.now());
+    if (r.ok) {
+      const lista = await r.json();
+      if (Array.isArray(lista) && lista.length) PARTIDOS = lista;
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
   try {
     const r = await fetch('data/logos.json?t=' + Date.now());
     if (r.ok) {
