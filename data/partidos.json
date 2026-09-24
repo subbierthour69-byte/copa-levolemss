@@ -93,26 +93,8 @@
     "ranura": "visita",
     "fecha": "2026-10-10T16:00",
     "sede": "Domo Deportivo",
-    "local": "Águilas",
-    "visita": "Cobach 1",
-    "sets": [
-      [
-        25,
-        23
-      ],
-      [
-        25,
-        18
-      ],
-      [
-        19,
-        25
-      ],
-      [
-        25,
-        21
-      ]
-    ],
+    "local": "",
+    "visita": "",
     "id": "pzdxrjxz"
   },
   {
