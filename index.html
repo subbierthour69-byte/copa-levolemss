@@ -1739,11 +1739,14 @@ function abrePartidoModal(id = null) {
   $('#partido-sets-filas').innerHTML = '';
   (p && p.sets ? p.sets : []).forEach(([l, v]) => $('#partido-sets-filas').appendChild(filaSet(l, v)));
 
-  /* El botón Eliminar solo se muestra para partidos de fase de grupos:
-     borrar un partido de liguilla dejaría una llave del bracket sin
-     definir estructuralmente. Para "vaciar" un partido de liguilla, basta
-     con dejar Local y Visita en blanco y guardar. */
-  $('#partido-modal-eliminar').classList.toggle('hidden', !p || esLiguilla);
+  /* En partidos de fase de grupos, el botón quita el partido por completo.
+     En liguilla no se puede quitar la llave en sí (rompería el bracket),
+     así que el mismo botón "vacía" el partido: le quita equipos, fecha,
+     cancha y resultado, y con eso desaparece de Rol de Juegos y de
+     Resultados, y se ve como "Por definir" en la Liguilla — visualmente,
+     como si estuviera borrado. */
+  $('#partido-modal-eliminar').textContent = esLiguilla ? 'Vaciar partido' : 'Eliminar';
+  $('#partido-modal-eliminar').classList.toggle('hidden', !p);
   $('#partido-modal-aviso').classList.add('hidden');
   $('#partido-modal').classList.replace('hidden', 'flex');
 }
@@ -1807,18 +1810,26 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
 $('#partido-modal-eliminar').addEventListener('click', async () => {
   const id = $('#partido-id').value;
   if (!id) return;
-  if (!confirm('¿Eliminar este partido? No se puede deshacer.')) return;
 
   const idx = PARTIDOS.findIndex(p => p.id === id);
   if (idx === -1) return;
-  PARTIDOS.splice(idx, 1);
+  const esLiguilla = PARTIDOS[idx].fase !== 'grupos';
+
+  if (esLiguilla) {
+    if (!confirm('¿Vaciar este partido de liguilla? Se le quitan los equipos y el resultado (queda "Por definir"). Esto no borra la llave, así que el bracket sigue funcionando bien.')) return;
+    const { fase, llave, avanzaA, ranura, cat } = PARTIDOS[idx];
+    PARTIDOS[idx] = { id, fase, llave, avanzaA, ranura, cat, fecha: PARTIDOS[idx].fecha, sede: PARTIDOS[idx].sede, local: '', visita: '' };
+  } else {
+    if (!confirm('¿Eliminar este partido? No se puede deshacer.')) return;
+    PARTIDOS.splice(idx, 1);
+  }
 
   try {
     const { sha } = await ghLeeJSON('data/partidos.json', []);
-    await ghEscribeJSON('data/partidos.json', PARTIDOS, sha, 'Elimina partido');
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, sha, esLiguilla ? 'Vacía partido de liguilla' : 'Elimina partido');
     $('#partido-modal').classList.replace('flex', 'hidden');
     repintaTodo();
-    avisaFlotante('Partido eliminado.');
+    avisaFlotante(esLiguilla ? 'Partido vaciado.' : 'Partido eliminado.');
   } catch (err) {
     avisaEn('#partido-modal-aviso', false, 'No se pudo eliminar: ' + err.message);
   }
