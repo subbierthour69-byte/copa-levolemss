@@ -398,7 +398,9 @@ tailwind.config = {
     <h3 id="partido-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar partido</h3>
     <input id="partido-id" type="hidden">
 
-    <div class="mt-3 flex gap-3">
+    <p id="partido-modal-liguilla-info" class="mt-2 hidden rounded-lg bg-mist px-3 py-2 text-[12.5px] leading-relaxed text-muted"></p>
+
+    <div id="partido-modal-cat-grupo" class="mt-3 flex gap-3">
       <label class="block flex-1">
         <span class="mb-1 block text-[13px] font-medium text-court">Categoría</span>
         <select id="partido-cat" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
@@ -920,7 +922,7 @@ function tarjetaPartido(p) {
 
   return `
   <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
-    ${esAdmin() && p.fase === 'grupos' ? `
+    ${esAdmin() ? `
     <button data-editar-partido="${p.id}" title="Editar partido"
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
@@ -1042,7 +1044,7 @@ function tarjetaResultado(p) {
 
   return `
   <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
-    ${esAdmin() && p.fase === 'grupos' ? `
+    ${esAdmin() ? `
     <button data-editar-partido="${p.id}" title="Editar resultado"
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
@@ -1711,9 +1713,10 @@ function abrePartidoModal(id = null) {
   const p = id ? PARTIDOS.find(x => x.id === id) : null;
 
   if (id && !p) { alert('Ese partido ya no existe (puede que ya lo hayan borrado en otra sesión).'); return; }
-  if (p && p.fase !== 'grupos') { alert('Los partidos de liguilla todavía se editan desde el código, para no descuadrar el bracket.'); return; }
 
-  $('#partido-modal-titulo').textContent = p ? 'Editar partido' : 'Agregar partido';
+  const esLiguilla = !!(p && p.fase !== 'grupos');
+
+  $('#partido-modal-titulo').textContent = p ? (esLiguilla ? 'Editar partido de liguilla' : 'Editar partido') : 'Agregar partido';
   $('#partido-id').value = p ? p.id : '';
   $('#partido-cat').value = p ? p.cat : 'Femenil';
   $('#partido-grupo').value = p ? (p.grupo || '') : '';
@@ -1722,10 +1725,25 @@ function abrePartidoModal(id = null) {
   $('#partido-local').innerHTML = opcionesEquipos(p ? p.local : '');
   $('#partido-visita').innerHTML = opcionesEquipos(p ? p.visita : '');
 
+  /* En partidos de liguilla no se puede tocar la categoría, el grupo, ni a
+     qué llave avanza el ganador (eso rompería el bracket) — solo los
+     equipos, fecha, cancha y resultado. Se muestra un aviso en vez del
+     campo de categoría/grupo. */
+  $('#partido-modal-cat-grupo').classList.toggle('hidden', esLiguilla);
+  $('#partido-modal-liguilla-info').classList.toggle('hidden', !esLiguilla);
+  if (esLiguilla) {
+    $('#partido-modal-liguilla-info').textContent =
+      `${FASES[p.fase]} · ${p.cat} · llave ${p.llave}. La categoría y la llave no se pueden cambiar aquí; deja vacío "Local" o "Visita" para marcarlo como "Por definir".`;
+  }
+
   $('#partido-sets-filas').innerHTML = '';
   (p && p.sets ? p.sets : []).forEach(([l, v]) => $('#partido-sets-filas').appendChild(filaSet(l, v)));
 
-  $('#partido-modal-eliminar').classList.toggle('hidden', !p);
+  /* El botón Eliminar solo se muestra para partidos de fase de grupos:
+     borrar un partido de liguilla dejaría una llave del bracket sin
+     definir estructuralmente. Para "vaciar" un partido de liguilla, basta
+     con dejar Local y Visita en blanco y guardar. */
+  $('#partido-modal-eliminar').classList.toggle('hidden', !p || esLiguilla);
   $('#partido-modal-aviso').classList.add('hidden');
   $('#partido-modal').classList.replace('hidden', 'flex');
 }
@@ -1743,8 +1761,15 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
   const local = $('#partido-local').value;
   const visita = $('#partido-visita').value;
 
-  if (!cat || !fecha || !sede || !local || !visita) { avisaEn('#partido-modal-aviso', false, 'Completa categoría, fecha, cancha y ambos equipos.'); return; }
-  if (local === visita) { avisaEn('#partido-modal-aviso', false, 'El equipo local y el visitante no pueden ser el mismo.'); return; }
+  const idx = idActual ? PARTIDOS.findIndex(p => p.id === idActual) : -1;
+  if (idActual && idx === -1) { avisaEn('#partido-modal-aviso', false, 'Ese partido ya no existe.'); return; }
+  const esLiguilla = idx !== -1 && PARTIDOS[idx].fase !== 'grupos';
+
+  /* En liguilla se permite dejar Local/Visita vacíos ("Por definir"); en
+     fase de grupos siguen siendo obligatorios los dos equipos. */
+  if (!esLiguilla && (!cat || !fecha || !sede || !local || !visita)) { avisaEn('#partido-modal-aviso', false, 'Completa categoría, fecha, cancha y ambos equipos.'); return; }
+  if (esLiguilla && (!fecha || !sede)) { avisaEn('#partido-modal-aviso', false, 'Completa fecha y cancha.'); return; }
+  if (local && visita && local === visita) { avisaEn('#partido-modal-aviso', false, 'El equipo local y el visitante no pueden ser el mismo.'); return; }
 
   const sets = [];
   $$('#partido-sets-filas [data-fila-set]').forEach(fila => {
@@ -1754,9 +1779,12 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
   });
 
   if (idActual) {
-    const idx = PARTIDOS.findIndex(p => p.id === idActual);
-    if (idx === -1) { avisaEn('#partido-modal-aviso', false, 'Ese partido ya no existe.'); return; }
-    const actualizado = { ...PARTIDOS[idx], cat, grupo, fecha, sede, local, visita };
+    /* En liguilla, la categoría, el grupo, la llave, avanzaA y ranura NO se
+       tocan aquí — se conservan tal cual, para no descuadrar el bracket. */
+    const cambios = esLiguilla
+      ? { fecha, sede, local, visita }
+      : { cat, grupo, fecha, sede, local, visita };
+    const actualizado = { ...PARTIDOS[idx], ...cambios };
     if (sets.length) actualizado.sets = sets; else delete actualizado.sets;
     PARTIDOS[idx] = actualizado;
   } else {
