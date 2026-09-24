@@ -2,38 +2,6 @@
   {
     "fase": "grupos",
     "cat": "Varonil",
-    "grupo": "Grupo A",
-    "fecha": "2026-09-13T14:00",
-    "sede": "Domo Deportivo",
-    "local": "ICE",
-    "visita": "Centinelas",
-    "sets": [
-      [
-        25,
-        23
-      ],
-      [
-        18,
-        25
-      ],
-      [
-        25,
-        19
-      ],
-      [
-        20,
-        25
-      ],
-      [
-        15,
-        11
-      ]
-    ],
-    "id": "p9cphpil"
-  },
-  {
-    "fase": "grupos",
-    "cat": "Varonil",
     "grupo": "Grupo B",
     "fecha": "2026-09-13T16:00",
     "sede": "Cancha Universitaria",
