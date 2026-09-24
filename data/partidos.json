@@ -1,33 +1,5 @@
 [
   {
-    "fase": "grupos",
-    "cat": "Varonil",
-    "grupo": "Grupo B",
-    "fecha": "2026-09-13T18:00",
-    "sede": "Cancha Universitaria",
-    "local": "Cóndores",
-    "visita": "Zorros",
-    "sets": [
-      [
-        22,
-        25
-      ],
-      [
-        25,
-        20
-      ],
-      [
-        25,
-        18
-      ],
-      [
-        26,
-        24
-      ]
-    ],
-    "id": "p488cxih"
-  },
-  {
     "fase": "cuartos",
     "cat": "Femenil",
     "llave": "C1",
