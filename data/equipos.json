@@ -48,5 +48,10 @@
     "abrev": "CT",
     "categoria": "Ambas",
     "logo": "logos/cecytec.png"
+  },
+  "SEYBA PLAYA": {
+    "abrev": "SB",
+    "categoria": "Ambas",
+    "logo": ""
   }
 }
