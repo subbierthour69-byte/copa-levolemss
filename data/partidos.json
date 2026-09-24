@@ -7,22 +7,8 @@
     "ranura": "local",
     "fecha": "2026-10-10T10:00",
     "sede": "Auditorio — Cancha 1",
-    "local": "Centinelas",
-    "visita": "Delfines",
-    "sets": [
-      [
-        25,
-        18
-      ],
-      [
-        25,
-        20
-      ],
-      [
-        25,
-        22
-      ]
-    ],
+    "local": "",
+    "visita": "",
     "id": "pv8k33ae"
   },
   {
