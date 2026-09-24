@@ -24,7 +24,8 @@
         25,
         17
       ]
-    ]
+    ],
+    "id": "pc6ntb8d"
   },
   {
     "fase": "grupos",
@@ -51,7 +52,8 @@
         25,
         14
       ]
-    ]
+    ],
+    "id": "pbt6ptx0"
   },
   {
     "fase": "grupos",
@@ -82,7 +84,8 @@
         12,
         15
       ]
-    ]
+    ],
+    "id": "pf1y6byz"
   },
   {
     "fase": "grupos",
@@ -105,7 +108,8 @@
         25,
         23
       ]
-    ]
+    ],
+    "id": "pgfole1u"
   },
   {
     "fase": "grupos",
@@ -132,7 +136,8 @@
         25,
         20
       ]
-    ]
+    ],
+    "id": "pacbug52"
   },
   {
     "fase": "grupos",
@@ -163,7 +168,8 @@
         15,
         11
       ]
-    ]
+    ],
+    "id": "p9cphpil"
   },
   {
     "fase": "grupos",
@@ -186,7 +192,8 @@
         25,
         19
       ]
-    ]
+    ],
+    "id": "pzc9dfok"
   },
   {
     "fase": "grupos",
@@ -213,16 +220,8 @@
         26,
         24
       ]
-    ]
-  },
-  {
-    "fase": "grupos",
-    "cat": "Femenil",
-    "grupo": "Grupo A",
-    "fecha": "2026-09-27T09:00",
-    "sede": "Auditorio — Cancha 1",
-    "local": "Centinelas",
-    "visita": "ICE"
+    ],
+    "id": "p488cxih"
   },
   {
     "fase": "grupos",
@@ -231,7 +230,8 @@
     "fecha": "2026-09-27T11:00",
     "sede": "Auditorio — Cancha 1",
     "local": "Jaguares",
-    "visita": "Lobos"
+    "visita": "Lobos",
+    "id": "p6kg2ust"
   },
   {
     "fase": "grupos",
@@ -240,7 +240,8 @@
     "fecha": "2026-09-27T13:00",
     "sede": "Auditorio — Cancha 2",
     "local": "Halcones",
-    "visita": "ICE"
+    "visita": "ICE",
+    "id": "pztakdzv"
   },
   {
     "fase": "grupos",
@@ -249,7 +250,8 @@
     "fecha": "2026-09-27T15:00",
     "sede": "Domo Deportivo",
     "local": "Pumas",
-    "visita": "Cóndores"
+    "visita": "Cóndores",
+    "id": "phi372gy"
   },
   {
     "fase": "grupos",
@@ -258,7 +260,8 @@
     "fecha": "2026-10-03T10:00",
     "sede": "Domo Deportivo",
     "local": "Cobach 1",
-    "visita": "CBTis 11"
+    "visita": "CBTis 11",
+    "id": "ph1wi8tc"
   },
   {
     "fase": "grupos",
@@ -267,7 +270,8 @@
     "fecha": "2026-10-03T12:00",
     "sede": "Domo Deportivo",
     "local": "Toros",
-    "visita": "Zorros"
+    "visita": "Zorros",
+    "id": "pqjv9mul"
   },
   {
     "fase": "cuartos",
@@ -292,7 +296,8 @@
         25,
         22
       ]
-    ]
+    ],
+    "id": "pv8k33ae"
   },
   {
     "fase": "cuartos",
@@ -321,7 +326,8 @@
         25,
         23
       ]
-    ]
+    ],
+    "id": "pb3f6lxf"
   },
   {
     "fase": "cuartos",
@@ -350,7 +356,8 @@
         25,
         15
       ]
-    ]
+    ],
+    "id": "pun6tpc0"
   },
   {
     "fase": "cuartos",
@@ -379,7 +386,8 @@
         25,
         21
       ]
-    ]
+    ],
+    "id": "pzdxrjxz"
   },
   {
     "fase": "semis",
@@ -408,7 +416,8 @@
         25,
         20
       ]
-    ]
+    ],
+    "id": "pff9lkvs"
   },
   {
     "fase": "semis",
@@ -419,7 +428,8 @@
     "fecha": "2026-10-17T13:00",
     "sede": "Auditorio — Cancha 1",
     "local": "",
-    "visita": ""
+    "visita": "",
+    "id": "ph35w1vi"
   },
   {
     "fase": "final",
@@ -428,7 +438,8 @@
     "fecha": "2026-10-24T12:00",
     "sede": "Auditorio — Cancha central",
     "local": "",
-    "visita": ""
+    "visita": "",
+    "id": "ppqlwjhm"
   },
   {
     "fase": "cuartos",
@@ -453,7 +464,8 @@
         25,
         20
       ]
-    ]
+    ],
+    "id": "pznelvkm"
   },
   {
     "fase": "cuartos",
@@ -482,7 +494,8 @@
         25,
         18
       ]
-    ]
+    ],
+    "id": "puuczig8"
   },
   {
     "fase": "cuartos",
@@ -493,7 +506,8 @@
     "fecha": "2026-10-11T14:00",
     "sede": "Domo Deportivo",
     "local": "ICE",
-    "visita": "Toros"
+    "visita": "Toros",
+    "id": "pfcjho98"
   },
   {
     "fase": "cuartos",
@@ -504,7 +518,8 @@
     "fecha": "2026-10-11T16:00",
     "sede": "Domo Deportivo",
     "local": "Cóndores",
-    "visita": "Tiburones"
+    "visita": "Tiburones",
+    "id": "pwii2o5x"
   },
   {
     "fase": "semis",
@@ -515,7 +530,8 @@
     "fecha": "2026-10-18T11:00",
     "sede": "Auditorio — Cancha 2",
     "local": "",
-    "visita": ""
+    "visita": "",
+    "id": "pg8idijh"
   },
   {
     "fase": "semis",
@@ -526,7 +542,8 @@
     "fecha": "2026-10-18T13:00",
     "sede": "Auditorio — Cancha 2",
     "local": "",
-    "visita": ""
+    "visita": "",
+    "id": "p4rmcyua"
   },
   {
     "fase": "final",
@@ -535,6 +552,7 @@
     "fecha": "2026-10-24T14:00",
     "sede": "Auditorio — Cancha central",
     "local": "",
-    "visita": ""
+    "visita": "",
+    "id": "pukwkfce"
   }
 ]
