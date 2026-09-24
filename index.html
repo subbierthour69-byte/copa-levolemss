@@ -84,10 +84,12 @@ tailwind.config = {
 <header class="sticky top-0 z-40 bg-court text-white">
   <div class="mx-auto max-w-6xl px-4 sm:px-6">
     <div class="flex items-center gap-3 py-3.5">
-      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sun">
-        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="9"/><path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2"/>
-        </svg>
+      <span id="marca-icono" class="relative shrink-0">
+        <span id="marca-icono-inner" class="grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-white/10 text-sun">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2"/>
+          </svg>
+        </span>
       </span>
       <div class="min-w-0 flex-1">
         <h1 class="font-score text-[21px] leading-none tracking-wide sm:text-[26px]">LEVOLEMSS 2026</h1>
@@ -466,6 +468,7 @@ tailwind.config = {
 <!-- Selectores de archivo ocultos, usados por los botones de subida -->
 <input id="input-foto" type="file" accept="image/*" class="hidden">
 <input id="input-logo" type="file" accept="image/*" class="hidden">
+<input id="input-marca" type="file" accept="image/*" class="hidden">
 
 <script>
 /* ==========================================================================
@@ -637,6 +640,12 @@ const FOTOS_DEMO = [
 ];
 let FOTOS = FOTOS_DEMO;
 
+/* --- Logo de la liga (el ícono redondo junto a "LEVOLEMSS 2026") ----------
+   Vacío por defecto: se dibuja el balón de vóley de siempre. En cuanto se
+   suba uno desde el modo administrador, se guarda en data/marca.json y ese
+   se vuelve el logo real para todo el mundo. */
+let MARCA_LOGO = '';
+
 /* ==========================================================================
    2. UTILIDADES
    ========================================================================== */
@@ -738,6 +747,31 @@ function escudo(nombre, px = 34, url) {
                style="width:${px}px;height:${px}px">`;
 }
 function sinLogo(img) { img.outerHTML = respaldo(img.dataset.nombre, +img.dataset.px); }
+
+/* ---------- Logo de la liga (ícono de la barra superior) ---------- */
+
+function iconoMarcaDefault() {
+  return `<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2"/></svg>`;
+}
+function sinMarca(img) { img.outerHTML = iconoMarcaDefault(); }
+
+function pintaMarca() {
+  $('#marca-icono-inner').innerHTML = MARCA_LOGO
+    ? `<img src="${MARCA_LOGO}" alt="" onerror="sinMarca(this)" class="h-full w-full object-cover">`
+    : iconoMarcaDefault();
+
+  const existente = $('#btn-cambiar-marca');
+  if (existente) existente.remove();
+
+  if (esAdmin()) {
+    $('#marca-icono').insertAdjacentHTML('beforeend', `
+      <button id="btn-cambiar-marca" type="button" title="Cambiar el logo de la liga"
+              class="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-court text-white ring-2 ring-court hover:bg-deep">
+        ${icono('lapiz', 'h-2.5 w-2.5')}
+      </button>`);
+    $('#btn-cambiar-marca').addEventListener('click', () => $('#input-marca').click());
+  }
+}
 
 /* ==========================================================================
    3. PESTAÑAS PRINCIPALES
@@ -1516,6 +1550,37 @@ $('#input-logo').addEventListener('change', async e => {
   }
 });
 
+/* ---------- Subir/reemplazar el logo de la liga (ícono de la barra superior) ---------- */
+
+$('#input-marca').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  if (file.size > LIMITE_IMAGEN) {
+    alert(`Esa imagen pesa demasiado (máximo ${Math.round(LIMITE_IMAGEN / 1024)} KB). Comprímela, por ejemplo en squoosh.app, e inténtalo de nuevo.`);
+    return;
+  }
+
+  try {
+    const base64 = await archivoABase64(file);
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const ruta = `marca/logo.${ext}`;
+
+    await ghSubeArchivo(ruta, base64, 'Actualiza el logo de la liga');
+
+    const { valor, sha } = await ghLeeJSON('data/marca.json', {});
+    valor.logo = ruta;
+    await ghEscribeJSON('data/marca.json', valor, sha, 'Actualiza el logo de la liga');
+
+    MARCA_LOGO = ruta;
+    pintaMarca();
+    avisaFlotante('Logo de la liga actualizado.');
+  } catch (err) {
+    alert('No se pudo subir el logo: ' + err.message);
+  }
+});
+
 /* ---------- Subir una foto a la Galería ---------- */
 
 let archivoFotoPendiente = null;
@@ -1840,6 +1905,7 @@ $('#partido-modal-eliminar').addEventListener('click', async () => {
    ========================================================================== */
 
 function repintaTodo() {
+  pintaMarca();
   pintaEquipos();
   pintaProximo();
   pintaRol();
@@ -1910,6 +1976,14 @@ abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
     if (r.ok) {
       const fotos = await r.json();
       if (Array.isArray(fotos)) FOTOS = fotos;
+    }
+  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
+
+  try {
+    const r = await fetch('data/marca.json?t=' + Date.now());
+    if (r.ok) {
+      const datos = await r.json();
+      if (datos && datos.logo) MARCA_LOGO = datos.logo;
     }
   } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
 
