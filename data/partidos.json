@@ -89,30 +89,6 @@
   },
   {
     "fase": "grupos",
-    "cat": "Femenil",
-    "grupo": "Grupo B",
-    "fecha": "2026-09-13T12:00",
-    "sede": "Domo Deportivo",
-    "local": "Lobos",
-    "visita": "Delfines",
-    "sets": [
-      [
-        25,
-        15
-      ],
-      [
-        25,
-        21
-      ],
-      [
-        25,
-        23
-      ]
-    ],
-    "id": "pgfole1u"
-  },
-  {
-    "fase": "grupos",
     "cat": "Varonil",
     "grupo": "Grupo A",
     "fecha": "2026-09-12T18:00",
