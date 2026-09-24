@@ -2,37 +2,37 @@
   "CENTINELAS": {
     "abrev": "CEN",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/centinelas.jpeg"
   },
   "INSTITUTO TEC DE CAMPECHE": {
     "abrev": "ITCM",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/instituto-tec-de-campeche.jpeg"
   },
   "TEC DE CHINA": {
     "abrev": "T.CH",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/tec-de-china.jpeg"
   },
   "KATANA": {
     "abrev": "KT",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/katana.jpeg"
   },
-  "I.C.E": {
+  "INSTITUTO CAMPECHANO": {
     "abrev": "I.C",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/i-c-e.png"
   },
   "BACABS": {
     "abrev": "BC",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/bacabs.png"
   },
   "CBTIS 09": {
     "abrev": "CB9",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/cbtis-09.png"
   },
   "WICHO": {
     "abrev": "W",
@@ -42,11 +42,11 @@
   "COBACAM LERMA": {
     "abrev": "CBL",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/cobacam-lerma.jpeg"
   },
   "CECYTEC": {
     "abrev": "CT",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/cecytec.png"
   }
 }
