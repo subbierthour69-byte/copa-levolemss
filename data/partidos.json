@@ -115,26 +115,8 @@
     "ranura": "visita",
     "fecha": "2026-10-11T12:00",
     "sede": "Auditorio — Cancha 2",
-    "local": "Pumas",
-    "visita": "Centinelas",
-    "sets": [
-      [
-        25,
-        19
-      ],
-      [
-        21,
-        25
-      ],
-      [
-        25,
-        22
-      ],
-      [
-        25,
-        18
-      ]
-    ],
+    "local": "",
+    "visita": "",
     "id": "puuczig8"
   },
   {
