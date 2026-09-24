@@ -43,5 +43,10 @@
     "abrev": "CBL",
     "categoria": "Ambas",
     "logo": ""
+  },
+  "CECYTEC": {
+    "abrev": "CT",
+    "categoria": "Ambas",
+    "logo": ""
   }
 }
