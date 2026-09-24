@@ -63,26 +63,8 @@
     "ranura": "local",
     "fecha": "2026-10-10T14:00",
     "sede": "Domo Deportivo",
-    "local": "ICE",
-    "visita": "Lobos",
-    "sets": [
-      [
-        25,
-        21
-      ],
-      [
-        22,
-        25
-      ],
-      [
-        25,
-        17
-      ],
-      [
-        25,
-        15
-      ]
-    ],
+    "local": "",
+    "visita": "",
     "id": "pun6tpc0"
   },
   {
