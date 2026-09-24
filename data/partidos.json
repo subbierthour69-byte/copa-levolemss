@@ -89,22 +89,8 @@
     "ranura": "local",
     "fecha": "2026-10-11T10:00",
     "sede": "Auditorio — Cancha 2",
-    "local": "Halcones",
-    "visita": "Zorros",
-    "sets": [
-      [
-        25,
-        17
-      ],
-      [
-        25,
-        23
-      ],
-      [
-        25,
-        20
-      ]
-    ],
+    "local": "",
+    "visita": "",
     "id": "pznelvkm"
   },
   {
