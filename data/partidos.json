@@ -2,34 +2,6 @@
   {
     "fase": "grupos",
     "cat": "Femenil",
-    "grupo": "Grupo A",
-    "fecha": "2026-09-12T17:00",
-    "sede": "Auditorio — Cancha 1",
-    "local": "Centinelas",
-    "visita": "Cobach 1",
-    "sets": [
-      [
-        25,
-        19
-      ],
-      [
-        23,
-        25
-      ],
-      [
-        25,
-        21
-      ],
-      [
-        25,
-        17
-      ]
-    ],
-    "id": "pc6ntb8d"
-  },
-  {
-    "fase": "grupos",
-    "cat": "Femenil",
     "grupo": "Grupo B",
     "fecha": "2026-09-13T10:00",
     "sede": "Domo Deportivo",
