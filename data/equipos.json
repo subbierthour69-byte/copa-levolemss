@@ -24,10 +24,10 @@
     "categoria": "Ambas",
     "logo": "logos/i-c-e.png"
   },
-  "BACABS": {
+  "TIGRILLAS": {
     "abrev": "BC",
     "categoria": "Ambas",
-    "logo": "logos/bacabs.png"
+    "logo": "logos/bacabs.jpeg"
   },
   "CBTIS 09": {
     "abrev": "CB9",
@@ -57,6 +57,6 @@
   "COBACAM ESCARCEGA": {
     "abrev": "CB E",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/cobacam-escarcega.jpeg"
   }
 }
