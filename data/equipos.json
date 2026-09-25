@@ -58,5 +58,10 @@
     "abrev": "CB E",
     "categoria": "Ambas",
     "logo": "logos/cobacam-escarcega.jpeg"
+  },
+  "CHINA": {
+    "abrev": "CH",
+    "categoria": "Femenil",
+    "logo": ""
   }
 }
