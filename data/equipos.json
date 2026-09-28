@@ -68,5 +68,10 @@
     "abrev": "CEC",
     "categoria": "Varonil",
     "logo": ""
+  },
+  "TEC DE CAMPECHE": {
+    "abrev": "TEC",
+    "categoria": "Ambas",
+    "logo": ""
   }
 }
