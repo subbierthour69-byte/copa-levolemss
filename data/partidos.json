@@ -565,5 +565,25 @@
         27
       ]
     ]
+  },
+  {
+    "id": "pkh95u0v",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T10:30",
+    "sede": "CANCHA I.C",
+    "local": "CECYTE",
+    "visita": "TEC DE CHINA",
+    "sets": [
+      [
+        23,
+        25
+      ],
+      [
+        21,
+        25
+      ]
+    ]
   }
 ]
