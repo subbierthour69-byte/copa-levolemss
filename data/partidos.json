@@ -438,26 +438,6 @@
     ]
   },
   {
-    "id": "pbbe2s30",
-    "fase": "grupos",
-    "cat": "Femenil",
-    "grupo": "Grupo A",
-    "fecha": "2026-09-27T02:30",
-    "sede": "CANCHA 7 DE AGOSTO",
-    "local": "TEC DE CAMPECHE",
-    "visita": "INSTITUTO CAMPECHANO PREPA A",
-    "sets": [
-      [
-        25,
-        18
-      ],
-      [
-        25,
-        19
-      ]
-    ]
-  },
-  {
     "id": "lg-femenil-b-C1",
     "cat": "Femenil",
     "liga": "Femenil B",
