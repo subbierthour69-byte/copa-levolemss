@@ -314,5 +314,25 @@
         14
       ]
     ]
+  },
+  {
+    "id": "p37lcnjj",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T10:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "CECYTE A",
+    "visita": "INSTITUTO CAMPECHANO PREPA A",
+    "sets": [
+      [
+        9,
+        25
+      ],
+      [
+        9,
+        25
+      ]
+    ]
   }
 ]
