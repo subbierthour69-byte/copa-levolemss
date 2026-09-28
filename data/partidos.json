@@ -278,7 +278,17 @@
     "grupo": "Grupo B",
     "fecha": "2026-09-27T02:30",
     "sede": "CANCHA 7 DE AGOSTO",
-    "local": "ONIX",
-    "visita": "TIGRILLAS PREPA B"
+    "local": "INSTITUTO CAMPECHANO PREPA B",
+    "visita": "ONIX",
+    "sets": [
+      [
+        12,
+        25
+      ],
+      [
+        11,
+        25
+      ]
+    ]
   }
 ]
