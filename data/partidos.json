@@ -162,5 +162,93 @@
     "local": "",
     "visita": "",
     "id": "pukwkfce"
+  },
+  {
+    "id": "pozzneb7",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T10:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "INSTITUTO CAMPECHANO",
+    "visita": "ONIX",
+    "sets": [
+      [
+        12,
+        25
+      ],
+      [
+        11,
+        25
+      ]
+    ]
+  },
+  {
+    "id": "p6aed8rf",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T09:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "TIGRILLAS",
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        26,
+        24
+      ],
+      [
+        25,
+        11
+      ]
+    ]
+  },
+  {
+    "id": "p3kuuahq",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T00:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "TIGRILLAS",
+    "visita": "KATANA",
+    "sets": [
+      [
+        25,
+        8
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        18,
+        16
+      ]
+    ]
+  },
+  {
+    "id": "pcwu5449",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T01:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "CECYTEC",
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        25,
+        22
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        9,
+        15
+      ]
+    ]
   }
 ]
