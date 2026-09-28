@@ -93,5 +93,10 @@
     "abrev": "KAT",
     "categoria": "Femenil",
     "logo": ""
+  },
+  "TEC DE CHINA": {
+    "abrev": "TEC",
+    "categoria": "Varonil",
+    "logo": ""
   }
 }
