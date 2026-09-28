@@ -222,5 +222,29 @@
         25
       ]
     ]
+  },
+  {
+    "id": "pn5updd0",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T00:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "TIGRILLAS PREPA B",
+    "visita": "KATANA",
+    "sets": [
+      [
+        25,
+        8
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        18,
+        16
+      ]
+    ]
   }
 ]
