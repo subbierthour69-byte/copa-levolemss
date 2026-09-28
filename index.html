@@ -412,8 +412,9 @@ tailwind.config = {
       </label>
       <label class="block flex-1">
         <span class="mb-1 block text-[13px] font-medium text-court">Grupo</span>
-        <input id="partido-grupo" type="text" placeholder="Ej. Grupo A"
+        <input id="partido-grupo" type="text" list="grupos-sugeridos" placeholder="Ej. Grupo A"
                class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+        <datalist id="grupos-sugeridos"></datalist>
       </label>
     </div>
 
@@ -610,19 +611,54 @@ const PARTIDOS_DEMO = [
    Empieza con el demo de arriba; en cuanto exista data/partidos.json (se crea
    solo al agregar tu primer partido real desde el modo administrador), ese
    archivo se vuelve la fuente real — rol, resultados, tabla y liguilla. */
-/* A los partidos de ejemplo de arriba, y a cualquiera que llegue de
-   data/partidos.json sin id (por ejemplo si se editó el archivo a mano),
-   se les asigna un identificador aquí. Sin esto, un partido "de fábrica"
-   no se puede editar ni borrar desde la página. */
-function aseguraIds(lista) {
-  lista.forEach(p => { if (!p.id) p.id = 'p' + Math.random().toString(36).slice(2, 9); });
+/* --- Liguillas ---------------------------------------------------------------
+   Hay una liguilla (cuadro de eliminación) por cada entrada de esta lista.
+   Cada partido de liguilla guarda en "liga" a cuál pertenece. Los que no lo
+   traen (los de antes) se asignan solos a la primera liguilla de su categoría.
+   Si una liguilla no tiene sus 7 partidos (4 cuartos, 2 semis y la final),
+   los que falten se crean vacíos ("Por definir"). */
+const LIGUILLAS = [
+  { id:'Femenil A', cat:'Femenil', nombre:'Femenil · Grupo A' },
+  { id:'Femenil B', cat:'Femenil', nombre:'Femenil · Grupo B' },
+  { id:'Varonil',   cat:'Varonil', nombre:'Varonil' }
+];
+const PLANTILLA_LIGUILLA = [
+  { llave:'C1', fase:'cuartos', avanzaA:'S1', ranura:'local'  },
+  { llave:'C2', fase:'cuartos', avanzaA:'S1', ranura:'visita' },
+  { llave:'C3', fase:'cuartos', avanzaA:'S2', ranura:'local'  },
+  { llave:'C4', fase:'cuartos', avanzaA:'S2', ranura:'visita' },
+  { llave:'S1', fase:'semis',   avanzaA:'F1', ranura:'local'  },
+  { llave:'S2', fase:'semis',   avanzaA:'F1', ranura:'visita' },
+  { llave:'F1', fase:'final' }
+];
+
+/* Deja la lista de partidos lista para usarse: le da un identificador a los
+   que no lo tienen (sin id no se pueden editar ni borrar), asigna liguilla a
+   los partidos de liguilla que no la traen, y crea los partidos vacíos que
+   falten en cada liguilla. */
+function normalizaPartidos(lista) {
+  lista.forEach(p => {
+    if (!p.id) p.id = 'p' + Math.random().toString(36).slice(2, 9);
+    if (p.fase !== 'grupos' && !p.liga) {
+      const l = LIGUILLAS.find(x => x.cat === p.cat);
+      if (l) p.liga = l.id;
+    }
+  });
+  LIGUILLAS.forEach(l => {
+    const prefijo = 'lg-' + l.id.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    PLANTILLA_LIGUILLA.forEach(t => {
+      const existe = lista.some(p => p.fase !== 'grupos' && p.liga === l.id && p.llave === t.llave);
+      if (existe) return;
+      lista.push({
+        id: prefijo + '-' + t.llave, cat: l.cat, liga: l.id, fase: t.fase, llave: t.llave,
+        ...(t.avanzaA ? { avanzaA: t.avanzaA, ranura: t.ranura } : {}),
+        fecha: '', sede: '', local: '', visita: ''
+      });
+    });
+  });
   return lista;
 }
-let PARTIDOS = aseguraIds(JSON.parse(JSON.stringify(PARTIDOS_DEMO)));
-
-/* La tabla de posiciones cuenta solo la fase de grupos.
-   Ponlo en false si quieres que la liguilla también sume puntos. */
-const TABLA_SOLO_GRUPOS = true;
+let PARTIDOS = normalizaPartidos(JSON.parse(JSON.stringify(PARTIDOS_DEMO)));
 
 /* Galería de respaldo: solo se usa mientras no exista data/galeria.json en tu
    repositorio (o si por algo no carga). En cuanto subas tu primera foto desde
@@ -660,6 +696,7 @@ const fecha    = iso => new Date(iso.replace(' ', 'T'));
 const claveDia = iso => iso.slice(0, 10);
 
 const tituloDia = iso => {
+  if (!iso) return 'Fecha por definir';
   const d = fecha(iso);
   return `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`;
 };
@@ -679,6 +716,31 @@ const setsGanados = p => p.sets.reduce((a, s) => [a[0] + (s[0] > s[1] ? 1 : 0), 
 const ganador     = p => { const [a, b] = setsGanados(p); return a > b ? p.local : p.visita; };
 
 const FASES = { grupos:'Fase de grupos', cuartos:'Cuartos de final', semis:'Semifinal', final:'Final' };
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const normaliza = s => (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+const nombreLiga = id => (LIGUILLAS.find(l => l.id === id) || {}).nombre || '';
+/* Texto corto de "en qué fase/grupo está" un partido. */
+function etiquetaFase(p) {
+  if (p.grupo) return p.grupo;
+  const liga = p.liga ? nombreLiga(p.liga) : '';
+  return liga ? `${FASES[p.fase]} · ${liga}` : FASES[p.fase];
+}
+
+/* Grupos de una rama, tomados de los partidos de fase de grupos. "Grupo A" y
+   "grupo a " cuentan como el mismo grupo. */
+const claveGrupo = g => (g || '').trim().toLowerCase();
+function gruposDeRama(rama) {
+  const mapa = new Map();
+  PARTIDOS.filter(p => p.cat === rama && p.fase === 'grupos').forEach(p => {
+    const k = claveGrupo(p.grupo);
+    if (!mapa.has(k)) mapa.set(k, (p.grupo || '').trim() || 'Sin grupo');
+  });
+  return [...mapa.entries()]
+    .map(([clave, etiqueta]) => ({ clave, etiqueta, valor: clave || '__sin' }))
+    .sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es', { numeric: true }));
+}
 
 function iniciales(nombre) {
   if (!nombre) return '?';
@@ -721,7 +783,8 @@ const ICONOS = {
   lapiz:        '<path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M13.5 7.5l3 3"/>',
   mas:          '<path d="M12 5v14M5 12h14"/>',
   subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
-  cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>'
+  cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>',
+  buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -791,7 +854,9 @@ const estado = {
   tab: 'equipos',
   filtroEquipos: 'Todas',
   ramaRol: 'Todas',
-  ramaLiguilla: 'Femenil',
+  liga: LIGUILLAS[0].id,
+  busqueda: { Femenil:'', Varonil:'' },
+  resFiltro: { Femenil:'Todos', Varonil:'Todos' },
   sub: { Femenil:'resultados', Varonil:'resultados' }
 };
 
@@ -838,8 +903,9 @@ function abreTab(id) {
 
 /* Grupo de botones reutilizable (chips de filtro) */
 function grupoBotones(contenedor, opciones, valorActual, alCambiar) {
-  contenedor.innerHTML = opciones.map(o => `
-    <button data-valor="${o}" class="shrink-0 rounded-lg px-3.5 py-1.5 font-score text-[16px] tracking-wide transition-colors"></button>`).join('');
+  const ops = opciones.map(o => typeof o === 'string' ? { valor: o, texto: o } : o);
+  contenedor.innerHTML = ops.map(o => `
+    <button data-valor="${esc(o.valor)}" class="shrink-0 rounded-lg px-3.5 py-1.5 font-score text-[16px] tracking-wide transition-colors">${esc(o.texto)}</button>`).join('');
   $$('[data-valor]', contenedor).forEach(b => b.addEventListener('click', () => alCambiar(b.dataset.valor)));
   marcaGrupo(contenedor, valorActual);
 }
@@ -942,7 +1008,7 @@ function pintaProximo() {
     <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/15 pt-4 text-[13.5px] sm:grid-cols-4">
       <div><dt class="text-white/55">Fecha</dt><dd class="mt-0.5 font-medium">${tituloDia(p.fecha)}</dd></div>
       <div><dt class="text-white/55">Categoría</dt><dd class="mt-0.5 font-medium">${p.cat}</dd></div>
-      <div><dt class="text-white/55">Fase</dt><dd class="mt-0.5 font-medium">${p.grupo || FASES[p.fase]}</dd></div>
+      <div><dt class="text-white/55">Fase</dt><dd class="mt-0.5 font-medium">${etiquetaFase(p)}</dd></div>
       <div class="col-span-2 sm:col-span-1"><dt class="text-white/55">Cancha</dt><dd class="mt-0.5 font-medium">${p.sede}</dd></div>
     </dl>`;
 }
@@ -973,12 +1039,12 @@ function tarjetaPartido(p) {
       </div>
       <div class="hidden shrink-0 space-y-1.5 text-right sm:block">
         <span class="block rounded-md bg-sky px-2.5 py-1 text-[12.5px] font-medium text-blue">${p.cat}</span>
-        <span class="block text-[12.5px] text-muted">${p.grupo || FASES[p.fase]}</span>
+        <span class="block text-[12.5px] text-muted">${etiquetaFase(p)}</span>
       </div>
     </div>
     <div class="mt-3 flex gap-2 sm:hidden">
       <span class="rounded-md bg-sky px-2 py-0.5 text-[12px] font-medium text-blue">${p.cat}</span>
-      <span class="rounded-md bg-mist px-2 py-0.5 text-[12px] text-muted">${p.grupo || FASES[p.fase]}</span>
+      <span class="rounded-md bg-mist px-2 py-0.5 text-[12px] text-muted">${etiquetaFase(p)}</span>
     </div>
   </article>`;
 }
@@ -1027,11 +1093,20 @@ function montaRama(rama) {
     </div>
 
     <div class="mt-5">
-      <div id="sub-${rama}-resultados" class="subpanel" role="tabpanel"><div data-res class="space-y-7"></div></div>
+      <div id="sub-${rama}-resultados" class="subpanel" role="tabpanel">
+        <label class="relative block">
+          <span class="sr-only">Buscar partido</span>
+          <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">${icono('buscar', 'h-4 w-4')}</span>
+          <input data-buscar type="search" autocomplete="off" placeholder="Buscar partido: equipo, grupo, cancha o fecha…"
+                 class="w-full rounded-xl border border-hair bg-white py-2.5 pl-10 pr-3 text-[14.5px] shadow-card focus:outline-none focus:ring-2 focus:ring-blue">
+        </label>
+        <div data-res-chips class="noscroll mt-3 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+        <div data-res class="mt-5 space-y-8"></div>
+      </div>
       <div id="sub-${rama}-posiciones" class="subpanel" role="tabpanel" hidden>
         <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
         <p class="mt-1 max-w-[62ch] text-[14px] leading-relaxed text-muted">
-          ${TABLA_SOLO_GRUPOS ? 'Solo cuenta la fase de grupos de esta rama.' : 'Cuenta todos los partidos jugados de esta rama.'}
+          Solo cuenta la fase de grupos, y cada grupo tiene su propia tabla.
           Se ordena por puntos; si hay empate, decide la diferencia de sets y luego los juegos ganados.
         </p>
         <div data-tabla class="mt-4"></div>
@@ -1039,6 +1114,13 @@ function montaRama(rama) {
     </div>`;
 
   $$('[data-sub]', panel).forEach(b => b.addEventListener('click', () => abreSub(rama, b.dataset.sub)));
+
+  const buscar = $('[data-buscar]', panel);
+  buscar.value = estado.busqueda[rama] || '';
+  buscar.addEventListener('input', () => {
+    estado.busqueda[rama] = buscar.value;
+    pintaListaResultados(rama);
+  });
 
   pintaResultados(rama);
   pintaTabla(rama);
@@ -1085,7 +1167,7 @@ function tarjetaResultado(p) {
     </button>` : ''}
     <div class="mb-3 flex flex-wrap items-center gap-2 pr-8 text-[12.5px]">
       <span class="rounded-md ${p.fase === 'grupos' ? 'bg-sky text-blue' : 'bg-sun/25 text-court'} px-2 py-0.5 font-medium">
-        ${p.grupo || FASES[p.fase]}
+        ${etiquetaFase(p)}
       </span>
       <span class="text-muted">${tituloDia(p.fecha)}</span>
       <span class="hidden text-muted sm:inline">${p.sede}</span>
@@ -1100,58 +1182,148 @@ function tarjetaResultado(p) {
   </article>`;
 }
 
-function pintaResultados(rama) {
-  const cont = $('[data-res]', $('#panel-' + rama.toLowerCase()));
-  const llaves = bracketResuelto(rama);
-
-  const lista = PARTIDOS
+/* Partidos ya jugados de una rama, con los equipos de liguilla ya resueltos
+   (el ganador de cuartos aparece como equipo de semifinal, etc.). */
+function resultadosDe(rama) {
+  const cache = {};
+  return PARTIDOS
     .filter(p => p.cat === rama && jugado(p))
-    .map(p => p.fase === 'grupos' ? p : { ...p, ...llaves[p.llave] })
-    .sort((a, b) => fecha(b.fecha) - fecha(a.fecha));
+    .map(p => {
+      if (p.fase === 'grupos') return p;
+      cache[p.liga] = cache[p.liga] || bracketResuelto(p.liga);
+      return { ...p, ...cache[p.liga][p.llave] };
+    })
+    .filter(p => p.local && p.visita);
+}
 
-  if (!lista.length) { cont.innerHTML = vacio(`Todavía no hay resultados en la rama ${rama.toLowerCase()}.`); return; }
+/* Las palabras que se pueden buscar de un partido (sin acentos ni mayúsculas):
+   equipos, grupo o fase, categoría, cancha, fecha y marcadores. */
+const palabrasDe = p => normaliza([
+  p.local, p.visita, iniciales(p.local), iniciales(p.visita),
+  etiquetaFase(p), p.cat, p.sede,
+  p.fecha ? tituloDia(p.fecha) : '', p.fecha,
+  (p.sets || []).map(s => s[0] + '-' + s[1]).join(' ')
+].join(' ')).split(/[^a-z0-9]+/).filter(Boolean);
 
-  cont.innerHTML = agrupaPorDia(lista).map(([dia, partidos]) => `
+/* Dibuja los filtros por grupo y la lista. Se llama cuando cambian los datos. */
+function pintaResultados(rama) {
+  const panel = $('#panel-' + rama.toLowerCase());
+  const grupos = gruposDeRama(rama);
+  const hayLiguilla = resultadosDe(rama).some(p => p.fase !== 'grupos');
+
+  const opciones = [
+    { valor: 'Todos', texto: 'Todos' },
+    ...grupos.map(g => ({ valor: g.valor, texto: g.etiqueta })),
+    ...(hayLiguilla ? [{ valor: 'Liguilla', texto: 'Liguilla' }] : [])
+  ];
+  if (!opciones.some(o => o.valor === estado.resFiltro[rama])) estado.resFiltro[rama] = 'Todos';
+
+  const chips = $('[data-res-chips]', panel);
+  chips.style.display = opciones.length > 2 ? '' : 'none';
+  grupoBotones(chips, opciones, estado.resFiltro[rama], valor => {
+    estado.resFiltro[rama] = valor;
+    marcaGrupo(chips, valor);
+    pintaListaResultados(rama);
+  });
+
+  pintaListaResultados(rama);
+}
+
+/* Dibuja solo la lista de resultados (se llama también al escribir en el buscador). */
+function pintaListaResultados(rama) {
+  const panel = $('#panel-' + rama.toLowerCase());
+  const cont = $('[data-res]', panel);
+
+  const consulta = (estado.busqueda[rama] || '').trim();
+  /* Cada palabra que escribes debe coincidir con el inicio de alguna palabra
+     del partido: "grupo b" no confunde la "b" con "Cobach", y "sept" encuentra
+     "septiembre". Una sola letra solo coincide con una palabra de esa letra
+     (la "A" de "Grupo A", no "Águilas"). */
+  const tokens = normaliza(consulta).split(/[^a-z0-9]+/).filter(Boolean);
+  const coincide = p => {
+    if (!tokens.length) return true;
+    const palabras = palabrasDe(p);
+    return tokens.every(t => palabras.some(w => t.length === 1 ? w === t : w.startsWith(t)));
+  };
+
+  const filtro = estado.resFiltro[rama] || 'Todos';
+  const grupos = gruposDeRama(rama);
+  const todos = resultadosDe(rama);
+  const ligas = LIGUILLAS.filter(l => l.cat === rama);
+  const hayLiguilla = todos.some(p => p.fase !== 'grupos');
+
+  const secciones = [];
+  grupos.forEach(g => {
+    if (filtro !== 'Todos' && filtro !== g.valor) return;
+    secciones.push({
+      titulo: g.etiqueta, liguilla: false,
+      partidos: todos.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave && coincide(p))
+    });
+  });
+  if (filtro === 'Todos' || filtro === 'Liguilla') {
+    ligas.forEach(l => {
+      secciones.push({
+        titulo: ligas.length > 1 ? `Liguilla · ${l.nombre}` : 'Liguilla', liguilla: true,
+        partidos: todos.filter(p => p.fase !== 'grupos' && p.liga === l.id && coincide(p))
+      });
+    });
+  }
+
+  const visibles = secciones.filter(s => s.partidos.length);
+  if (!visibles.length) {
+    cont.innerHTML = consulta
+      ? vacio(`No se encontró ningún partido con “${esc(consulta)}”.`)
+      : vacio(`Todavía no hay resultados en la rama ${rama.toLowerCase()}.`);
+    return;
+  }
+
+  const conTitulos = grupos.length + (hayLiguilla ? 1 : 0) > 1;
+
+  cont.innerHTML = visibles.map(sec => `
     <section>
-      <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${tituloDia(dia)}</h3>
-      <div class="space-y-3">${partidos.map(tarjetaResultado).join('')}</div>
+      ${conTitulos ? `
+      <div class="mb-3 flex items-center gap-2.5">
+        <span class="rounded-lg ${sec.liguilla ? 'bg-sun text-court' : 'bg-court text-white'} px-3 py-1 font-score text-[17px] tracking-wide">${esc(sec.titulo)}</span>
+        <span class="text-[12.5px] text-muted">${sec.partidos.length} ${sec.partidos.length === 1 ? 'partido' : 'partidos'}</span>
+      </div>` : ''}
+      <div class="space-y-6">
+        ${agrupaPorDia(sec.partidos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))).map(([dia, partidos]) => `
+          <div>
+            <h4 class="mb-2.5 font-score text-[17px] tracking-wide text-muted">${tituloDia(dia)}</h4>
+            <div class="space-y-3">${partidos.map(tarjetaResultado).join('')}</div>
+          </div>`).join('')}
+      </div>
     </section>`).join('');
 
   $$('[data-editar-partido]', cont).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
 }
 
-/* ---------- Tabla de posiciones: PJ, PG, PP, SF, SC, Pts ---------- */
+/* ---------- Tabla de posiciones: PJ, PG, PP, SF, SC, Pts (una por grupo) ---------- */
 
-function pintaTabla(rama) {
-  const destino = $('[data-tabla]', $('#panel-' + rama.toLowerCase()));
-  const jugados = PARTIDOS.filter(p =>
-    p.cat === rama && jugado(p) && p.local && p.visita &&
-    (!TABLA_SOLO_GRUPOS || p.fase === 'grupos'));
-
+function filasDeGrupo(rama, g) {
   const t = {};
   const toca = n => (t[n] ||= { eq:n, pj:0, pg:0, pp:0, sf:0, sc:0, pts:0 });
 
-  jugados.forEach(p => {
-    const [gl, gv] = setsGanados(p);
-    const L = toca(p.local), V = toca(p.visita);
-    L.pj++; V.pj++;
-    L.sf += gl; L.sc += gv; V.sf += gv; V.sc += gl;
-    if (gl > gv) { L.pg++; V.pp++; L.pts += gv <= 1 ? 3 : 2; V.pts += gv <= 1 ? 0 : 1; }
-    else         { V.pg++; L.pp++; V.pts += gl <= 1 ? 3 : 2; L.pts += gl <= 1 ? 0 : 1; }
-  });
+  PARTIDOS
+    .filter(p => p.cat === rama && p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave && jugado(p) && p.local && p.visita)
+    .forEach(p => {
+      const [gl, gv] = setsGanados(p);
+      const L = toca(p.local), V = toca(p.visita);
+      L.pj++; V.pj++;
+      L.sf += gl; L.sc += gv; V.sf += gv; V.sc += gl;
+      if (gl > gv) { L.pg++; V.pp++; L.pts += gv <= 1 ? 3 : 2; V.pts += gv <= 1 ? 0 : 1; }
+      else         { V.pg++; L.pp++; V.pts += gl <= 1 ? 3 : 2; L.pts += gl <= 1 ? 0 : 1; }
+    });
 
-  const filas = Object.values(t).sort((a, b) =>
+  return Object.values(t).sort((a, b) =>
     b.pts - a.pts || (b.sf - b.sc) - (a.sf - a.sc) || b.pg - a.pg || b.sf - a.sf);
+}
 
-  if (!filas.length) {
-    destino.innerHTML = vacio(`La tabla de la rama ${rama.toLowerCase()} se llena conforme se capturan los resultados.`);
-    return;
-  }
-
-  destino.innerHTML = `
+function htmlTabla(filas, descripcion) {
+  return `
   <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
     <table class="w-full text-[14px]">
-      <caption class="sr-only">Tabla de posiciones de la rama ${rama.toLowerCase()}</caption>
+      <caption class="sr-only">Tabla de posiciones: ${esc(descripcion)}</caption>
       <thead>
         <tr class="border-b border-hair text-[12.5px] text-muted">
           <th scope="col" class="py-2.5 pl-4 pr-2 text-left font-medium">Equipo</th>
@@ -1183,8 +1355,30 @@ function pintaTabla(rama) {
           </tr>`).join('')}
       </tbody>
     </table>
-  </div>
-  <p class="mt-2.5 px-1 text-[12.5px] leading-relaxed text-muted">
+  </div>`;
+}
+
+function pintaTabla(rama) {
+  const destino = $('[data-tabla]', $('#panel-' + rama.toLowerCase()));
+  const grupos = gruposDeRama(rama);
+
+  if (!grupos.length) {
+    destino.innerHTML = vacio(`La tabla de la rama ${rama.toLowerCase()} se llena conforme se capturan los resultados.`);
+    return;
+  }
+
+  destino.innerHTML = grupos.map(g => {
+    const filas = filasDeGrupo(rama, g);
+    const nombre = grupos.length > 1 ? g.etiqueta : `la rama ${rama.toLowerCase()}`;
+    return `
+    <section class="mb-8">
+      ${grupos.length > 1 ? `<h4 class="mb-2.5 font-score text-[21px] tracking-wide text-court">${esc(g.etiqueta)}</h4>` : ''}
+      ${filas.length
+        ? htmlTabla(filas, `${rama} ${g.etiqueta}`)
+        : vacio(`La tabla de ${esc(nombre)} se llena conforme se capturan los resultados.`)}
+    </section>`;
+  }).join('') + `
+  <p class="px-1 text-[12.5px] leading-relaxed text-muted">
     PJ: jugados. PG/PP: ganados/perdidos. SF/SC: sets a favor y en contra.
     Victoria 3-0 o 3-1: 3 pts. Victoria 3-2: 2 pts. Derrota 2-3: 1 pt. Derrota 0-3 o 1-3: 0 pts.
   </p>`;
@@ -1194,9 +1388,9 @@ function pintaTabla(rama) {
    7. LIGUILLA — el ganador avanza solo al capturar los sets
    ========================================================================== */
 
-function bracketResuelto(rama) {
+function bracketResuelto(ligaId) {
   const m = {};
-  PARTIDOS.filter(p => p.cat === rama && p.fase !== 'grupos')
+  PARTIDOS.filter(p => p.fase !== 'grupos' && p.liga === ligaId)
           .forEach(p => { m[p.llave] = { ...p }; });
 
   ['cuartos', 'semis'].forEach(f => {
@@ -1252,13 +1446,13 @@ function trofeo(campeon) {
 }
 
 function pintaBracket() {
-  const rama = estado.ramaLiguilla;
-  const m = bracketResuelto(rama);
+  const liga = LIGUILLAS.find(l => l.id === estado.liga) || LIGUILLAS[0];
+  const m = bracketResuelto(liga.id);
   const destino = $('#bracket');
 
   const faltan = ['C1','C2','C3','C4','S1','S2','F1'].filter(k => !m[k]);
   if (faltan.length) {
-    destino.innerHTML = vacio(`Falta definir en PARTIDOS las llaves ${faltan.join(', ')} de la rama ${rama.toLowerCase()}.`);
+    destino.innerHTML = vacio(`Faltan las llaves ${faltan.join(', ')} de la liguilla ${liga.nombre}.`);
     return;
   }
 
@@ -1785,6 +1979,9 @@ function abrePartidoModal(id = null) {
   $('#partido-id').value = p ? p.id : '';
   $('#partido-cat').value = p ? p.cat : 'Femenil';
   $('#partido-grupo').value = p ? (p.grupo || '') : '';
+  const sugeridos = new Set(['Grupo A', 'Grupo B']);
+  PARTIDOS.forEach(x => { if (x.grupo && x.grupo.trim()) sugeridos.add(x.grupo.trim()); });
+  $('#grupos-sugeridos').innerHTML = [...sugeridos].map(g => `<option value="${esc(g)}"></option>`).join('');
   $('#partido-fecha').value = p ? p.fecha : '';
   $('#partido-sede').value = p ? p.sede : '';
   $('#partido-local').innerHTML = opcionesEquipos(p ? p.local : '');
@@ -1798,7 +1995,7 @@ function abrePartidoModal(id = null) {
   $('#partido-modal-liguilla-info').classList.toggle('hidden', !esLiguilla);
   if (esLiguilla) {
     $('#partido-modal-liguilla-info').textContent =
-      `${FASES[p.fase]} · ${p.cat} · llave ${p.llave}. La categoría y la llave no se pueden cambiar aquí; deja vacío "Local" o "Visita" para marcarlo como "Por definir".`;
+      `${FASES[p.fase]} · Liguilla ${nombreLiga(p.liga) || p.cat} · llave ${p.llave}. La categoría y la llave no se pueden cambiar aquí; deja vacío "Local" o "Visita" para marcarlo como "Por definir".`;
   }
 
   $('#partido-sets-filas').innerHTML = '';
@@ -1836,7 +2033,6 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
   /* En liguilla se permite dejar Local/Visita vacíos ("Por definir"); en
      fase de grupos siguen siendo obligatorios los dos equipos. */
   if (!esLiguilla && (!cat || !fecha || !sede || !local || !visita)) { avisaEn('#partido-modal-aviso', false, 'Completa categoría, fecha, cancha y ambos equipos.'); return; }
-  if (esLiguilla && (!fecha || !sede)) { avisaEn('#partido-modal-aviso', false, 'Completa fecha y cancha.'); return; }
   if (local && visita && local === visita) { avisaEn('#partido-modal-aviso', false, 'El equipo local y el visitante no pueden ser el mismo.'); return; }
 
   const sets = [];
@@ -1845,6 +2041,11 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
     const v = fila.querySelector('[data-set-visita]').value;
     if (l !== '' && v !== '') sets.push([parseInt(l, 10), parseInt(v, 10)]);
   });
+
+  if (esLiguilla && ((local && visita) || sets.length) && (!fecha || !sede)) {
+    avisaEn('#partido-modal-aviso', false, 'Completa fecha y cancha.');
+    return;
+  }
 
   if (idActual) {
     /* En liguilla, la categoría, el grupo, la llave, avanzaA y ranura NO se
@@ -1882,8 +2083,8 @@ $('#partido-modal-eliminar').addEventListener('click', async () => {
 
   if (esLiguilla) {
     if (!confirm('¿Vaciar este partido de liguilla? Se le quitan los equipos y el resultado (queda "Por definir"). Esto no borra la llave, así que el bracket sigue funcionando bien.')) return;
-    const { fase, llave, avanzaA, ranura, cat } = PARTIDOS[idx];
-    PARTIDOS[idx] = { id, fase, llave, avanzaA, ranura, cat, fecha: PARTIDOS[idx].fecha, sede: PARTIDOS[idx].sede, local: '', visita: '' };
+    const { fase, llave, avanzaA, ranura, cat, liga } = PARTIDOS[idx];
+    PARTIDOS[idx] = { id, fase, llave, avanzaA, ranura, cat, liga, fecha: PARTIDOS[idx].fecha, sede: PARTIDOS[idx].sede, local: '', visita: '' };
   } else {
     if (!confirm('¿Eliminar este partido? No se puede deshacer.')) return;
     PARTIDOS.splice(idx, 1);
@@ -1928,8 +2129,8 @@ $('#filtro-rol-select').addEventListener('change', e => {
   pintaRol();
 });
 
-grupoBotones($('#filtro-liguilla'), ['Femenil', 'Varonil'], estado.ramaLiguilla, valor => {
-  estado.ramaLiguilla = valor;
+grupoBotones($('#filtro-liguilla'), LIGUILLAS.map(l => ({ valor: l.id, texto: l.nombre })), estado.liga, valor => {
+  estado.liga = valor;
   marcaGrupo($('#filtro-liguilla'), valor);
   pintaBracket();
 });
@@ -1959,7 +2160,7 @@ abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
     const r = await fetch('data/partidos.json?t=' + Date.now());
     if (r.ok) {
       const lista = await r.json();
-      if (Array.isArray(lista) && lista.length) PARTIDOS = aseguraIds(lista);
+      if (Array.isArray(lista) && lista.length) PARTIDOS = normalizaPartidos(lista);
     }
   } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
 
