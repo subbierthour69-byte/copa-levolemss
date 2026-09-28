@@ -162,5 +162,25 @@
     "local": "",
     "visita": "",
     "id": "pukwkfce"
+  },
+  {
+    "id": "p73hbvyl",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T21:31",
+    "sede": "CANACHA B 7 DE AGOSTO",
+    "local": "TIGRILLAS",
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        26,
+        24
+      ],
+      [
+        25,
+        11
+      ]
+    ]
   }
 ]
