@@ -625,5 +625,25 @@
         19
       ]
     ]
+  },
+  {
+    "id": "phii281d",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T01:30",
+    "sede": "CANCHA I.C",
+    "local": "CBTIS 09",
+    "visita": "TEC DE CHINA",
+    "sets": [
+      [
+        22,
+        25
+      ],
+      [
+        29,
+        31
+      ]
+    ]
   }
 ]
