@@ -585,5 +585,25 @@
         25
       ]
     ]
+  },
+  {
+    "id": "p2d6gusg",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T11:30",
+    "sede": "CANCHA I.C",
+    "local": "INSTITUTO CAMPECHANO",
+    "visita": "SEYBAPLAYA",
+    "sets": [
+      [
+        20,
+        25
+      ],
+      [
+        12,
+        25
+      ]
+    ]
   }
 ]
