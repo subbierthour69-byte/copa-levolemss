@@ -605,5 +605,25 @@
         25
       ]
     ]
+  },
+  {
+    "id": "ps47xz5i",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T00:30",
+    "sede": "CANCHA I.C",
+    "local": "SEYBAPLAYA",
+    "visita": "COBACAM LERMA",
+    "sets": [
+      [
+        25,
+        15
+      ],
+      [
+        25,
+        19
+      ]
+    ]
   }
 ]
