@@ -9,7 +9,7 @@
     "categoria": "Ambas",
     "logo": "logos/instituto-tec-de-campeche.jpeg"
   },
-  "TEC DE CHINA": {
+  "ONIX": {
     "abrev": "T.CH",
     "categoria": "Ambas",
     "logo": "logos/tec-de-china.jpeg"
@@ -37,7 +37,7 @@
   "WICHO": {
     "abrev": "W",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/wicho.jpeg"
   },
   "COBACAM LERMA": {
     "abrev": "CBL",
