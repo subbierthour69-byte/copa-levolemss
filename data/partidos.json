@@ -354,5 +354,29 @@
         25
       ]
     ]
+  },
+  {
+    "id": "p4cvadlo",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T00:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "CECYTE A",
+    "visita": "TIGRILLA SUPERIOR A",
+    "sets": [
+      [
+        22,
+        25
+      ],
+      [
+        25,
+        19
+      ],
+      [
+        9,
+        15
+      ]
+    ]
   }
 ]
