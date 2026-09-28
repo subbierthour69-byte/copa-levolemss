@@ -162,5 +162,25 @@
     "local": "",
     "visita": "",
     "id": "pukwkfce"
+  },
+  {
+    "id": "p57nol06",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T09:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "TIGRILLAS SUPERIOR B",
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        26,
+        24
+      ],
+      [
+        25,
+        11
+      ]
+    ]
   }
 ]
