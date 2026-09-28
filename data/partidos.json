@@ -378,5 +378,29 @@
         15
       ]
     ]
+  },
+  {
+    "id": "pv5uv1i9",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T01:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "CBTIS 09",
+    "visita": "TIGRILLAS PREPA A",
+    "sets": [
+      [
+        25,
+        13
+      ],
+      [
+        25,
+        27
+      ],
+      [
+        15,
+        10
+      ]
+    ]
   }
 ]
