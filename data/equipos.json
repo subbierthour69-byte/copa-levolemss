@@ -68,5 +68,10 @@
     "abrev": "CEC",
     "categoria": "Ambas",
     "logo": ""
+  },
+  "CECYTEC": {
+    "abrev": "CEC",
+    "categoria": "Varonil",
+    "logo": ""
   }
 }
