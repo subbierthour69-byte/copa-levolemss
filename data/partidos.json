@@ -182,5 +182,25 @@
         11
       ]
     ]
+  },
+  {
+    "id": "pwdbqke9",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-09-27T10:31",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "INSTITUTO CAMPECHANO PREPA B",
+    "visita": "KATANA",
+    "sets": [
+      [
+        14,
+        25
+      ],
+      [
+        20,
+        25
+      ]
+    ]
   }
 ]
