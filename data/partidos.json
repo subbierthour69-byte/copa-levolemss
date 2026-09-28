@@ -334,5 +334,25 @@
         25
       ]
     ]
+  },
+  {
+    "id": "pn6iei9f",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T11:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "CBTIS 09",
+    "visita": "TEC DE CAMPECHE",
+    "sets": [
+      [
+        19,
+        25
+      ],
+      [
+        20,
+        25
+      ]
+    ]
   }
 ]
