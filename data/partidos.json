@@ -9,7 +9,8 @@
     "sede": "Auditorio — Cancha 1",
     "local": "",
     "visita": "",
-    "id": "pv8k33ae"
+    "id": "pv8k33ae",
+    "liga": "Femenil A"
   },
   {
     "fase": "cuartos",
@@ -21,7 +22,8 @@
     "sede": "Auditorio — Cancha 1",
     "local": "",
     "visita": "",
-    "id": "pb3f6lxf"
+    "id": "pb3f6lxf",
+    "liga": "Femenil A"
   },
   {
     "fase": "cuartos",
@@ -33,7 +35,8 @@
     "sede": "Domo Deportivo",
     "local": "",
     "visita": "",
-    "id": "pun6tpc0"
+    "id": "pun6tpc0",
+    "liga": "Femenil A"
   },
   {
     "fase": "cuartos",
@@ -45,7 +48,8 @@
     "sede": "Domo Deportivo",
     "local": "",
     "visita": "",
-    "id": "pzdxrjxz"
+    "id": "pzdxrjxz",
+    "liga": "Femenil A"
   },
   {
     "fase": "semis",
@@ -57,7 +61,8 @@
     "sede": "Auditorio — Cancha 1",
     "local": "",
     "visita": "",
-    "id": "pff9lkvs"
+    "id": "pff9lkvs",
+    "liga": "Femenil A"
   },
   {
     "fase": "semis",
@@ -69,7 +74,8 @@
     "sede": "Auditorio — Cancha 1",
     "local": "",
     "visita": "",
-    "id": "ph35w1vi"
+    "id": "ph35w1vi",
+    "liga": "Femenil A"
   },
   {
     "fase": "final",
@@ -79,7 +85,8 @@
     "sede": "Auditorio — Cancha central",
     "local": "",
     "visita": "",
-    "id": "ppqlwjhm"
+    "id": "ppqlwjhm",
+    "liga": "Femenil A"
   },
   {
     "fase": "cuartos",
@@ -91,7 +98,8 @@
     "sede": "Auditorio — Cancha 2",
     "local": "",
     "visita": "",
-    "id": "pznelvkm"
+    "id": "pznelvkm",
+    "liga": "Varonil"
   },
   {
     "fase": "cuartos",
@@ -103,7 +111,8 @@
     "sede": "Auditorio — Cancha 2",
     "local": "",
     "visita": "",
-    "id": "puuczig8"
+    "id": "puuczig8",
+    "liga": "Varonil"
   },
   {
     "fase": "cuartos",
@@ -115,7 +124,8 @@
     "sede": "Domo Deportivo",
     "local": "",
     "visita": "",
-    "id": "pfcjho98"
+    "id": "pfcjho98",
+    "liga": "Varonil"
   },
   {
     "fase": "cuartos",
@@ -127,7 +137,8 @@
     "sede": "Domo Deportivo",
     "local": "",
     "visita": "",
-    "id": "pwii2o5x"
+    "id": "pwii2o5x",
+    "liga": "Varonil"
   },
   {
     "fase": "semis",
@@ -139,7 +150,8 @@
     "sede": "Auditorio — Cancha 2",
     "local": "",
     "visita": "",
-    "id": "pg8idijh"
+    "id": "pg8idijh",
+    "liga": "Varonil"
   },
   {
     "fase": "semis",
@@ -151,7 +163,8 @@
     "sede": "Auditorio — Cancha 2",
     "local": "",
     "visita": "",
-    "id": "p4rmcyua"
+    "id": "p4rmcyua",
+    "liga": "Varonil"
   },
   {
     "fase": "final",
@@ -161,7 +174,8 @@
     "sede": "Auditorio — Cancha central",
     "local": "",
     "visita": "",
-    "id": "pukwkfce"
+    "id": "pukwkfce",
+    "liga": "Varonil"
   },
   {
     "id": "p57nol06",
@@ -440,6 +454,115 @@
       [
         25,
         19
+      ]
+    ]
+  },
+  {
+    "id": "lg-femenil-b-C1",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "cuartos",
+    "llave": "C1",
+    "avanzaA": "S1",
+    "ranura": "local",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "lg-femenil-b-C2",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "cuartos",
+    "llave": "C2",
+    "avanzaA": "S1",
+    "ranura": "visita",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "lg-femenil-b-C3",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "cuartos",
+    "llave": "C3",
+    "avanzaA": "S2",
+    "ranura": "local",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "lg-femenil-b-C4",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "cuartos",
+    "llave": "C4",
+    "avanzaA": "S2",
+    "ranura": "visita",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "lg-femenil-b-S1",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "semis",
+    "llave": "S1",
+    "avanzaA": "F1",
+    "ranura": "local",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "lg-femenil-b-S2",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "semis",
+    "llave": "S2",
+    "avanzaA": "F1",
+    "ranura": "visita",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "lg-femenil-b-F1",
+    "cat": "Femenil",
+    "liga": "Femenil B",
+    "fase": "final",
+    "llave": "F1",
+    "fecha": "",
+    "sede": "",
+    "local": "",
+    "visita": ""
+  },
+  {
+    "id": "psela53a",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-09-27T09:30",
+    "sede": "CANCHA I.C",
+    "local": "TEC DE CAMPECHE",
+    "visita": "CBTIS 09",
+    "sets": [
+      [
+        22,
+        25
+      ],
+      [
+        25,
+        27
       ]
     ]
   }
