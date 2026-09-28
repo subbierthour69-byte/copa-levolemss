@@ -88,5 +88,10 @@
     "abrev": "INS",
     "categoria": "Varonil",
     "logo": ""
+  },
+  "KATANA": {
+    "abrev": "KAT",
+    "categoria": "Femenil",
+    "logo": ""
   }
 }
