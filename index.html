@@ -75,6 +75,13 @@ tailwind.config = {
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+
+  @media print {
+    body * { visibility: hidden; }
+    #imprimir-rol, #imprimir-rol * { visibility: visible; }
+    #imprimir-rol { position: absolute; inset: 0; padding: 24px; }
+    #imprimir-rol .rompe-pagina { break-inside: avoid; }
+  }
 </style>
 </head>
 
@@ -92,10 +99,10 @@ tailwind.config = {
         </span>
       </span>
       <div class="min-w-0 flex-1">
-        <h1 class="font-score text-[21px] leading-none tracking-wide sm:text-[26px]">LEVOLEMSS 2026</h1>
-        <p class="mt-1 truncate text-[12.5px] text-white/65 sm:text-[13px]">Liga Estudiantil de Voleibol</p>
+        <h1 id="marca-nombre" class="font-score text-[21px] leading-none tracking-wide sm:text-[26px]">LEVOLEMSS 2026</h1>
+        <p id="marca-subtitulo" class="mt-1 truncate text-[12.5px] text-white/65 sm:text-[13px]">Liga Estudiantil de Voleibol</p>
       </div>
-      <span class="hidden shrink-0 rounded-lg bg-sun px-3 py-1.5 font-score text-[15px] text-court sm:inline-block">
+      <span id="marca-temporada" class="hidden shrink-0 rounded-lg bg-sun px-3 py-1.5 font-score text-[15px] text-court sm:inline-block">
         Temporada 2026
       </span>
     </div>
@@ -136,6 +143,11 @@ tailwind.config = {
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="font-score text-2xl tracking-wide">Rol de juegos</h2>
         <div class="flex items-center gap-2">
+          <button id="btn-descargar-rol" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3" transform="rotate(180 12 12)"/></svg>
+            PDF
+          </button>
           <button id="btn-agregar-partido" data-solo-admin
                   class="hidden shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep sm:inline-flex">
             <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -156,6 +168,7 @@ tailwind.config = {
     </div>
 
     <div id="rol-lista" class="mt-5 space-y-7"></div>
+    <div id="imprimir-rol" class="hidden"></div>
   </section>
 
   <!-- ---------- RAMAS (se generan con JavaScript) ---------- -->
@@ -317,11 +330,61 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- Modal: título y pie al subir una foto a la Galería -->
-<div id="foto-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Agregar foto">
+<!-- Modal: editar nombre, subtítulo, temporada y logo de la liga -->
+<div id="marca-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Editar liga">
   <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
-    <h3 class="font-score text-[20px] tracking-wide text-court">Agregar foto</h3>
-    <p class="mt-1 text-[13px] text-muted">Se sube directo a tu repositorio de GitHub.</p>
+    <h3 class="font-score text-[20px] tracking-wide text-court">Editar liga</h3>
+    <p class="mt-1 text-[13px] text-muted">Así puedes reusar esta misma página para otro torneo.</p>
+
+    <div class="mt-3 flex items-center gap-3 rounded-lg bg-mist p-2.5">
+      <span id="marca-modal-logo-preview"></span>
+      <button id="marca-modal-cambiar-logo" type="button" class="flex-1 rounded-lg bg-white px-3 py-2 text-[13px] font-medium text-court ring-1 ring-hair hover:bg-mist">
+        Cambiar logo
+      </button>
+    </div>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Nombre del torneo</span>
+      <input id="marca-nombre-input" type="text" maxlength="60" placeholder="Ej. LEVOLEMSS 2026"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Subtítulo</span>
+      <input id="marca-subtitulo-input" type="text" maxlength="80" placeholder="Ej. Liga Estudiantil de Voleibol"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Temporada / año</span>
+      <input id="marca-temporada-input" type="text" maxlength="30" placeholder="Ej. Temporada 2026"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div id="marca-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="marca-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
+        Cancelar
+      </button>
+      <button id="marca-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: título y pie al subir una foto a la Galería -->
+<div id="foto-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-court/70 p-4" role="dialog" aria-modal="true" aria-label="Foto">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 id="foto-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar foto</h3>
+    <p id="foto-modal-ayuda" class="mt-1 text-[13px] text-muted">Se sube directo a tu repositorio de GitHub.</p>
+    <input id="foto-indice" type="hidden">
+
+    <div id="foto-modal-imagen-actual" class="mt-3 hidden items-center gap-3 rounded-lg bg-mist p-2.5">
+      <img id="foto-modal-imagen-preview" alt="" class="h-14 w-14 shrink-0 rounded-lg object-cover">
+      <button id="foto-modal-cambiar-imagen" type="button" class="flex-1 rounded-lg bg-white px-3 py-2 text-[13px] font-medium text-court ring-1 ring-hair hover:bg-mist">
+        Cambiar imagen
+      </button>
+    </div>
 
     <label class="mt-3 block">
       <span class="mb-1 block text-[13px] font-medium text-court">Título</span>
@@ -337,6 +400,9 @@ tailwind.config = {
     <div id="foto-modal-aviso" class="mt-3 hidden text-[13px]"></div>
 
     <div class="mt-4 flex gap-2">
+      <button id="foto-modal-eliminar" class="hidden rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-[#B3322E] ring-1 ring-hair hover:bg-mist">
+        Eliminar
+      </button>
       <button id="foto-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">
         Cancelar
       </button>
@@ -681,6 +747,18 @@ let FOTOS = FOTOS_DEMO;
    suba uno desde el modo administrador, se guarda en data/marca.json y ese
    se vuelve el logo real para todo el mundo. */
 let MARCA_LOGO = '';
+let MARCA_NOMBRE = 'LEVOLEMSS 2026';
+let MARCA_SUBTITULO = 'Liga Estudiantil de Voleibol';
+let MARCA_TEMPORADA = 'Temporada 2026';
+
+/* Imágenes recién subidas en ESTA sesión, para verlas al instante. GitHub
+   Pages tarda un minuto o dos en publicar un archivo nuevo, y si el navegador
+   pide la imagen antes de que esté lista, guarda la versión vieja (o un error)
+   en caché. Por eso, mientras tanto, se muestra tu propia copia local. Estas
+   copias NO se guardan en ningún archivo; al recargar se usan las publicadas. */
+const LOGOS_LOCALES = {};
+const FOTOS_LOCALES = {};
+let MARCA_LOCAL = '';
 
 /* ==========================================================================
    2. UTILIDADES
@@ -803,7 +881,7 @@ function respaldo(nombre, px) {
 }
 
 function escudo(nombre, px = 34, url) {
-  const logo = url || (EQUIPOS[nombre] && EQUIPOS[nombre].logo) || '';
+  const logo = LOGOS_LOCALES[nombre] || url || (EQUIPOS[nombre] && EQUIPOS[nombre].logo) || '';
   if (!logo) return respaldo(nombre, px);
   return `<img src="${logo}" alt="" data-nombre="${nombre}" data-px="${px}" onerror="sinLogo(this)"
                class="shrink-0 rounded-full bg-white object-cover ring-1 ring-hair"
@@ -819,22 +897,63 @@ function iconoMarcaDefault() {
 function sinMarca(img) { img.outerHTML = iconoMarcaDefault(); }
 
 function pintaMarca() {
-  $('#marca-icono-inner').innerHTML = MARCA_LOGO
-    ? `<img src="${MARCA_LOGO}" alt="" onerror="sinMarca(this)" class="h-full w-full object-cover">`
+  const logoMarca = MARCA_LOCAL || MARCA_LOGO;
+  $('#marca-icono-inner').innerHTML = logoMarca
+    ? `<img src="${logoMarca}" alt="" onerror="sinMarca(this)" class="h-full w-full object-cover">`
     : iconoMarcaDefault();
+
+  $('#marca-nombre').textContent = MARCA_NOMBRE;
+  $('#marca-subtitulo').textContent = MARCA_SUBTITULO;
+  $('#marca-temporada').textContent = MARCA_TEMPORADA;
+  document.title = MARCA_NOMBRE + ' — ' + MARCA_SUBTITULO;
 
   const existente = $('#btn-cambiar-marca');
   if (existente) existente.remove();
 
   if (esAdmin()) {
     $('#marca-icono').insertAdjacentHTML('beforeend', `
-      <button id="btn-cambiar-marca" type="button" title="Cambiar el logo de la liga"
+      <button id="btn-cambiar-marca" type="button" title="Editar liga (nombre, temporada, logo)"
               class="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-court text-white ring-2 ring-court hover:bg-deep">
         ${icono('lapiz', 'h-2.5 w-2.5')}
       </button>`);
-    $('#btn-cambiar-marca').addEventListener('click', () => $('#input-marca').click());
+    $('#btn-cambiar-marca').addEventListener('click', abreMarcaModal);
   }
 }
+
+function abreMarcaModal() {
+  $('#marca-nombre-input').value = MARCA_NOMBRE;
+  $('#marca-subtitulo-input').value = MARCA_SUBTITULO;
+  $('#marca-temporada-input').value = MARCA_TEMPORADA;
+  $('#marca-modal-logo-preview').innerHTML = (MARCA_LOCAL || MARCA_LOGO)
+    ? `<img src="${MARCA_LOCAL || MARCA_LOGO}" alt="" class="h-10 w-10 rounded-lg object-cover" onerror="this.replaceWith(document.createTextNode(''))">`
+    : `<span class="grid h-10 w-10 place-items-center rounded-lg bg-sky text-blue">${iconoMarcaDefault()}</span>`;
+  $('#marca-modal-aviso').classList.add('hidden');
+  $('#marca-modal').classList.replace('hidden', 'flex');
+}
+$('#marca-modal-cancelar').addEventListener('click', () => $('#marca-modal').classList.replace('flex', 'hidden'));
+$('#marca-modal-cambiar-logo').addEventListener('click', () => $('#input-marca').click());
+
+$('#marca-modal-guardar').addEventListener('click', async () => {
+  const nombre = $('#marca-nombre-input').value.trim();
+  const subtitulo = $('#marca-subtitulo-input').value.trim();
+  const temporada = $('#marca-temporada-input').value.trim();
+  if (!nombre) { avisaEn('#marca-modal-aviso', false, 'Ponle un nombre al torneo.'); return; }
+
+  try {
+    const { valor, sha } = await ghLeeJSON('data/marca.json', {});
+    valor.nombre = nombre; valor.subtitulo = subtitulo; valor.temporada = temporada;
+    await ghEscribeJSON('data/marca.json', valor, sha, 'Actualiza los datos de la liga');
+
+    MARCA_NOMBRE = nombre || MARCA_NOMBRE;
+    MARCA_SUBTITULO = subtitulo;
+    MARCA_TEMPORADA = temporada;
+    pintaMarca();
+    $('#marca-modal').classList.replace('flex', 'hidden');
+    avisaFlotante('Datos de la liga guardados.');
+  } catch (err) {
+    avisaEn('#marca-modal-aviso', false, 'No se pudo guardar: ' + err.message);
+  }
+});
 
 /* ==========================================================================
    3. PESTAÑAS PRINCIPALES
@@ -1527,17 +1646,25 @@ function pintaGaleria() {
     </button>` : '';
 
   $('#galeria-grid').innerHTML = tarjetaAgregar + FOTOS.map((f, i) => `
-    <button data-foto="${i}" class="group relative block aspect-square overflow-hidden rounded-2xl bg-mist shadow-card ring-1 ring-hair/70">
-      <img src="${f.url || marcador(i, f.titulo)}" alt="${f.titulo}" loading="lazy" data-idx="${i}"
-           onerror="sinFoto(this)"
-           class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]">
-      <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-court/85 to-transparent px-3 pb-2.5 pt-8 text-left text-[12.5px] font-medium text-white">
-        ${f.titulo}
-      </span>
-    </button>`).join('');
+    <div class="group relative block aspect-square overflow-hidden rounded-2xl bg-mist shadow-card ring-1 ring-hair/70">
+      <button data-foto="${i}" class="absolute inset-0 block h-full w-full">
+        <img src="${FOTOS_LOCALES[f.url] || f.url || marcador(i, f.titulo)}" alt="${f.titulo}" loading="lazy" data-idx="${i}"
+             onerror="sinFoto(this)"
+             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]">
+        <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-court/85 to-transparent px-3 pb-2.5 pt-8 text-left text-[12.5px] font-medium text-white">
+          ${f.titulo}
+        </span>
+      </button>
+      ${esAdmin() ? `
+      <button data-editar-foto="${i}" title="Editar foto"
+              class="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
+        ${icono('lapiz', 'h-3 w-3')}
+      </button>` : ''}
+    </div>`).join('');
 
-  if (esAdmin()) $('#btn-agregar-foto').addEventListener('click', () => $('#input-foto').click());
+  if (esAdmin()) $('#btn-agregar-foto').addEventListener('click', () => abreFotoModal(null));
   $$('[data-foto]').forEach(b => b.addEventListener('click', () => abreFoto(+b.dataset.foto)));
+  $$('[data-editar-foto]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); abreFotoModal(+b.dataset.editarFoto); }));
 }
 
 /* Si la imagen real todavía no carga (por ejemplo, justo después de subirla,
@@ -1559,7 +1686,7 @@ function abreFoto(i) {
   fotoActual = (i + FOTOS.length) % FOTOS.length;
   const f = FOTOS[fotoActual];
   $('#lb-img').onerror = () => { $('#lb-img').onerror = null; $('#lb-img').src = marcador(fotoActual, f.titulo); };
-  $('#lb-img').src = f.url || marcador(fotoActual, f.titulo);
+  $('#lb-img').src = FOTOS_LOCALES[f.url] || f.url || marcador(fotoActual, f.titulo);
   $('#lb-img').alt = f.titulo;
   $('#lb-cap').textContent = `${f.titulo} — ${f.pie}`;
   lb.classList.replace('hidden', 'flex');
@@ -1729,16 +1856,21 @@ $('#input-logo').addEventListener('change', async e => {
   try {
     const base64 = await archivoABase64(file);
     const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-    const ruta = `logos/${slug(equipoEnEdicion)}.${ext}`;
+    const archivo = `logos/${slug(equipoEnEdicion)}.${ext}`;
+    /* El "?v=" cambia en cada subida: así el navegador de todos ve que es
+       otra imagen y no se queda con la anterior guardada en caché. */
+    const ruta = `${archivo}?v=${Date.now()}`;
 
-    await ghSubeArchivo(ruta, base64, `Logo de ${equipoEnEdicion}`);
+    await ghSubeArchivo(archivo, base64, `Logo de ${equipoEnEdicion}`);
 
     const { valor: mapa, sha } = await ghLeeJSON('data/logos.json', {});
     mapa[equipoEnEdicion] = ruta;
     await ghEscribeJSON('data/logos.json', mapa, sha, `Actualiza logo de ${equipoEnEdicion}`);
 
     EQUIPOS[equipoEnEdicion].logo = ruta;
+    LOGOS_LOCALES[equipoEnEdicion] = `data:${file.type || 'image/png'};base64,${base64}`;
     repintaTodo();
+    avisaFlotante('Logo guardado. Los demás lo verán en 1 o 2 minutos.');
   } catch (err) {
     alert('No se pudo subir el logo: ' + err.message);
   }
@@ -1759,17 +1891,20 @@ $('#input-marca').addEventListener('change', async e => {
   try {
     const base64 = await archivoABase64(file);
     const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-    const ruta = `marca/logo.${ext}`;
+    const archivo = `marca/logo.${ext}`;
+    const ruta = `${archivo}?v=${Date.now()}`;
 
-    await ghSubeArchivo(ruta, base64, 'Actualiza el logo de la liga');
+    await ghSubeArchivo(archivo, base64, 'Actualiza el logo de la liga');
 
     const { valor, sha } = await ghLeeJSON('data/marca.json', {});
     valor.logo = ruta;
     await ghEscribeJSON('data/marca.json', valor, sha, 'Actualiza el logo de la liga');
 
     MARCA_LOGO = ruta;
+    MARCA_LOCAL = `data:${file.type || 'image/png'};base64,${base64}`;
     pintaMarca();
-    avisaFlotante('Logo de la liga actualizado.');
+    if (!$('#marca-modal').classList.contains('hidden')) $('#marca-modal-logo-preview').innerHTML = `<img src="${MARCA_LOCAL}" alt="" class="h-10 w-10 rounded-lg object-cover">`;
+    avisaFlotante('Logo guardado. Los demás lo verán en 1 o 2 minutos.');
   } catch (err) {
     alert('No se pudo subir el logo: ' + err.message);
   }
@@ -1778,6 +1913,32 @@ $('#input-marca').addEventListener('change', async e => {
 /* ---------- Subir una foto a la Galería ---------- */
 
 let archivoFotoPendiente = null;
+let fotoIndiceEnModal = null;
+
+function abreFotoModal(indice) {
+  fotoIndiceEnModal = indice;
+  archivoFotoPendiente = null;
+
+  if (indice === null) {
+    // Foto nueva: primero se elige la imagen, y ESA acción abre el modal ya con el archivo listo.
+    $('#input-foto').click();
+    return;
+  }
+
+  const f = FOTOS[indice];
+  $('#foto-modal-titulo').textContent = 'Editar foto';
+  $('#foto-modal-ayuda').textContent = 'Cambia el título, el pie, o la imagen si te equivocaste.';
+  $('#foto-titulo').value = f.titulo || '';
+  $('#foto-pie').value = f.pie || '';
+  $('#foto-modal-imagen-actual').classList.remove('hidden');
+  $('#foto-modal-imagen-actual').classList.add('flex');
+  $('#foto-modal-imagen-preview').src = FOTOS_LOCALES[f.url] || f.url || marcador(indice, f.titulo);
+  $('#foto-modal-eliminar').classList.remove('hidden');
+  $('#foto-modal-aviso').classList.add('hidden');
+  $('#foto-modal').classList.replace('hidden', 'flex');
+}
+
+$('#foto-modal-cambiar-imagen').addEventListener('click', () => $('#input-foto').click());
 
 $('#input-foto').addEventListener('change', e => {
   const file = e.target.files[0];
@@ -1790,51 +1951,107 @@ $('#input-foto').addEventListener('change', e => {
   }
 
   archivoFotoPendiente = file;
+
+  if (fotoIndiceEnModal !== null) {
+    // Ya estábamos editando una foto y se eligió una imagen nueva para reemplazarla.
+    archivoABase64(file).then(b64 => { $('#foto-modal-imagen-preview').src = `data:${file.type || 'image/jpeg'};base64,${b64}`; });
+    return;
+  }
+
+  // Foto nueva.
+  $('#foto-modal-titulo').textContent = 'Agregar foto';
+  $('#foto-modal-ayuda').textContent = 'Se sube directo a tu repositorio de GitHub.';
   $('#foto-titulo').value = '';
   $('#foto-pie').value = '';
+  $('#foto-modal-imagen-actual').classList.add('hidden');
+  $('#foto-modal-imagen-actual').classList.remove('flex');
+  $('#foto-modal-eliminar').classList.add('hidden');
   $('#foto-modal-aviso').classList.add('hidden');
   $('#foto-modal').classList.replace('hidden', 'flex');
 });
 
 $('#foto-modal-cancelar').addEventListener('click', () => {
   archivoFotoPendiente = null;
+  fotoIndiceEnModal = null;
   $('#foto-modal').classList.replace('flex', 'hidden');
 });
 
 /* ---------- Aviso flotante de confirmación (arriba, se cierra solo) ---------- */
-function avisaFlotante(mensaje) {
+function avisaFlotante(mensaje, esError = false) {
   const el = document.createElement('div');
-  el.className = 'fixed left-1/2 top-4 z-[60] -translate-x-1/2 flex items-center gap-2 rounded-xl bg-court px-4 py-2.5 text-[13.5px] text-white shadow-lift';
-  el.innerHTML = `${icono('correcto', 'h-4 w-4 shrink-0 text-[#7CE0A8]')}<span>${mensaje}</span>`;
+  el.className = 'fixed left-1/2 z-[60] flex max-w-[92vw] -translate-x-1/2 items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] text-white shadow-lift ' +
+    (esError ? 'top-16 bg-[#B3322E]' : 'top-4 bg-court');
+  el.innerHTML = esError
+    ? `${icono('alerta', 'h-4 w-4 shrink-0')}<span data-msg></span>`
+    : `${icono('correcto', 'h-4 w-4 shrink-0 text-[#7CE0A8]')}<span data-msg></span>`;
+  el.querySelector('[data-msg]').textContent = mensaje;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3200);
+  setTimeout(() => el.remove(), esError ? 12000 : 3200);
 }
 
 $('#foto-modal-subir').addEventListener('click', async () => {
   const titulo = $('#foto-titulo').value.trim();
   const pie = $('#foto-pie').value.trim();
   if (!titulo) { avisaEn('#foto-modal-aviso', false, 'Ponle al menos un título a la foto.'); return; }
-  if (!archivoFotoPendiente) { avisaEn('#foto-modal-aviso', false, 'Selecciona una imagen primero.'); return; }
+  if (fotoIndiceEnModal === null && !archivoFotoPendiente) { avisaEn('#foto-modal-aviso', false, 'Selecciona una imagen primero.'); return; }
 
   try {
-    const file = archivoFotoPendiente;
-    const base64 = await archivoABase64(file);
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const ruta = `galeria/${Date.now()}-${slug(titulo) || 'foto'}.${ext}`;
+    const { valor: fotos, sha } = await ghLeeJSON('data/galeria.json', FOTOS);
 
-    await ghSubeArchivo(ruta, base64, `Agrega foto: ${titulo}`);
-
-    const { valor: fotos, sha } = await ghLeeJSON('data/galeria.json', []);
-    fotos.unshift({ url: ruta, titulo, pie });
-    await ghEscribeJSON('data/galeria.json', fotos, sha, `Agrega foto a la galería: ${titulo}`);
+    if (fotoIndiceEnModal !== null) {
+      // Editar foto existente: mismo lugar en la lista, con o sin imagen nueva.
+      const actual = fotos[fotoIndiceEnModal] || FOTOS[fotoIndiceEnModal];
+      let url = actual.url;
+      if (archivoFotoPendiente) {
+        const file = archivoFotoPendiente;
+        const base64 = await archivoABase64(file);
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        url = `galeria/${Date.now()}-${slug(titulo) || 'foto'}.${ext}`;
+        await ghSubeArchivo(url, base64, `Reemplaza foto: ${titulo}`);
+        FOTOS_LOCALES[url] = `data:${file.type || 'image/jpeg'};base64,${base64}`;
+      }
+      fotos[fotoIndiceEnModal] = { url, titulo, pie };
+      await ghEscribeJSON('data/galeria.json', fotos, sha, `Edita foto: ${titulo}`);
+      avisaFlotante('Foto actualizada.');
+    } else {
+      // Foto nueva.
+      const file = archivoFotoPendiente;
+      const base64 = await archivoABase64(file);
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const ruta = `galeria/${Date.now()}-${slug(titulo) || 'foto'}.${ext}`;
+      await ghSubeArchivo(ruta, base64, `Agrega foto: ${titulo}`);
+      fotos.unshift({ url: ruta, titulo, pie });
+      await ghEscribeJSON('data/galeria.json', fotos, sha, `Agrega foto a la galería: ${titulo}`);
+      FOTOS_LOCALES[ruta] = `data:${file.type || 'image/jpeg'};base64,${base64}`;
+      avisaFlotante('Foto agregada.');
+    }
 
     FOTOS = fotos;
     archivoFotoPendiente = null;
+    fotoIndiceEnModal = null;
     $('#foto-modal').classList.replace('flex', 'hidden');
     repintaTodo();
-    avisaFlotante('Foto agregada. Ábrela en Galería para verla.');
   } catch (err) {
-    avisaEn('#foto-modal-aviso', false, 'No se pudo subir: ' + err.message);
+    avisaEn('#foto-modal-aviso', false, 'No se pudo guardar: ' + err.message);
+  }
+});
+
+$('#foto-modal-eliminar').addEventListener('click', async () => {
+  if (fotoIndiceEnModal === null) return;
+  if (!confirm('¿Eliminar esta foto de la galería? No se puede deshacer.')) return;
+
+  try {
+    const { valor: fotos, sha } = await ghLeeJSON('data/galeria.json', FOTOS);
+    fotos.splice(fotoIndiceEnModal, 1);
+    await ghEscribeJSON('data/galeria.json', fotos, sha, 'Elimina foto de la galería');
+
+    FOTOS = fotos;
+    fotoIndiceEnModal = null;
+    $('#foto-modal').classList.replace('flex', 'hidden');
+    repintaTodo();
+    avisaFlotante('Foto eliminada.');
+  } catch (err) {
+    avisaEn('#foto-modal-aviso', false, 'No se pudo eliminar: ' + err.message);
   }
 });
 
@@ -2013,6 +2230,40 @@ function abrePartidoModal(id = null) {
   $('#partido-modal').classList.replace('hidden', 'flex');
 }
 
+$('#btn-descargar-rol').addEventListener('click', () => {
+  const lista = filtraRama(porJugar()).sort((a, b) => fecha(a.fecha) - fecha(b.fecha));
+  const filtroTexto = estado.ramaRol === 'Todas' ? 'Todas las categorías' : estado.ramaRol;
+
+  const filaImpresion = p => `
+    <tr class="rompe-pagina">
+      <td class="border border-hair px-2 py-1.5 align-top">${tituloDia(p.fecha)}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${soloHora(p.fecha)} ${meridiano(p.fecha)}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.local)} vs ${esc(p.visita)}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.cat)}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${esc(etiquetaFase(p))}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.sede)}</td>
+    </tr>`;
+
+  $('#imprimir-rol').innerHTML = lista.length ? `
+    <h1 class="font-score text-[22px]">${esc(MARCA_NOMBRE)}</h1>
+    <p class="text-[13px] text-muted">Rol de juegos · ${esc(filtroTexto)} · generado ${new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</p>
+    <table class="mt-4 w-full border-collapse text-[12.5px]">
+      <thead>
+        <tr class="bg-mist">
+          <th class="border border-hair px-2 py-1.5 text-left">Día</th>
+          <th class="border border-hair px-2 py-1.5 text-left">Hora</th>
+          <th class="border border-hair px-2 py-1.5 text-left">Partido</th>
+          <th class="border border-hair px-2 py-1.5 text-left">Categoría</th>
+          <th class="border border-hair px-2 py-1.5 text-left">Fase / grupo</th>
+          <th class="border border-hair px-2 py-1.5 text-left">Cancha</th>
+        </tr>
+      </thead>
+      <tbody>${lista.map(filaImpresion).join('')}</tbody>
+    </table>` : `<h1 class="font-score text-[22px]">${esc(MARCA_NOMBRE)}</h1><p class="mt-2">No hay partidos pendientes con este filtro para imprimir.</p>`;
+
+  window.print();
+});
+
 $('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
 $('#partido-modal-cancelar').addEventListener('click', () => $('#partido-modal').classList.replace('flex', 'hidden'));
 $('#partido-agregar-set').addEventListener('click', () => $('#partido-sets-filas').appendChild(filaSet()));
@@ -2105,14 +2356,26 @@ $('#partido-modal-eliminar').addEventListener('click', async () => {
    11. ARRANQUE
    ========================================================================== */
 
+/* Dibuja cada sección por separado: si una falla (por ejemplo, por un dato
+   raro), las demás se siguen mostrando y aparece un aviso rojo que dice cuál
+   fue, en vez de que todo se quede a medias sin explicación. */
 function repintaTodo() {
-  pintaMarca();
-  pintaEquipos();
-  pintaProximo();
-  pintaRol();
-  ['Femenil', 'Varonil'].forEach(montaRama);
-  pintaBracket();
-  pintaGaleria();
+  const pasos = [
+    ['logo de la liga', pintaMarca],
+    ['equipos', pintaEquipos],
+    ['próximo partido', pintaProximo],
+    ['rol de juegos', pintaRol],
+    ['rama femenil', () => montaRama('Femenil')],
+    ['rama varonil', () => montaRama('Varonil')],
+    ['liguilla', pintaBracket],
+    ['galería', pintaGaleria]
+  ];
+  const fallos = [];
+  pasos.forEach(([nombre, dibuja]) => {
+    try { dibuja(); }
+    catch (e) { console.error('No se pudo dibujar: ' + nombre, e); fallos.push(`${nombre} (${e.message})`); }
+  });
+  if (fallos.length) avisaFlotante('No se pudo mostrar: ' + fallos.join(' · ') + '. Tus cambios sí se guardaron; recarga la página.', true);
 }
 
 pintaTabs();
@@ -2184,7 +2447,12 @@ abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
     const r = await fetch('data/marca.json?t=' + Date.now());
     if (r.ok) {
       const datos = await r.json();
-      if (datos && datos.logo) MARCA_LOGO = datos.logo;
+      if (datos) {
+        if (datos.logo) MARCA_LOGO = datos.logo;
+        if (datos.nombre) MARCA_NOMBRE = datos.nombre;
+        if (typeof datos.subtitulo === 'string') MARCA_SUBTITULO = datos.subtitulo;
+        if (typeof datos.temporada === 'string') MARCA_TEMPORADA = datos.temporada;
+      }
     }
   } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
 
