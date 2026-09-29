@@ -659,5 +659,15 @@
     "sede": "CANCHA I.C",
     "local": "INSTITUTO CAMPECHANO SUPERIOR A",
     "visita": "CBTIS 09"
+  },
+  {
+    "id": "pda4agmp",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T09:30",
+    "sede": "CANCHA I.C",
+    "local": "TEC DE CAMPECHE",
+    "visita": "TIGRILLA SUPERIOR A"
   }
 ]
