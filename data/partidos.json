@@ -669,5 +669,15 @@
     "sede": "CANCHA I.C",
     "local": "TEC DE CAMPECHE",
     "visita": "TIGRILLA SUPERIOR A"
+  },
+  {
+    "id": "poj0iik3",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T10:30",
+    "sede": "CANCHA I.C",
+    "local": "INSTITUTO CAMPECHANO PREPA A",
+    "visita": "TIGRILLAS PREPA A"
   }
 ]
