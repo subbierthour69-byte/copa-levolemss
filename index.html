@@ -81,6 +81,7 @@ tailwind.config = {
     #imprimir-rol, #imprimir-rol * { visibility: visible; }
     #imprimir-rol { position: absolute; inset: 0; padding: 24px; }
     #imprimir-rol .rompe-pagina { break-inside: avoid; }
+    #imprimir-rol .pagina-nueva { break-before: page; }
   }
 </style>
 </head>
@@ -1421,7 +1422,7 @@ function pintaListaResultados(rama) {
 
 function filasDeGrupo(rama, g) {
   const t = {};
-  const toca = n => (t[n] ||= { eq:n, pj:0, pg:0, pp:0, sf:0, sc:0, pts:0 });
+  const toca = n => (t[n] ||= { eq:n, pj:0, pg:0, pp:0, sf:0, sc:0, pf:0, pc:0, pts:0 });
 
   PARTIDOS
     .filter(p => p.cat === rama && p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave && jugado(p) && p.local && p.visita)
@@ -1430,17 +1431,22 @@ function filasDeGrupo(rama, g) {
       const L = toca(p.local), V = toca(p.visita);
       L.pj++; V.pj++;
       L.sf += gl; L.sc += gv; V.sf += gv; V.sc += gl;
+      /* Puntos totales anotados en todos los sets (no solo sets ganados):
+         sirve de desempate cuando dos equipos quedan iguales en puntos y
+         en diferencia de sets. */
+      p.sets.forEach(([a, b]) => { L.pf += a; L.pc += b; V.pf += b; V.pc += a; });
       if (gl > gv) { L.pg++; V.pp++; L.pts += gv <= 1 ? 3 : 2; V.pts += gv <= 1 ? 0 : 1; }
       else         { V.pg++; L.pp++; V.pts += gl <= 1 ? 3 : 2; L.pts += gl <= 1 ? 0 : 1; }
     });
 
   return Object.values(t).sort((a, b) =>
-    b.pts - a.pts || (b.sf - b.sc) - (a.sf - a.sc) || b.pg - a.pg || b.sf - a.sf);
+    b.pts - a.pts || (b.sf - b.sc) - (a.sf - a.sc) || (b.pf - b.pc) - (a.pf - a.pc) || b.pg - a.pg || b.sf - a.sf);
 }
 
 function htmlTabla(filas, descripcion) {
   return `
   <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+    <div class="overflow-x-auto">
     <table class="w-full text-[14px]">
       <caption class="sr-only">Tabla de posiciones: ${esc(descripcion)}</caption>
       <thead>
@@ -1451,6 +1457,9 @@ function htmlTabla(filas, descripcion) {
           <th scope="col" class="px-2 py-2.5 text-center font-medium">PP</th>
           <th scope="col" class="px-2 py-2.5 text-center font-medium">SF</th>
           <th scope="col" class="px-2 py-2.5 text-center font-medium">SC</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium" title="Puntos a favor">PF</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium" title="Puntos en contra">PC</th>
+          <th scope="col" class="px-2 py-2.5 text-center font-medium" title="Diferencia de puntos">Dif</th>
           <th scope="col" class="py-2.5 pl-2 pr-4 text-center font-medium">Pts</th>
         </tr>
       </thead>
@@ -1470,10 +1479,14 @@ function htmlTabla(filas, descripcion) {
             <td class="num px-2 py-2.5 text-center text-muted">${f.pp}</td>
             <td class="num px-2 py-2.5 text-center text-muted">${f.sf}</td>
             <td class="num px-2 py-2.5 text-center text-muted">${f.sc}</td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.pf}</td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.pc}</td>
+            <td class="num px-2 py-2.5 text-center text-muted">${f.pf - f.pc > 0 ? '+' : ''}${f.pf - f.pc}</td>
             <td class="num py-2.5 pl-2 pr-4 text-center font-score text-[20px]">${f.pts}</td>
           </tr>`).join('')}
       </tbody>
     </table>
+    </div>
   </div>`;
 }
 
@@ -1498,7 +1511,7 @@ function pintaTabla(rama) {
     </section>`;
   }).join('') + `
   <p class="px-1 text-[12.5px] leading-relaxed text-muted">
-    PJ: jugados. PG/PP: ganados/perdidos. SF/SC: sets a favor y en contra.
+    PJ: jugados. PG/PP: ganados/perdidos. SF/SC: sets a favor y en contra. PF/PC/Dif: puntos a favor, en contra y su diferencia (desempate cuando todo lo demás queda igual).
     Victoria 3-0 o 3-1: 3 pts. Victoria 3-2: 2 pts. Derrota 2-3: 1 pt. Derrota 0-3 o 1-3: 0 pts.
   </p>`;
 }
@@ -2231,37 +2244,100 @@ function abrePartidoModal(id = null) {
 }
 
 $('#btn-descargar-rol').addEventListener('click', () => {
-  const lista = filtraRama(porJugar()).sort((a, b) => fecha(a.fecha) - fecha(b.fecha));
-  const filtroTexto = estado.ramaRol === 'Todas' ? 'Todas las categorías' : estado.ramaRol;
+  const pendientes = porJugar();
+  const ramas = estado.ramaRol === 'Todas' ? ['Femenil', 'Varonil'] : [estado.ramaRol];
 
-  const filaImpresion = p => `
+  const filaPartido = p => `
     <tr class="rompe-pagina">
       <td class="border border-hair px-2 py-1.5 align-top">${tituloDia(p.fecha)}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${soloHora(p.fecha)} ${meridiano(p.fecha)}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${p.fecha ? soloHora(p.fecha) + ' ' + meridiano(p.fecha) : '—'}</td>
       <td class="border border-hair px-2 py-1.5 align-top">${esc(p.local)} vs ${esc(p.visita)}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.cat)}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${esc(etiquetaFase(p))}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.sede)}</td>
+      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.sede || '—')}</td>
     </tr>`;
 
-  $('#imprimir-rol').innerHTML = lista.length ? `
-    <h1 class="font-score text-[22px]">${esc(MARCA_NOMBRE)}</h1>
-    <p class="text-[13px] text-muted">Rol de juegos · ${esc(filtroTexto)} · generado ${new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</p>
-    <table class="mt-4 w-full border-collapse text-[12.5px]">
+  const tablaCalendario = partidos => `
+    <table class="mt-2 w-full border-collapse text-[12.5px]">
       <thead>
         <tr class="bg-mist">
           <th class="border border-hair px-2 py-1.5 text-left">Día</th>
           <th class="border border-hair px-2 py-1.5 text-left">Hora</th>
           <th class="border border-hair px-2 py-1.5 text-left">Partido</th>
-          <th class="border border-hair px-2 py-1.5 text-left">Categoría</th>
-          <th class="border border-hair px-2 py-1.5 text-left">Fase / grupo</th>
           <th class="border border-hair px-2 py-1.5 text-left">Cancha</th>
         </tr>
       </thead>
-      <tbody>${lista.map(filaImpresion).join('')}</tbody>
-    </table>` : `<h1 class="font-score text-[22px]">${esc(MARCA_NOMBRE)}</h1><p class="mt-2">No hay partidos pendientes con este filtro para imprimir.</p>`;
+      <tbody>${partidos.map(filaPartido).join('')}</tbody>
+    </table>`;
 
+  const tablaPosiciones = filas => !filas.length ? '' : `
+    <table class="mt-2 mb-4 w-full border-collapse text-[12.5px]">
+      <thead>
+        <tr class="bg-mist">
+          <th class="border border-hair px-2 py-1 text-left">#</th>
+          <th class="border border-hair px-2 py-1 text-left">Equipo</th>
+          <th class="border border-hair px-2 py-1 text-center">PJ</th>
+          <th class="border border-hair px-2 py-1 text-center">PG</th>
+          <th class="border border-hair px-2 py-1 text-center">PP</th>
+          <th class="border border-hair px-2 py-1 text-center">SF</th>
+          <th class="border border-hair px-2 py-1 text-center">SC</th>
+          <th class="border border-hair px-2 py-1 text-center">PF</th>
+          <th class="border border-hair px-2 py-1 text-center">PC</th>
+          <th class="border border-hair px-2 py-1 text-center">Dif</th>
+          <th class="border border-hair px-2 py-1 text-center">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filas.map((f, i) => `
+          <tr class="rompe-pagina">
+            <td class="border border-hair px-2 py-1">${i + 1}</td>
+            <td class="border border-hair px-2 py-1">${esc(f.eq)}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.pj}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.pg}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.pp}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.sf}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.sc}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.pf}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.pc}</td>
+            <td class="border border-hair px-2 py-1 text-center">${f.pf - f.pc > 0 ? '+' : ''}${f.pf - f.pc}</td>
+            <td class="border border-hair px-2 py-1 text-center font-semibold">${f.pts}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  /* Un bloque por cada grupo real (Grupo A, Grupo B...) de cada rama, más un
+     bloque de Liguilla si hay partidos de liguilla sin jugar. Cada bloque
+     empieza en una página nueva, con su tabla de posiciones (con puntos) y
+     luego su calendario — así cualquiera busca directo la página de su grupo. */
+  const bloques = [];
+  ramas.forEach(rama => {
+    const deRama = pendientes.filter(p => p.cat === rama);
+    gruposDeRama(rama).forEach(g => {
+      const partidos = deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave)
+        .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+      bloques.push({
+        titulo: `${rama} · ${g.etiqueta}`,
+        html: tablaPosiciones(filasDeGrupo(rama, g)) + (partidos.length ? tablaCalendario(partidos) : vacio('No hay partidos pendientes en este grupo.'))
+      });
+    });
+    const liguilla = deRama.filter(p => p.fase !== 'grupos').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    if (liguilla.length) bloques.push({ titulo: `${rama} · Liguilla`, html: tablaCalendario(liguilla) });
+  });
+
+  $('#imprimir-rol').innerHTML = `
+    <h1 class="font-score text-[22px]">${esc(MARCA_NOMBRE)}</h1>
+    <p class="text-[13px] text-muted">Rol de juegos y tabla de posiciones · generado ${new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</p>
+    ${bloques.length ? bloques.map((b, i) => `
+      <section class="${i > 0 ? 'pagina-nueva mt-6' : 'mt-4'}">
+        <h2 class="font-score text-[18px] text-court">${esc(b.titulo)}</h2>
+        ${b.html}
+      </section>`).join('') : '<p class="mt-2">No hay partidos pendientes con este filtro para imprimir.</p>'}`;
+
+  /* La sección de impresión está oculta en pantalla (display:none) — hay
+     que mostrarla antes de imprimir, o el PDF sale en blanco, y ocultarla
+     de nuevo después para que no estorbe en la página normal. */
+  $('#imprimir-rol').classList.remove('hidden');
   window.print();
+  window.addEventListener('afterprint', () => $('#imprimir-rol').classList.add('hidden'), { once: true });
+  setTimeout(() => $('#imprimir-rol').classList.add('hidden'), 2000);
 });
 
 $('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
