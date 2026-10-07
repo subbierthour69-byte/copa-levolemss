@@ -9,7 +9,7 @@
     "categoria": "Ambas",
     "logo": "logos/cbtis-09.png"
   },
-  "WICHO": {
+  "LEONES": {
     "abrev": "W",
     "categoria": "Ambas",
     "logo": "logos/wicho.jpeg"
@@ -22,7 +22,7 @@
   "SEYBAPLAYA": {
     "abrev": "SB",
     "categoria": "Varonil",
-    "logo": ""
+    "logo": "logos/seybaplaya.jpeg"
   },
   "COBACAM ESCARCEGA": {
     "abrev": "CB E",
@@ -32,76 +32,76 @@
   "ONIX": {
     "abrev": "CH",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/onix.jpeg"
   },
   "TIGRILLAS SUPERIOR B": {
     "abrev": "TG",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/tigrillas-superior-b.jpeg"
   },
   "TIGRILLAS PREPA B": {
     "abrev": "TIG",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/tigrillas-prepa-b.jpeg"
   },
   "TIGRILLA SUPERIOR A": {
     "abrev": "TIG",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/tigrilla-superior-a.jpeg"
   },
   "TIGRILLAS PREPA A": {
     "abrev": "TIG",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/tigrillas-prepa-a.jpeg"
   },
   "CECYTE B": {
     "abrev": "CEC",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/cecyte-b.png"
   },
   "CECYTE A": {
     "abrev": "CEC",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/cecyte-a.png"
   },
   "CECYTE": {
     "abrev": "CEC",
     "categoria": "Varonil",
-    "logo": ""
+    "logo": "logos/cecyte.png"
   },
   "TEC DE CAMPECHE": {
     "abrev": "TEC",
     "categoria": "Ambas",
-    "logo": ""
+    "logo": "logos/tec-de-campeche.png"
   },
   "INSTITUTO CAMPECHANO PREPA A": {
     "abrev": "INS",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/instituto-campechano-prepa-a.jpeg"
   },
   "INSTITUTO CAMPECHANO PREPA B": {
     "abrev": "INS",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/instituto-campechano-prepa-b.jpeg"
   },
   "INSTITUTO CAMPECHANO": {
     "abrev": "INS",
     "categoria": "Varonil",
-    "logo": ""
+    "logo": "logos/instituto-campechano.jpeg"
   },
   "KATANA": {
     "abrev": "KAT",
     "categoria": "Femenil",
-    "logo": ""
+    "logo": "logos/katana.jpeg"
   },
   "TEC DE CHINA": {
     "abrev": "TEC",
     "categoria": "Varonil",
-    "logo": ""
+    "logo": "logos/tec-de-china.jpeg"
   },
   "INSTITUTO CAMPECHANO SUPERIOR A": {
     "abrev": "INS",
     "categoria": "Varonil",
-    "logo": ""
+    "logo": "logos/instituto-campechano-superior-a.jpeg"
   }
 }
