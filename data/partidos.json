@@ -709,5 +709,15 @@
     "sede": "CANCHA 3 (20 DE NOVIEMBRE)",
     "local": "CENTINELAS",
     "visita": "TIGRILLAS PREPA A"
+  },
+  {
+    "id": "p4dgja5b",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-10-10T09:30",
+    "sede": "CANCHA 3 (20 DE NOVIEMBRE)",
+    "local": "TIGRILLAS PREPA A",
+    "visita": "INSTITUTO CAMPECHANO PREPA B"
   }
 ]
