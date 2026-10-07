@@ -619,5 +619,15 @@
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "ONIX",
     "visita": "INSTITUTO CAMPECHANO PREPA A"
+  },
+  {
+    "id": "pho3g3uv",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T08:30",
+    "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
+    "local": "TIGRILLA SUPERIOR A",
+    "visita": "INSTITUTO CAMPECHANO SUPERIOR A"
   }
 ]
