@@ -789,5 +789,15 @@
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "TEC DE CAMPECHE",
     "visita": "LEONES"
+  },
+  {
+    "id": "pw96nco1",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T10:30",
+    "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
+    "local": "TEC DE CHINA",
+    "visita": "COBACAM LERMA"
   }
 ]
