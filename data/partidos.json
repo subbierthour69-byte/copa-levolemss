@@ -809,5 +809,15 @@
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "CECYTE",
     "visita": "SEYBAPLAYA"
+  },
+  {
+    "id": "p0fvi6r5",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T11:30",
+    "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
+    "local": "COBACAM ESCARCEGA",
+    "visita": "INSTITUTO CAMPECHANO"
   }
 ]
