@@ -679,5 +679,15 @@
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "CECYTE A",
     "visita": "CBTIS 09"
+  },
+  {
+    "id": "pi9fzdzl",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T11:30",
+    "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
+    "local": "TIGRILLAS PREPA A",
+    "visita": "INSTITUTO CAMPECHANO PREPA A"
   }
 ]
