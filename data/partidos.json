@@ -729,5 +729,15 @@
     "sede": "CANCHA 3 (20 DE NOVIEMBRE)",
     "local": "TIGRILLAS PREPA B",
     "visita": "INSTITUTO CAMPECHANO PREPA B"
+  },
+  {
+    "id": "p3ljoilo",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-10-10T11:30",
+    "sede": "CANCHA 3 (20 DE NOVIEMBRE)",
+    "local": "TIGRILLAS SUPERIOR B",
+    "visita": "INSTITUTO CAMPECHANO PREPA B"
   }
 ]
