@@ -659,5 +659,15 @@
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "ONIX",
     "visita": "COBACAM ESCARCEGA"
+  },
+  {
+    "id": "pdiwl84v",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T10:30",
+    "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
+    "local": "INSTITUTO CAMPECHANO PREPA A",
+    "visita": "TIGRILLAS PREPA A"
   }
 ]
