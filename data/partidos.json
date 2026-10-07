@@ -639,5 +639,15 @@
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "TIGRILLA SUPERIOR A",
     "visita": "TEC DE CAMPECHE"
+  },
+  {
+    "id": "pcgpjlz1",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T09:30",
+    "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
+    "local": "CECYTE A",
+    "visita": "COBACAM ESCARCEGA"
   }
 ]
