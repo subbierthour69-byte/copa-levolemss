@@ -749,5 +749,15 @@
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "CBTIS 09",
     "visita": "INSTITUTO CAMPECHANO"
+  },
+  {
+    "id": "pdxd5d6z",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-10T08:30",
+    "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
+    "local": "CECYTE",
+    "visita": "COBACAM LERMA"
   }
 ]
