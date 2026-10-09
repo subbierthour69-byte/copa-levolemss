@@ -82,6 +82,13 @@ tailwind.config = {
   .corona { display: inline-block; color: #E0A800; transform-origin: 50% 100%; animation: flota-corona 2.2s ease-in-out infinite; }
   .pts-lider { animation: brillo-pts 2.8s ease-in-out infinite; }
 
+  /* Insignia ▲/▼ que aparece unos segundos junto a la posición de un equipo
+     que subió o bajó en la tabla. */
+  @keyframes insignia { 0% { opacity: 0; transform: translateY(5px) scale(.7); } 12%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  .insignia-mov { position: absolute; right: -15px; top: -7px; font-size: 9.5px; font-weight: 700; line-height: 1; pointer-events: none; animation: insignia 3.4s ease forwards; }
+  .insignia-sube { color: #1F7A4C; }
+  .insignia-baja { color: #B3322E; }
+
   /* Trofeo del campeón de la liguilla */
   @keyframes trofeo { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.07); } }
   .trofeo-anim { display: inline-block; animation: trofeo 2.4s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(255,201,60,.55)); }
@@ -1059,6 +1066,62 @@ function pintaTabs() {
   $$('[data-tab]').forEach(b => b.addEventListener('click', () => abreTab(b.dataset.tab)));
 }
 
+/* ---------- Movimiento de equipos en la tabla de posiciones ----------
+   Cada vez que se dibuja una tabla se guarda en qué lugar quedó cada equipo.
+   Si en el dibujo siguiente alguien cambió de lugar, se anota como "pendiente"
+   y se anima en cuanto esa tabla esté a la vista: la fila se desliza desde su
+   lugar anterior hasta el nuevo, parpadea en verde (subió) o rojo (bajó) y
+   muestra una insignia ▲/▼ unos segundos. Si la tabla estaba oculta cuando
+   cambió (por ejemplo, capturaste el resultado desde la pestaña Resultados),
+   el movimiento se muestra la próxima vez que abras Posiciones. */
+const RANKING_PREVIO = {};
+const MOVIMIENTOS_PENDIENTES = {};
+let rastreaMovimientos = false; // se enciende cuando termina la primera carga de datos
+const reducirMovimiento = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function registraMovimientos(contenedor) {
+  $$('tr[data-flip]', contenedor).forEach(tr => {
+    const clave = tr.dataset.flip, nuevo = +tr.dataset.rank;
+    const viejo = RANKING_PREVIO[clave];
+    RANKING_PREVIO[clave] = nuevo;
+    if (!rastreaMovimientos || viejo === undefined) return;
+    const pendiente = MOVIMIENTOS_PENDIENTES[clave];
+    const de = pendiente ? pendiente.de : viejo; // si ya había uno sin mostrar, se parte de su origen
+    if (de === nuevo) delete MOVIMIENTOS_PENDIENTES[clave];
+    else MOVIMIENTOS_PENDIENTES[clave] = { de, a: nuevo };
+  });
+}
+
+function aplicaMovimientos(contenedor) {
+  if (!contenedor) return;
+  const filas = $$('tr[data-flip]', contenedor);
+  if (reducirMovimiento()) { filas.forEach(tr => delete MOVIMIENTOS_PENDIENTES[tr.dataset.flip]); return; }
+
+  filas.forEach(tr => {
+    const mov = MOVIMIENTOS_PENDIENTES[tr.dataset.flip];
+    if (!mov) return;
+    const alto = tr.getBoundingClientRect().height;
+    if (!alto) return; // la tabla está oculta: se queda pendiente para cuando se abra
+    delete MOVIMIENTOS_PENDIENTES[tr.dataset.flip];
+
+    const sube = mov.a < mov.de;
+    if (typeof tr.animate === 'function') {
+      tr.style.position = 'relative';
+      tr.style.zIndex = sube ? '2' : '1';
+      const desliza = tr.animate(
+        [{ transform: `translateY(${(mov.de - mov.a) * alto}px)` }, { transform: 'translateY(0)' }],
+        { duration: 750, easing: 'cubic-bezier(.2,.7,.2,1)' });
+      desliza.onfinish = () => { tr.style.position = ''; tr.style.zIndex = ''; };
+      tr.animate(
+        [{ backgroundColor: sube ? 'rgba(31,122,76,.28)' : 'rgba(179,50,46,.20)' }, { backgroundColor: 'rgba(0,0,0,0)' }],
+        { duration: 1800, easing: 'ease-out' });
+    }
+    const rango = tr.querySelector('.rango');
+    if (rango) rango.insertAdjacentHTML('beforeend',
+      `<span class="insignia-mov ${sube ? 'insignia-sube' : 'insignia-baja'}">${sube ? '▲' : '▼'}${Math.abs(mov.de - mov.a)}</span>`);
+  });
+}
+
 /* Reinicia la animación de entrada de un elemento (fundido + tarjetas
    escalonadas) y la apaga al terminar para que no se repita sola. */
 function animaEntrada(el) {
@@ -1068,6 +1131,7 @@ function animaEntrada(el) {
   el.classList.add('animar');
   clearTimeout(el._animTimer);
   el._animTimer = setTimeout(() => el.classList.remove('animar'), 1400);
+  setTimeout(() => aplicaMovimientos(el), 550); // ya aparecieron las filas: ahora se mueven a su lugar
 }
 
 function abreTab(id) {
@@ -1329,7 +1393,7 @@ function montaRama(rama) {
         <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
         <p class="mt-1 max-w-[62ch] text-[14px] leading-relaxed text-muted">
           Solo cuenta la fase de grupos, y cada grupo tiene su propia tabla.
-          Se ordena por puntos; si hay empate, decide la diferencia de sets y luego los juegos ganados.
+          Se ordena por partidos ganados; si hay empate, por puntos; después por cociente de sets (SF ÷ SC) y, al final, por cociente de puntos (PF ÷ PC).
         </p>
         <div data-tabla class="mt-4"></div>
       </div>
@@ -1347,6 +1411,7 @@ function montaRama(rama) {
   pintaResultados(rama);
   pintaTabla(rama);
   abreSub(rama, estado.sub[rama]);
+  aplicaMovimientos(panel); // si Posiciones ya estaba a la vista, los equipos se deslizan a su nuevo lugar
 }
 
 function abreSub(rama, sub, animar = false) {
@@ -1570,7 +1635,7 @@ function filasDeGrupo(rama, g) {
     .sort((a, b) => (b.pg - a.pg) || (b.pts - a.pts) || desc(a.rs, b.rs) || desc(a.rp, b.rp));
 }
 
-function htmlTabla(filas, descripcion) {
+function htmlTabla(filas, descripcion, clave = '') {
   return `
   <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
     <div class="overflow-x-auto">
@@ -1592,10 +1657,10 @@ function htmlTabla(filas, descripcion) {
       </thead>
       <tbody class="stagger">
         ${filas.map((f, i) => `
-          <tr class="border-b border-hair/60 last:border-0 ${i === 0 ? 'fila-lider' : ''}">
+          <tr data-flip="${esc(clave + '|' + f.eq)}" data-rank="${i}" class="border-b border-hair/60 last:border-0 ${i === 0 ? 'fila-lider' : ''}">
             <td class="py-2.5 pl-3 pr-2">
               <div class="flex items-center gap-2.5">
-                <span class="num w-5 shrink-0 text-center font-score text-[16px] ${i === 0 ? 'text-court' : 'text-muted'}">${i + 1}</span>
+                <span class="rango relative num w-5 shrink-0 text-center font-score text-[16px] ${i === 0 ? 'text-court' : 'text-muted'}">${i + 1}</span>
                 ${escudo(f.eq, 26)}
                 <span class="truncate font-medium sm:hidden">${iniciales(f.eq)}</span>
                 <span class="hidden truncate sm:inline">${f.eq}</span>
@@ -1634,14 +1699,15 @@ function pintaTabla(rama) {
     <section class="mb-8">
       ${grupos.length > 1 ? `<h4 class="mb-2.5 font-score text-[21px] tracking-wide text-court">${esc(g.etiqueta)}</h4>` : ''}
       ${filas.length
-        ? htmlTabla(filas, `${rama} ${g.etiqueta}`)
+        ? htmlTabla(filas, `${rama} ${g.etiqueta}`, rama + '|' + g.clave)
         : vacio(`La tabla de ${esc(nombre)} se llena conforme se capturan los resultados.`)}
     </section>`;
   }).join('') + `
   <p class="px-1 text-[12.5px] leading-relaxed text-muted">
-    PJ: jugados. PG/PP: ganados/perdidos. SF/SC: sets a favor y en contra. PF/PC/Dif: puntos a favor, en contra y su diferencia (desempate cuando todo lo demás queda igual).
+    PJ: jugados. PG/PP: ganados/perdidos. SF/SC: sets a favor y en contra. PF/PC/Dif: puntos a favor, en contra y su diferencia.
     Victoria 3-0 o 3-1: 3 pts. Victoria 3-2: 2 pts. Derrota 2-3: 1 pt. Derrota 0-3 o 1-3: 0 pts.
   </p>`;
+  registraMovimientos(destino);
 }
 
 /* ==========================================================================
@@ -2685,71 +2751,81 @@ repintaTodo();
 const inicial = location.hash.slice(1);
 abreTab(TABS.some(t => t.id === inicial) ? inicial : 'equipos');
 
-/* Carga, sin bloquear el primer dibujo, lo que se haya publicado desde el modo
-   administrador: data/equipos.json, data/partidos.json, data/logos.json y
-   data/galeria.json. Si alguno todavía no existe (nadie ha guardado nada ahí
-   aún) o falla la red, la página se queda con los valores de arriba — nunca
-   se rompe. Esto es lo que hace que los equipos y partidos que agregas o
-   editas se sigan viendo igual aunque recargues la página o entres desde
-   otro celular, y no solo mientras la pestaña sigue abierta. */
+/* Lee un archivo publicado en data/ como texto (o null si todavía no existe o
+   falla la red). El "?t=" evita que el navegador o GitHub Pages entreguen una
+   copia vieja. */
+async function leeTextoPublicado(archivo) {
+  try {
+    const r = await fetch('data/' + archivo + '.json?t=' + Date.now());
+    return r.ok ? await r.text() : null;
+  } catch (e) { return null; }
+}
+const parseaSeguro = t => { try { return t ? JSON.parse(t) : null; } catch (e) { return null; } };
+
+/* Carga lo que se haya publicado desde el modo administrador (equipos,
+   partidos, logos, galería, datos de la liga y tamaño de las liguillas). Si
+   algún archivo no existe o falla la red, la página se queda con lo que ya
+   tenía — nunca se rompe. Regresa true solo si algo cambió respecto a la
+   última vez, para no redibujar la página en balde. */
+let HUELLA_DATOS = '';
+async function cargaDatos() {
+  const nombres = ['liguillas', 'equipos', 'partidos', 'logos', 'galeria', 'marca'];
+  const textos = await Promise.all(nombres.map(leeTextoPublicado));
+
+  const huella = textos.map(t => t || '').join('\u0001');
+  if (huella === HUELLA_DATOS) return false;
+  HUELLA_DATOS = huella;
+
+  const [cfg, mapaEquipos, listaPartidos, mapaLogos, fotos, datosMarca] = textos.map(parseaSeguro);
+
+  if (cfg && typeof cfg === 'object') {
+    Object.entries(cfg).forEach(([id, n]) => { if (TAMANOS_LIGUILLA.includes(+n)) LIGUILLA_EQUIPOS[id] = +n; });
+    normalizaPartidos(PARTIDOS);
+  }
+  if (mapaEquipos && typeof mapaEquipos === 'object' && Object.keys(mapaEquipos).length) EQUIPOS = mapaEquipos;
+  if (Array.isArray(listaPartidos) && listaPartidos.length) PARTIDOS = normalizaPartidos(listaPartidos);
+  if (mapaLogos && typeof mapaLogos === 'object') {
+    Object.entries(mapaLogos).forEach(([nombre, url]) => { if (EQUIPOS[nombre]) EQUIPOS[nombre].logo = url; });
+  }
+  if (Array.isArray(fotos)) FOTOS = fotos;
+  if (datosMarca && typeof datosMarca === 'object') {
+    if (datosMarca.logo) MARCA_LOGO = datosMarca.logo;
+    if (datosMarca.nombre) MARCA_NOMBRE = datosMarca.nombre;
+    if (typeof datosMarca.subtitulo === 'string') MARCA_SUBTITULO = datosMarca.subtitulo;
+    if (typeof datosMarca.temporada === 'string') MARCA_TEMPORADA = datosMarca.temporada;
+  }
+  return true;
+}
+
+/* Actualización automática para el PÚBLICO: cada minuto revisa si hay datos
+   nuevos y, si los hay, redibuja la página (y los equipos que cambiaron de
+   lugar se deslizan a su nuevo sitio). No corre en modo administrador, porque
+   el administrador trabaja con sus propios datos recién guardados y GitHub
+   Pages tarda uno o dos minutos en publicarlos: leer la copia vieja los
+   pisaría. Tampoco corre con la pestaña en segundo plano ni mientras alguien
+   está escribiendo en un campo (para no interrumpirlo). */
+const INTERVALO_ACTUALIZACION_MS = 60000;
+
+async function actualizaSiHayCambios() {
+  if (esAdmin()) return;
+  if (document.visibilityState === 'hidden') return;
+  const enfocado = document.activeElement;
+  if (enfocado && enfocado.matches && enfocado.matches('input, textarea')) return;
+  try { if (await cargaDatos()) repintaTodo(); } catch (e) { /* se reintenta en el siguiente ciclo */ }
+}
+
+function iniciaActualizacionAutomatica() {
+  setInterval(actualizaSiHayCambios, INTERVALO_ACTUALIZACION_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') actualizaSiHayCambios();
+  });
+}
+
 (async () => {
-  try {
-    const r = await fetch('data/liguillas.json?t=' + Date.now());
-    if (r.ok) {
-      const cfg = await r.json();
-      if (cfg && typeof cfg === 'object') {
-        Object.entries(cfg).forEach(([id, n]) => { if (TAMANOS_LIGUILLA.includes(+n)) LIGUILLA_EQUIPOS[id] = +n; });
-        normalizaPartidos(PARTIDOS);
-      }
-    }
-  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
-
-  try {
-    const r = await fetch('data/equipos.json?t=' + Date.now());
-    if (r.ok) {
-      const mapa = await r.json();
-      if (mapa && typeof mapa === 'object' && Object.keys(mapa).length) EQUIPOS = mapa;
-    }
-  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
-
-  try {
-    const r = await fetch('data/partidos.json?t=' + Date.now());
-    if (r.ok) {
-      const lista = await r.json();
-      if (Array.isArray(lista) && lista.length) PARTIDOS = normalizaPartidos(lista);
-    }
-  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
-
-  try {
-    const r = await fetch('data/logos.json?t=' + Date.now());
-    if (r.ok) {
-      const mapa = await r.json();
-      Object.entries(mapa).forEach(([nombre, url]) => { if (EQUIPOS[nombre]) EQUIPOS[nombre].logo = url; });
-    }
-  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
-
-  try {
-    const r = await fetch('data/galeria.json?t=' + Date.now());
-    if (r.ok) {
-      const fotos = await r.json();
-      if (Array.isArray(fotos)) FOTOS = fotos;
-    }
-  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
-
-  try {
-    const r = await fetch('data/marca.json?t=' + Date.now());
-    if (r.ok) {
-      const datos = await r.json();
-      if (datos) {
-        if (datos.logo) MARCA_LOGO = datos.logo;
-        if (datos.nombre) MARCA_NOMBRE = datos.nombre;
-        if (typeof datos.subtitulo === 'string') MARCA_SUBTITULO = datos.subtitulo;
-        if (typeof datos.temporada === 'string') MARCA_TEMPORADA = datos.temporada;
-      }
-    }
-  } catch (e) { /* sin conexión o archivo inexistente: se ignora */ }
-
+  try { await cargaDatos(); } catch (e) { /* se queda con los datos de ejemplo */ }
   repintaTodo();
+  rastreaMovimientos = true; // a partir de aquí, un cambio de lugar en la tabla sí se anima
+  iniciaActualizacionAutomatica();
 })();
 </script>
 </body>
