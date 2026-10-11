@@ -746,7 +746,17 @@
     "fecha": "2026-10-10T11:30",
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "CECYTE A",
-    "visita": "CBTIS 09"
+    "visita": "CBTIS 09",
+    "sets": [
+      [
+        25,
+        5
+      ],
+      [
+        25,
+        20
+      ]
+    ]
   },
   {
     "id": "pi9fzdzl",
