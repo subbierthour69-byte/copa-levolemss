@@ -728,7 +728,21 @@
     "fecha": "2026-10-10T12:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "CBTIS 09",
-    "visita": "INSTITUTO CAMPECHANO SUPERIOR A"
+    "visita": "INSTITUTO CAMPECHANO SUPERIOR A",
+    "sets": [
+      [
+        11,
+        25
+      ],
+      [
+        17,
+        25
+      ],
+      [
+        8,
+        15
+      ]
+    ]
   },
   {
     "id": "pamcpnx9",
