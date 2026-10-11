@@ -748,7 +748,17 @@
     "fecha": "2026-10-10T10:30",
     "sede": "CANCHA 3 (20 DE NOVIEMBRE)",
     "local": "TIGRILLAS PREPA B",
-    "visita": "INSTITUTO CAMPECHANO PREPA B"
+    "visita": "INSTITUTO CAMPECHANO PREPA B",
+    "sets": [
+      [
+        28,
+        26
+      ],
+      [
+        25,
+        22
+      ]
+    ]
   },
   {
     "id": "p3ljoilo",
