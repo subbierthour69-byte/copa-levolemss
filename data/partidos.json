@@ -628,7 +628,17 @@
     "fecha": "2026-10-10T08:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "TIGRILLA SUPERIOR A",
-    "visita": "INSTITUTO CAMPECHANO SUPERIOR A"
+    "visita": "INSTITUTO CAMPECHANO SUPERIOR A",
+    "sets": [
+      [
+        25,
+        14
+      ],
+      [
+        25,
+        9
+      ]
+    ]
   },
   {
     "id": "pimj50bm",
