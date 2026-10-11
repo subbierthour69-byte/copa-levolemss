@@ -718,7 +718,17 @@
     "fecha": "2026-10-10T11:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "TIGRILLAS PREPA A",
-    "visita": "TEC DE CAMPECHE"
+    "visita": "TEC DE CAMPECHE",
+    "sets": [
+      [
+        19,
+        25
+      ],
+      [
+        24,
+        26
+      ]
+    ]
   },
   {
     "id": "pwheynv3",
