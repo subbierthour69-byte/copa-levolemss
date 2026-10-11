@@ -890,7 +890,17 @@
     "fecha": "2026-10-10T08:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "CBTIS 09",
-    "visita": "INSTITUTO CAMPECHANO"
+    "visita": "INSTITUTO CAMPECHANO",
+    "sets": [
+      [
+        27,
+        25
+      ],
+      [
+        25,
+        17
+      ]
+    ]
   },
   {
     "id": "pdxd5d6z",
