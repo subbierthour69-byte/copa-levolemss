@@ -688,7 +688,21 @@
     "fecha": "2026-10-10T10:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "INSTITUTO CAMPECHANO PREPA A",
-    "visita": "TIGRILLAS PREPA A"
+    "visita": "TIGRILLAS PREPA A",
+    "sets": [
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        19
+      ],
+      [
+        15,
+        11
+      ]
+    ]
   },
   {
     "id": "pda7l9e8",
