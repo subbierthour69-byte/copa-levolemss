@@ -940,7 +940,17 @@
     "fecha": "2026-10-10T09:30",
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
     "local": "TEC DE CHINA",
-    "visita": "TEC DE CAMPECHE"
+    "visita": "TEC DE CAMPECHE",
+    "sets": [
+      [
+        26,
+        24
+      ],
+      [
+        25,
+        21
+      ]
+    ]
   },
   {
     "id": "pu9ojgxb",
