@@ -920,7 +920,17 @@
     "fecha": "2026-10-10T09:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "SEYBAPLAYA",
-    "visita": "LEONES"
+    "visita": "LEONES",
+    "sets": [
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        22
+      ]
+    ]
   },
   {
     "id": "p97c51b0",
