@@ -662,7 +662,17 @@
     "fecha": "2026-10-10T09:30",
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "TIGRILLA SUPERIOR A",
-    "visita": "TEC DE CAMPECHE"
+    "visita": "TEC DE CAMPECHE",
+    "sets": [
+      [
+        25,
+        7
+      ],
+      [
+        25,
+        20
+      ]
+    ]
   },
   {
     "id": "pcgpjlz1",
