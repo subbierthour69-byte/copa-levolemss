@@ -728,7 +728,17 @@
     "fecha": "2026-10-10T09:30",
     "sede": "CANCHA 3 (20 DE NOVIEMBRE)",
     "local": "TIGRILLAS SUPERIOR B",
-    "visita": "CECYTE B"
+    "visita": "CECYTE B",
+    "sets": [
+      [
+        25,
+        12
+      ],
+      [
+        25,
+        14
+      ]
+    ]
   },
   {
     "id": "pemgmxdi",
