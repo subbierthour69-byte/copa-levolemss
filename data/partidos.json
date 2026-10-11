@@ -950,7 +950,21 @@
     "fecha": "2026-10-10T10:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "TEC DE CAMPECHE",
-    "visita": "LEONES"
+    "visita": "LEONES",
+    "sets": [
+      [
+        22,
+        25
+      ],
+      [
+        25,
+        17
+      ],
+      [
+        13,
+        15
+      ]
+    ]
   },
   {
     "id": "pw96nco1",
