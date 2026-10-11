@@ -974,7 +974,17 @@
     "fecha": "2026-10-10T10:30",
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
     "local": "TEC DE CHINA",
-    "visita": "COBACAM LERMA"
+    "visita": "COBACAM LERMA",
+    "sets": [
+      [
+        25,
+        17
+      ],
+      [
+        25,
+        19
+      ]
+    ]
   },
   {
     "id": "ptt4v9zo",
