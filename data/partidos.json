@@ -984,7 +984,21 @@
     "fecha": "2026-10-10T11:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "CECYTE",
-    "visita": "SEYBAPLAYA"
+    "visita": "SEYBAPLAYA",
+    "sets": [
+      [
+        21,
+        25
+      ],
+      [
+        25,
+        14
+      ],
+      [
+        12,
+        15
+      ]
+    ]
   },
   {
     "id": "p0fvi6r5",
