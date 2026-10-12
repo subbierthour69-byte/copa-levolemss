@@ -451,15 +451,15 @@
   },
   {
     "id": "lg-femenil-b-S1",
-    "cat": "Femenil",
-    "liga": "Femenil B",
     "fase": "semis",
     "llave": "S1",
     "avanzaA": "F1",
     "ranura": "local",
+    "cat": "Femenil",
+    "liga": "Femenil B",
     "fecha": "2026-12-05T08:30",
     "sede": "POR DEFINIR",
-    "local": "TEC DE CHINA",
+    "local": "",
     "visita": ""
   },
   {
