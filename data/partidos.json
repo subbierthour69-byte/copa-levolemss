@@ -464,15 +464,15 @@
   },
   {
     "id": "lg-femenil-b-S2",
-    "cat": "Femenil",
-    "liga": "Femenil B",
     "fase": "semis",
     "llave": "S2",
     "avanzaA": "F1",
     "ranura": "visita",
+    "cat": "Femenil",
+    "liga": "Femenil B",
     "fecha": "2026-12-06T09:30",
     "sede": "POR DEFINIR",
-    "local": "SEYBAPLAYA",
+    "local": "",
     "visita": ""
   },
   {
