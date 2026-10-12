@@ -728,10 +728,11 @@ const LIGUILLAS = [
 ];
 
 /* Cuántos equipos pasan a cada liguilla. 8 es el tamaño de siempre (cuartos →
-   semis → final); 4 arranca directo en semis; 2 es solo la final; 16 agrega
-   una ronda de octavos. Si una liguilla no está aquí, se asume 8. */
+   semis → final); 6 deja pasar directo a semifinales a los dos primeros y los
+   otros cuatro juegan cuartos; 4 arranca directo en semis; 2 es solo la final;
+   16 agrega una ronda de octavos. Si una liguilla no está aquí, se asume 8. */
 let LIGUILLA_EQUIPOS = {};
-const TAMANOS_LIGUILLA = [2, 4, 8, 16];
+const TAMANOS_LIGUILLA = [2, 4, 6, 8, 16];
 const equiposDe = ligaId => LIGUILLA_EQUIPOS[ligaId] || 8;
 
 const NOMBRE_FASE_POR_DISTANCIA   = { 0:'final', 1:'semis', 2:'cuartos', 3:'octavos' };
@@ -743,6 +744,18 @@ const PREFIJO_LLAVE_POR_DISTANCIA = { 0:'F',     1:'S',     2:'C',       3:'O' }
    llave de la siguiente ronda avanza el ganador y en qué lugar. */
 function plantillaLiguilla(equipos) {
   if (!TAMANOS_LIGUILLA.includes(equipos)) equipos = 8;
+
+  /* 6 equipos: el 1° y el 2° pasan directo a semifinales (esos lugares los
+     pones tú como "Local" de S1 y S2). Cuartos: C1 = 4° vs 5° y C2 = 3° vs 6°;
+     el ganador de C1 enfrenta al 1° y el de C2 al 2°. */
+  if (equipos === 6) return [
+    { llave:'C1', fase:'cuartos', avanzaA:'S1', ranura:'visita' },
+    { llave:'C2', fase:'cuartos', avanzaA:'S2', ranura:'visita' },
+    { llave:'S1', fase:'semis',   avanzaA:'F1', ranura:'local'  },
+    { llave:'S2', fase:'semis',   avanzaA:'F1', ranura:'visita' },
+    { llave:'F1', fase:'final' }
+  ];
+
   const rondas = Math.round(Math.log2(equipos));
   const plantilla = [];
   for (let k = 1; k <= rondas; k++) {
@@ -1716,8 +1729,17 @@ function pintaTabla(rama) {
 
 function bracketResuelto(ligaId) {
   const m = {};
+  const plantilla = plantillaLiguilla(equiposDe(ligaId));
   PARTIDOS.filter(p => p.fase !== 'grupos' && p.liga === ligaId && llaveActiva(p))
-          .forEach(p => { m[p.llave] = { ...p }; });
+          .forEach(p => {
+            m[p.llave] = { ...p };
+            /* A qué llave y en qué lugar avanza el ganador se toma del tamaño
+               ACTUAL de la liguilla, no de lo que traiga guardado el partido:
+               un C1 guardado cuando la liguilla era de 8 mandaba al ganador a
+               S1 como Local, y con 6 equipos debe entrar como Visita. */
+            const t = plantilla.find(x => x.llave === p.llave);
+            if (t) { m[p.llave].avanzaA = t.avanzaA; m[p.llave].ranura = t.ranura; }
+          });
 
   /* Octavos → cuartos → semis (nunca "final": de ahí ya no se avanza a
      ningún otro partido). Si esta liguilla no tiene alguna de esas rondas,
@@ -1753,9 +1775,14 @@ function bloqueLlave(p, ancho = 'w-full') {
   return `
   <div class="llave ${ancho}">
     <div class="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-hair/70">
-      <p class="border-b border-hair bg-mist px-3 py-1 text-[11px] text-muted">
-        ${FASES[p.fase]}${p.fecha ? ' — ' + tituloDia(p.fecha).replace(/^\w+ /, '') : ''}
-      </p>
+      <div class="flex items-center justify-between gap-2 border-b border-hair bg-mist px-3 py-1 text-[11px] text-muted">
+        <span>${FASES[p.fase]}${p.fecha ? ' — ' + tituloDia(p.fecha).replace(/^\w+ /, '') : ''}</span>
+        ${esAdmin() ? `
+        <button data-editar-partido="${p.id}" title="Editar este partido (equipos, fecha, resultado)"
+                class="-my-0.5 -mr-1.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-court text-white hover:bg-deep">
+          ${icono('lapiz', 'h-3 w-3')}
+        </button>` : ''}
+      </div>
       ${lado(p.local,  p.logoLocal,  gl, listo && gl > gv)}
       <div class="h-px bg-hair"></div>
       ${lado(p.visita, p.logoVisita, gv, listo && gv > gl)}
@@ -1840,7 +1867,14 @@ function pintaBracket() {
       </section>`).join('')}
   </div>`;
 
-  destino.innerHTML = escritorio + movil;
+  const nota = equipos === 6 ? `
+  <p class="mb-4 rounded-xl bg-white px-4 py-3 text-[13.5px] leading-relaxed text-muted shadow-card ring-1 ring-hair/70">
+    Pasan 6 equipos. El 1° y el 2° avanzan directo a semifinales. Cuartos: 4° vs 5° y 3° vs 6°;
+    el ganador del primero enfrenta al 1° y el del segundo al 2°.
+  </p>` : '';
+
+  destino.innerHTML = nota + escritorio + movil;
+  $$('[data-editar-partido]', destino).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
 }
 
 /* Control (solo en modo administrador) para elegir cuántos equipos pasan a la
@@ -1855,7 +1889,11 @@ function pintaTamanoLiguilla() {
     <div class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-white p-2 pl-4 shadow-card ring-1 ring-hair/70">
       <span class="text-[13px] font-medium text-court">Equipos que pasan a ${esc(liga.nombre)}:</span>
       <div data-tamano-chips class="noscroll flex gap-1 overflow-x-auto"></div>
-    </div>`;
+    </div>
+    <p class="mt-2 px-1 text-[12.5px] leading-relaxed text-muted">
+      Para poner o corregir equipos de un partido, toca el lápiz de su recuadro.
+      ${equiposDe(liga.id) === 6 ? 'Con 6 equipos: pon al <strong>1°</strong> como Local de S1 y al <strong>2°</strong> como Local de S2; los ganadores de cuartos entran solos como Visita.' : ''}
+    </p>`;
   grupoBotones($('[data-tamano-chips]', cont),
     TAMANOS_LIGUILLA.map(n => ({ valor: String(n), texto: String(n) })),
     String(equiposDe(liga.id)),
