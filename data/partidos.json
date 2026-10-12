@@ -399,16 +399,16 @@
   },
   {
     "id": "lg-femenil-b-C1",
-    "cat": "Femenil",
-    "liga": "Femenil B",
     "fase": "cuartos",
     "llave": "C1",
     "avanzaA": "S1",
     "ranura": "local",
+    "cat": "Femenil",
+    "liga": "Femenil B",
     "fecha": "2026-12-05T10:47",
     "sede": "POR DEFINIR",
-    "local": "CECYTE",
-    "visita": "TEC DE CAMPECHE"
+    "local": "",
+    "visita": ""
   },
   {
     "id": "lg-femenil-b-C2",
