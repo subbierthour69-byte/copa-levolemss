@@ -141,17 +141,17 @@
     "liga": "Varonil"
   },
   {
+    "id": "pg8idijh",
     "fase": "semis",
-    "cat": "Varonil",
     "llave": "S1",
     "avanzaA": "F1",
     "ranura": "local",
+    "cat": "Varonil",
+    "liga": "Varonil",
     "fecha": "2026-10-18T11:00",
     "sede": "Auditorio — Cancha 2",
-    "local": "TEC DE CHINA",
-    "visita": "",
-    "id": "pg8idijh",
-    "liga": "Varonil"
+    "local": "",
+    "visita": ""
   },
   {
     "fase": "semis",
