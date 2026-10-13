@@ -1,16 +1,16 @@
 [
   {
+    "id": "pv8k33ae",
     "fase": "cuartos",
-    "cat": "Femenil",
     "llave": "C1",
     "avanzaA": "S1",
     "ranura": "local",
+    "cat": "Femenil",
+    "liga": "Femenil A",
     "fecha": "2026-10-10T10:00",
     "sede": "Auditorio — Cancha 1",
-    "local": "INSTITUTO CAMPECHANO PREPA A",
-    "visita": "COBACAM ESCARCEGA",
-    "id": "pv8k33ae",
-    "liga": "Femenil A"
+    "local": "",
+    "visita": ""
   },
   {
     "fase": "cuartos",
