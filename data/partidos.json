@@ -89,17 +89,17 @@
     "liga": "Femenil A"
   },
   {
+    "id": "pznelvkm",
     "fase": "cuartos",
-    "cat": "Varonil",
     "llave": "C1",
     "avanzaA": "S1",
     "ranura": "local",
+    "cat": "Varonil",
+    "liga": "Varonil",
     "fecha": "2026-10-11T10:00",
     "sede": "Auditorio — Cancha 2",
-    "local": "CECYTE",
-    "visita": "TEC DE CAMPECHE",
-    "id": "pznelvkm",
-    "liga": "Varonil"
+    "local": "",
+    "visita": ""
   },
   {
     "fase": "cuartos",
