@@ -13,17 +13,17 @@
     "visita": ""
   },
   {
+    "id": "pb3f6lxf",
     "fase": "cuartos",
-    "cat": "Femenil",
     "llave": "C2",
     "avanzaA": "S1",
     "ranura": "visita",
+    "cat": "Femenil",
+    "liga": "Femenil A",
     "fecha": "2026-10-10T12:00",
     "sede": "Auditorio — Cancha 1",
-    "local": "TEC DE CAMPECHE",
-    "visita": "INSTITUTO CAMPECHANO SUPERIOR A",
-    "id": "pb3f6lxf",
-    "liga": "Femenil A"
+    "local": "",
+    "visita": ""
   },
   {
     "fase": "cuartos",
