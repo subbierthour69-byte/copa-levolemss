@@ -65,17 +65,17 @@
     "visita": ""
   },
   {
+    "id": "ph35w1vi",
     "fase": "semis",
-    "cat": "Femenil",
     "llave": "S2",
     "avanzaA": "F1",
     "ranura": "visita",
+    "cat": "Femenil",
+    "liga": "Femenil A",
     "fecha": "2026-10-17T13:00",
     "sede": "Auditorio — Cancha 1",
-    "local": "CECYTE A",
-    "visita": "",
-    "id": "ph35w1vi",
-    "liga": "Femenil A"
+    "local": "",
+    "visita": ""
   },
   {
     "fase": "final",
