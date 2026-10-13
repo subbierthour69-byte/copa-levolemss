@@ -154,17 +154,17 @@
     "visita": ""
   },
   {
+    "id": "p4rmcyua",
     "fase": "semis",
-    "cat": "Varonil",
     "llave": "S2",
     "avanzaA": "F1",
     "ranura": "visita",
+    "cat": "Varonil",
+    "liga": "Varonil",
     "fecha": "2026-10-18T13:00",
     "sede": "Auditorio — Cancha 2",
-    "local": "SEYBAPLAYA",
-    "visita": "",
-    "id": "p4rmcyua",
-    "liga": "Varonil"
+    "local": "",
+    "visita": ""
   },
   {
     "fase": "final",
