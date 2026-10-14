@@ -682,7 +682,7 @@
     "fecha": "2026-10-10T09:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "CECYTE A",
-    "visita": "COBACAM ESCARCEGA",
+    "visita": "COBACAM",
     "sets": [
       [
         25,
@@ -702,7 +702,7 @@
     "fecha": "2026-10-10T10:30",
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "ONIX",
-    "visita": "COBACAM ESCARCEGA",
+    "visita": "COBACAM",
     "sets": [
       [
         21,
@@ -1037,7 +1037,7 @@
     "grupo": "Grupo A",
     "fecha": "2026-10-10T11:30",
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
-    "local": "COBACAM ESCARCEGA",
+    "local": "COBACAM",
     "visita": "INSTITUTO CAMPECHANO",
     "sets": [
       [
@@ -1061,7 +1061,7 @@
     "grupo": "Grupo A",
     "fecha": "2026-10-10T12:30",
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
-    "local": "COBACAM ESCARCEGA",
+    "local": "COBACAM",
     "visita": "CBTIS 09",
     "sets": [
       [
