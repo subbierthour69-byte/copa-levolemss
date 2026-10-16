@@ -1307,5 +1307,15 @@
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "COBACAM",
     "visita": "INSTITUTO CAMPECHANO PREPA A"
+  },
+  {
+    "id": "p24g1aui",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-31T11:30",
+    "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
+    "local": "TEC DE CAMPECHE",
+    "visita": "CECYTE A"
   }
 ]
