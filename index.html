@@ -126,7 +126,9 @@ tailwind.config = {
   }
 
   @media print {
-    @page { margin: 10mm; }
+    @page { size: A4; margin: 0; }
+    main { padding: 0 !important; max-width: none !important; }
+    body { background: #0E2647 !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     header, nav, #admin-toggle { display: none !important; }
     main > section:not(#panel-rol) { display: none !important; }
@@ -2732,80 +2734,102 @@ $('#btn-descargar-rol').addEventListener('click', () => {
   const hoy = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
   const logo = MARCA_LOCAL || MARCA_LOGO;
 
-  const calendario = (partidos, col) => agrupaPorDia(partidos).map(([dia, ps]) => `
-    <div class="rompe-pagina mt-3">
-      <div class="flex items-center gap-2 rounded-t-lg px-3 py-1.5 text-white" style="background:${col}">
-        <span class="font-score text-[16px] capitalize tracking-wide">${tituloDia(dia)}</span>
-        <span class="ml-auto text-[11px] opacity-80">${ps.length} ${ps.length === 1 ? 'partido' : 'partidos'}</span>
-      </div>
-      <table class="w-full border-collapse text-[12.5px]"><tbody>
-        ${ps.map((p, i) => `
-        <tr class="rompe-pagina" style="background:${i % 2 ? '#F4F7FB' : '#fff'}">
-          <td class="w-[78px] border-b border-hair px-3 py-2 font-score text-[17px] text-court">${p.fecha ? soloHora(p.fecha) + ' ' + meridiano(p.fecha) : '—'}</td>
-          <td class="border-b border-hair px-2 py-2">
-            <span class="inline-flex items-center gap-1.5">${escudo(p.local, 22, p.logoLocal)}<b>${esc(p.local)}</b></span>
-            <span class="px-1.5 font-score text-[13px] tracking-widest" style="color:${col}">VS</span>
-            <span class="inline-flex items-center gap-1.5">${escudo(p.visita, 22, p.logoVisita)}<b>${esc(p.visita)}</b></span>
-          </td>
-          <td class="border-b border-hair px-3 py-2 text-right text-muted">${esc(p.sede || '—')}</td>
-        </tr>`).join('')}
-      </tbody></table>
-    </div>`).join('');
+  const estilos = `<style>
+    .hoja{width:210mm;height:296mm;box-sizing:border-box;padding:9mm;background:linear-gradient(180deg,#0E2647,#163A69);color:#fff;display:flex;flex-direction:column;break-after:page;overflow:hidden;font-family:'Public Sans',sans-serif}
+    .hoja:last-child{break-after:auto}
+    .pr-top{position:relative;text-align:center;margin-bottom:5mm;font-family:'Barlow Condensed',sans-serif}
+    .pr-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
+    .pr-top h1{margin:0;font-size:38px;line-height:1;letter-spacing:2px}
+    .pr-top .sub{margin-top:3px;font-size:23px;line-height:1;color:#FFC93C;letter-spacing:1px;text-transform:uppercase}
+    .pr-top .lg{margin-top:3px;font-size:17px;letter-spacing:1px;opacity:.92;text-transform:uppercase}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;align-content:start;flex:1}
+    .card{border:2px solid #FFC93C;border-radius:3mm;overflow:hidden;background:rgba(255,255,255,.05);align-self:start}
+    .ch{background:#FFC93C;color:#0E2647;text-align:center;padding:3px 4px;font:700 18px 'Barlow Condensed',sans-serif;letter-spacing:1px}
+    .ch small{font-size:11px;margin-left:5px;opacity:.7}
+    .fila{display:flex;align-items:center;gap:5px;padding:3px 5px}
+    .hr{width:32px;flex:none;font-weight:700;font-size:12px;line-height:1;text-align:center}
+    .hr small{display:block;font-size:8px;font-weight:600;opacity:.7;margin-top:1px;text-transform:uppercase}
+    .eq{flex:1;min-width:0;background:#E9F0FB;color:#0E2647;border-radius:5px;padding:3px 5px}
+    .ln{display:flex;align-items:center;gap:4px;font-size:9.5px;line-height:1.35}
+    .ln b{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ln i{font-size:8px;font-weight:700;color:#B3327A;font-style:normal}
+    .eq em{display:block;margin-top:1px;font-size:7.5px;color:#5A6B85;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tp{width:100%;border-collapse:collapse;font-size:9.5px}
+    .tp th{font-size:8.5px;color:#FFC93C;padding:4px 2px}
+    .tp td,.tp th{text-align:center;padding:3px 2px}
+    .tp td:nth-child(2),.tp th:nth-child(2){text-align:left}
+    .tp tr.l td{background:rgba(255,201,60,.28);font-weight:700}
+    .tp td:last-child{font-weight:700;font-size:11px}
+    .pf{margin-top:auto;background:#FFC93C;color:#0E2647;border-radius:999px;text-align:center;padding:6px 10px;font-weight:700;font-size:12.5px;letter-spacing:.6px;text-transform:uppercase}
+  </style>`;
 
-  const tablaPosiciones = (filas, col) => !filas.length ? '' : `
-    <p class="mt-3 font-score text-[14px] uppercase tracking-widest text-muted">Tabla de posiciones</p>
-    <table class="mt-1 w-full border-collapse text-[12px]">
-      <thead><tr class="text-white" style="background:${col}">
-        ${['#','Equipo','PJ','PG','PP','SF','SC','PF','PC','Dif','Pts'].map((h, i) => `<th class="px-2 py-1.5 ${i === 1 ? 'text-left' : 'text-center'} font-medium">${h}</th>`).join('')}
-      </tr></thead>
-      <tbody>${filas.map((f, i) => `
-        <tr class="rompe-pagina" style="background:${i === 0 ? '#FFF3C8' : (i % 2 ? '#F4F7FB' : '#fff')}">
-          <td class="border-b border-hair px-2 py-1 text-center font-score">${i + 1}</td>
-          <td class="border-b border-hair px-2 py-1"><span class="inline-flex items-center gap-1.5">${escudo(f.eq, 18)}<b>${esc(f.eq)}</b>${i === 0 ? ' ★' : ''}</span></td>
-          ${[f.pj, f.pg, f.pp, f.sf, f.sc, f.pf, f.pc, (f.pf - f.pc > 0 ? '+' : '') + (f.pf - f.pc)].map(v => `<td class="border-b border-hair px-2 py-1 text-center">${v}</td>`).join('')}
-          <td class="border-b border-hair px-2 py-1 text-center font-score text-[15px] font-semibold">${f.pts}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
+  const cabeza = (rama, col, titulo) => `
+    <div class="pr-top">
+      ${logo ? `<img src="${logo}" alt="">` : ''}
+      <h1>CALENDARIO</h1>
+      <div class="sub">${rama} · ${esc(titulo)}</div>
+      <div class="lg">${esc(MARCA_NOMBRE)} · ${esc(MARCA_TEMPORADA)}</div>
+    </div>`;
+
+  const fila = p => `
+    <div class="fila">
+      <span class="hr">${p.fecha ? soloHora(p.fecha) : '—'}<small>${p.fecha ? meridiano(p.fecha) : ''}</small></span>
+      <div class="eq">
+        <div class="ln">${escudo(p.local, 14, p.logoLocal)}<b>${esc(p.local)}</b><i>VS</i></div>
+        <div class="ln">${escudo(p.visita, 14, p.logoVisita)}<b>${esc(p.visita)}</b></div>
+        ${p.sede ? `<em>${esc(p.sede)}</em>` : ''}
+      </div>
+    </div>`;
+
+  const cardDia = (dia, ps, cont) => {
+    const d = dia ? fecha(dia + 'T00:00') : null;
+    const titulo = d ? `${d.getDate()} ${MESES[d.getMonth()].toUpperCase()}<small>${DIA_CORTO[d.getDay()]}${cont ? ' · CONT.' : ''}</small>` : 'POR DEFINIR';
+    return `<div class="card"><div class="ch">${titulo}</div>${ps.map(fila).join('')}</div>`;
+  };
+
+  const cardPos = filas => `
+    <div class="card"><div class="ch">POSICIONES</div>
+      <table class="tp"><tr><th>#</th><th>EQUIPO</th><th>PJ</th><th>PG</th><th>PP</th><th>PTS</th></tr>
+      ${filas.map((f, i) => `<tr class="${i === 0 ? 'l' : ''}"><td>${i + 1}</td><td><span style="display:inline-flex;align-items:center;gap:4px">${escudo(f.eq, 14)}${esc(f.eq)}</span></td><td>${f.pj}</td><td>${f.pg}</td><td>${f.pp}</td><td>${f.pts}</td></tr>`).join('')}
+      </table>
+    </div>`;
 
   const bloques = [];
   ramas.forEach(rama => {
     const col = rama === 'Femenil' ? '#B3327A' : '#1B57B5';
     const deRama = pendientes.filter(p => p.cat === rama);
-    gruposDeRama(rama).forEach(g => {
-      const ps = deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave).sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
-      bloques.push({ rama, col, titulo: g.etiqueta,
-        html: tablaPosiciones(filasDeGrupo(rama, g), col) + `<p class="mt-4 font-score text-[14px] uppercase tracking-widest text-muted">Calendario de juegos</p>` + (ps.length ? calendario(ps, col) : '<p class="mt-2 text-muted">No hay partidos pendientes en este grupo.</p>') });
-    });
-    const lig = deRama.filter(p => p.fase !== 'grupos').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
-    if (lig.length) bloques.push({ rama, col, titulo: 'Liguilla', html: calendario(lig, col) });
+    const lista = [];
+    gruposDeRama(rama).forEach(g => lista.push({
+      titulo: g.etiqueta,
+      filas: filasDeGrupo(rama, g),
+      ps: deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave)
+    }));
+    const lig = deRama.filter(p => p.fase !== 'grupos');
+    if (lig.length) lista.push({ titulo: 'Liguilla', filas: [], ps: lig });
+    lista.forEach(b => bloques.push({ rama, col, ...b }));
   });
 
-  $('#imprimir-rol').innerHTML = `
-    <div class="rounded-2xl px-5 py-4 text-white" style="background:linear-gradient(135deg,#0E2647,#1B57B5)">
-      <div class="flex items-center gap-3">
-        ${logo ? `<img src="${logo}" alt="" class="h-12 w-12 rounded-xl bg-white/10 object-cover">` : ''}
-        <div>
-          <h1 class="font-score text-[26px] leading-none tracking-wide">${esc(MARCA_NOMBRE)}</h1>
-          <p class="mt-1 text-[12.5px] text-white/70">${esc(MARCA_SUBTITULO)} · ${esc(MARCA_TEMPORADA)}</p>
-        </div>
-        <span class="ml-auto rounded-lg px-3 py-1.5 font-score text-[16px] tracking-wide" style="background:#FFC93C;color:#0E2647">ROL DE JUEGOS</span>
-      </div>
-    </div>
-    <p class="mt-2 text-[11.5px] text-muted">Generado el ${hoy}. Los resultados al día están en la página de la liga.</p>
-    ${bloques.length ? bloques.map((b, i) => `
-      <section class="${i > 0 ? 'pagina-nueva' : ''} mt-5">
-        <div class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-white" style="background:${b.col}">
-          <span class="font-score text-[22px] tracking-wide">${esc(b.titulo)}</span>
-          <span class="ml-auto rounded-md bg-white/20 px-2.5 py-0.5 font-score text-[14px] uppercase tracking-widest">${b.rama}</span>
-        </div>
-        ${b.html}
-      </section>`).join('') : '<p class="mt-4">No hay partidos pendientes con este filtro para imprimir.</p>'}`;
+  const hojas = [];
+  bloques.forEach(b => {
+    const ps = b.ps.sort((a, c) => (a.fecha || '').localeCompare(c.fecha || ''));
+    const cartas = [];
+    if (b.filas.length) cartas.push(cardPos(b.filas));
+    agrupaPorDia(ps).forEach(([dia, arr]) => {
+      for (let k = 0; k < arr.length; k += 7) cartas.push(cardDia(dia, arr.slice(k, k + 7), k > 0));
+    });
+    if (!cartas.length) return;
+    for (let i = 0; i < cartas.length; i += 6) {
+      hojas.push(`<div class="hoja">${cabeza(b.rama, b.col, b.titulo)}<div class="grid">${cartas.slice(i, i + 6).join('')}</div>
+        <div class="pf">${esc(MARCA_NOMBRE)} • Rol de juegos • ${hoy}</div></div>`);
+    }
+  });
+
+  $('#imprimir-rol').innerHTML = estilos + (hojas.length ? hojas.join('')
+    : `<div class="hoja">${cabeza('', '', 'Sin partidos')}<p style="text-align:center">No hay partidos pendientes con este filtro para imprimir.</p></div>`);
 
   $('#imprimir-rol').classList.remove('hidden');
-  window.print();
+  setTimeout(() => window.print(), 350);
   window.addEventListener('afterprint', () => $('#imprimir-rol').classList.add('hidden'), { once: true });
-  setTimeout(() => $('#imprimir-rol').classList.add('hidden'), 2000);
 });
 
 $('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
