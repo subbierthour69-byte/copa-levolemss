@@ -875,7 +875,8 @@ const $$ = (s, c = document) => [...c.querySelectorAll(s)];
 const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-const fecha    = iso => new Date(iso.replace(' ', 'T'));
+/* Una fecha sola ('2026-10-31') se lee como día LOCAL; si no, JavaScript la toma como UTC y en México muestra el día anterior. */
+const fecha    = iso => new Date(iso.replace(' ', 'T') + (iso.length === 10 ? 'T00:00' : ''));
 const claveDia = iso => iso.slice(0, 10);
 
 const tituloDia = iso => {
@@ -1395,12 +1396,10 @@ function pintaRol() {
     return `
     <section>
       <div class="mb-3 flex items-center gap-3">
-        <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-court text-center leading-none text-white shadow-card">
-          <div><p class="text-[10px] tracking-widest text-sun">${d ? DIA_CORTO[d.getDay()] : '—'}</p><p class="num font-score text-[26px]">${d ? d.getDate() : '?'}</p></div>
-        </div>
-        <div class="min-w-0">
-          <h3 class="font-score text-[21px] capitalize tracking-wide text-court">${tituloDia(dia)}</h3>
-          <p class="text-[12.5px] text-muted">${partidos.length} ${partidos.length === 1 ? 'partido' : 'partidos'}${d ? ' · ' + MESES[d.getMonth()] : ''}</p>
+        <div style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;padding:7px 14px;border-radius:14px;background:#0E2647;color:#fff;line-height:1">
+          <span style="font-size:10px;letter-spacing:.14em;color:#FFC93C;font-weight:600">${d ? DIA_CORTO[d.getDay()] : '—'}</span>
+          <span class="num font-score" style="font-size:28px;margin-top:3px">${d ? d.getDate() : '?'}</span>
+          <span style="font-size:9.5px;letter-spacing:.1em;margin-top:2px;opacity:.7;text-transform:uppercase">${d ? MESES[d.getMonth()].slice(0, 3) : ''}</span>
         </div>
         <span class="h-px flex-1 bg-hair"></span>
       </div>
@@ -2735,7 +2734,7 @@ $('#btn-descargar-rol').addEventListener('click', () => {
   const logo = MARCA_LOCAL || MARCA_LOGO;
 
   const estilos = `<style>
-    .hoja{width:210mm;height:296mm;box-sizing:border-box;padding:9mm;background:linear-gradient(180deg,#0E2647,#163A69);color:#fff;display:flex;flex-direction:column;break-after:page;overflow:hidden;font-family:'Public Sans',sans-serif}
+    .hoja{width:210mm;height:295mm;box-sizing:border-box;padding:9mm;background:#0E2647;color:#fff;display:flex;flex-direction:column;break-after:page;font-family:'Public Sans',sans-serif}
     .hoja:last-child{break-after:auto}
     .pr-top{position:relative;text-align:center;margin-bottom:5mm;font-family:'Barlow Condensed',sans-serif}
     .pr-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
