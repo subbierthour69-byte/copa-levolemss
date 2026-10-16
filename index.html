@@ -124,6 +124,15 @@ tailwind.config = {
     #imprimir-rol .rompe-pagina { break-inside: avoid; }
     #imprimir-rol .pagina-nueva { break-before: page; }
   }
+
+  @media print {
+    @page { margin: 10mm; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    header, nav, #admin-toggle { display: none !important; }
+    main > section:not(#panel-rol) { display: none !important; }
+    #panel-rol > *:not(#imprimir-rol) { display: none !important; }
+    #imprimir-rol { position: static; padding: 0; }
+  }
 </style>
 </head>
 
@@ -223,6 +232,18 @@ tailwind.config = {
     </div>
     <div id="liguilla-tamano" class="mt-3 hidden"></div>
     <div id="bracket" class="mt-6"></div>
+  </section>
+
+  <!-- ---------- CRUCES (solo administrador) ---------- -->
+  <section id="panel-cruces" class="panel" role="tabpanel" aria-labelledby="tab-d-cruces" tabindex="-1" hidden>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Cruces pendientes</h2>
+        <p class="mt-1 max-w-[62ch] text-[14px] text-muted">Quién ya jugó contra quién dentro de su grupo. Se calcula solo con el rol y los resultados capturados.</p>
+      </div>
+      <div id="filtro-cruces" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+    </div>
+    <div id="cruces-cont" class="mt-5 space-y-10"></div>
   </section>
 
   <!-- ---------- DOCUMENTOS ---------- -->
@@ -944,7 +965,8 @@ const ICONOS = {
   mas:          '<path d="M12 5v14M5 12h14"/>',
   subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
   cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>',
-  buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'
+  buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -1048,11 +1070,13 @@ const TABS = [
   { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
   { id:'liguilla',   icono:'liguilla',   texto:'Liguilla',      corto:'Liguilla' },
   { id:'documentos', icono:'documentos', texto:'Documentos',    corto:'Docs' },
-  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' }
+  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' },
+  { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true }
 ];
 
 const estado = {
   tab: 'equipos',
+  cruRama: 'Todas',
   filtroEquipos: 'Todas',
   ramaRol: 'Todas',
   liga: LIGUILLAS[0].id,
@@ -1061,14 +1085,22 @@ const estado = {
   sub: { Femenil:'resultados', Varonil:'resultados' }
 };
 
+const tabsVisibles = () => TABS.filter(t => !t.admin || esAdmin());
+let tabsConAdmin = null;
+function refrescaTabs() {
+  if (tabsConAdmin === esAdmin()) return;
+  pintaTabs();
+  abreTab(estado.tab, true);
+}
 function pintaTabs() {
-  $('#tabs-desktop').innerHTML = TABS.map(t => `
+  tabsConAdmin = esAdmin();
+  $('#tabs-desktop').innerHTML = tabsVisibles().map(t => `
     <button role="tab" id="tab-d-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}"
             class="shrink-0 rounded-lg px-3.5 py-2 font-score text-[17px] tracking-wide transition-colors">
       ${icono(t.icono, 'mr-1.5 -mt-0.5 inline h-3.5 w-3.5')}${t.texto}
     </button>`).join('');
 
-  $('#tabs-mobile > div').innerHTML = TABS.map(t => `
+  $('#tabs-mobile > div').innerHTML = tabsVisibles().map(t => `
     <button role="tab" id="tab-m-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}"
             class="flex w-[74px] shrink-0 flex-col items-center gap-0.5 px-1 pb-2 pt-2 text-[10px] font-medium transition-colors">
       <span data-dot class="h-[3px] w-5 rounded-full bg-transparent"></span>
@@ -1147,15 +1179,17 @@ function animaEntrada(el) {
   setTimeout(() => aplicaMovimientos(el), 550); // ya aparecieron las filas: ahora se mueven a su lugar
 }
 
-function abreTab(id) {
+function abreTab(id, suave = false) {
+  if (id === 'cruces' && !esAdmin()) id = 'equipos';
   estado.tab = id;
 
   TABS.forEach(t => {
     const activo = t.id === id;
     $('#panel-' + t.id).hidden = !activo;
-    if (activo) animaEntrada($('#panel-' + t.id));
+    if (activo && !suave) animaEntrada($('#panel-' + t.id));
 
     const d = $('#tab-d-' + t.id);
+    if (!d) return;
     d.setAttribute('aria-selected', activo);
     d.className = 'shrink-0 rounded-lg px-3.5 py-2 font-score text-[17px] tracking-wide transition-colors ' +
       (activo ? 'bg-white text-court' : 'text-white/70 hover:text-white');
@@ -1168,7 +1202,7 @@ function abreTab(id) {
   });
 
   history.replaceState(null, '', '#' + id);
-  window.scrollTo({ top: 0 });
+  if (!suave) window.scrollTo({ top: 0 });
 }
 
 /* Grupo de botones reutilizable (chips de filtro) */
@@ -1313,52 +1347,64 @@ function pintaProximo() {
 }
 
 function tarjetaPartido(p) {
-  const linea = (nombre, logo) => `
-    <div class="flex items-center gap-2.5">
-      ${escudo(nombre, 30, logo)}
-      <p class="min-w-0 truncate font-score text-[19px] leading-none text-court">${nombre}</p>
+  const fem = p.cat === 'Femenil';
+  const color = fem ? 'bg-rose' : 'bg-blue';
+  const chipCat = fem ? 'bg-[#FCE8F3] text-rose' : 'bg-sky text-blue';
+  const equipo = (nombre, logo, der) => `
+    <div class="flex min-w-0 flex-1 items-center gap-2.5 ${der ? 'sm:flex-row-reverse sm:text-right' : ''}">
+      ${escudo(nombre, 40, logo)}
+      <p class="min-w-0 truncate font-score text-[20px] leading-tight text-court">${nombre}</p>
     </div>`;
-
   return `
-  <article class="relative rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+  <article class="relative flex overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+    <span class="w-1.5 shrink-0 ${color}"></span>
+    <div class="flex w-[76px] shrink-0 flex-col items-center justify-center bg-mist px-2 py-3 text-center">
+      <p class="num font-score text-[26px] leading-none text-court">${p.fecha ? soloHora(p.fecha) : '—'}</p>
+      <p class="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">${p.fecha ? meridiano(p.fecha) : ''}</p>
+    </div>
+    <div class="min-w-0 flex-1 p-3.5 ${esAdmin() ? 'pr-12' : ''}">
+      <div class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+        ${equipo(p.local, p.logoLocal)}
+        <span class="self-start rounded-full bg-court px-2.5 py-0.5 font-score text-[12px] tracking-widest text-sun sm:self-center">VS</span>
+        ${equipo(p.visita, p.logoVisita, true)}
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-1.5 border-t border-dashed border-hair pt-2.5 text-[12px]">
+        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${chipCat}">${icono(fem ? 'femenil' : 'varonil', 'h-3 w-3')}${p.cat}</span>
+        <span class="rounded-full bg-mist px-2.5 py-1 text-muted">${etiquetaFase(p)}</span>
+        <span class="inline-flex items-center gap-1 text-muted sm:ml-auto">${icono('ubicacion', 'h-3 w-3 shrink-0')}${esc(p.sede || 'Cancha por definir')}</span>
+      </div>
+    </div>
     ${esAdmin() ? `
     <button data-editar-partido="${p.id}" title="Editar partido"
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
     </button>` : ''}
-    <div class="flex items-start gap-4">
-      <div class="w-[66px] shrink-0 border-r border-hair pr-3">
-        <p class="num font-score text-[21px] leading-none text-court">${soloHora(p.fecha)}</p>
-        <p class="mt-1 text-[12px] text-muted">${meridiano(p.fecha)}</p>
-      </div>
-      <div class="min-w-0 flex-1 space-y-2">
-        ${linea(p.local, p.logoLocal)}
-        ${linea(p.visita, p.logoVisita)}
-        <p class="mt-1 flex items-center gap-1 text-[13px] leading-relaxed text-muted">${icono('ubicacion', 'h-3 w-3 shrink-0')}${p.sede}</p>
-      </div>
-      <div class="hidden shrink-0 space-y-1.5 text-right sm:block">
-        <span class="block rounded-md bg-sky px-2.5 py-1 text-[12.5px] font-medium text-blue">${p.cat}</span>
-        <span class="block text-[12.5px] text-muted">${etiquetaFase(p)}</span>
-      </div>
-    </div>
-    <div class="mt-3 flex gap-2 sm:hidden">
-      <span class="rounded-md bg-sky px-2 py-0.5 text-[12px] font-medium text-blue">${p.cat}</span>
-      <span class="rounded-md bg-mist px-2 py-0.5 text-[12px] text-muted">${etiquetaFase(p)}</span>
-    </div>
   </article>`;
 }
 
+const DIA_CORTO = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
 function pintaRol() {
-  const lista = filtraRama(porJugar()).sort((a, b) => fecha(a.fecha) - fecha(b.fecha));
+  const lista = filtraRama(porJugar()).sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '') );
   const cont = $('#rol-lista');
-
   if (!lista.length) { cont.innerHTML = vacio('No hay partidos pendientes con este filtro.'); return; }
 
-  cont.innerHTML = agrupaPorDia(lista).map(([dia, partidos]) => `
+  cont.innerHTML = agrupaPorDia(lista).map(([dia, partidos]) => {
+    const d = dia ? fecha(dia + 'T00:00') : null;
+    return `
     <section>
-      <h3 class="mb-3 font-score text-[19px] tracking-wide text-court">${tituloDia(dia)}</h3>
+      <div class="mb-3 flex items-center gap-3">
+        <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-court text-center leading-none text-white shadow-card">
+          <div><p class="text-[10px] tracking-widest text-sun">${d ? DIA_CORTO[d.getDay()] : '—'}</p><p class="num font-score text-[26px]">${d ? d.getDate() : '?'}</p></div>
+        </div>
+        <div class="min-w-0">
+          <h3 class="font-score text-[21px] capitalize tracking-wide text-court">${tituloDia(dia)}</h3>
+          <p class="text-[12.5px] text-muted">${partidos.length} ${partidos.length === 1 ? 'partido' : 'partidos'}${d ? ' · ' + MESES[d.getMonth()] : ''}</p>
+        </div>
+        <span class="h-px flex-1 bg-hair"></span>
+      </div>
       <div class="stagger space-y-3">${partidos.map(tarjetaPartido).join('')}</div>
-    </section>`).join('');
+    </section>`;
+  }).join('');
 
   $$('[data-editar-partido]', cont).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
 }
@@ -1923,6 +1969,143 @@ async function cambiaTamanoLiguilla(ligaId, n) {
     repintaTodo();
     avisaFlotante('No se pudo guardar el cambio: ' + err.message, true);
   }
+}
+
+/* ==========================================================================
+   7b. CRUCES (solo administrador): quién falta por jugar contra quién
+   ========================================================================== */
+const llavePar = (a, b) => [a, b].sort().join('||');
+const EST_CRUCE = {
+  jugado: { bg:'bg-[#E6F4EC]', tx:'text-[#1F7A4C]', barra:'bg-[#1F7A4C]' },
+  prog:   { bg:'bg-sun/30',    tx:'text-[#8A6100]', barra:'bg-sun' },
+  falta:  { bg:'bg-[#FDEAEA]', tx:'text-[#B3322E]', barra:'bg-[#B3322E]' }
+};
+
+function crucesDeGrupo(rama, g) {
+  const ms = PARTIDOS.filter(p => p.cat === rama && p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave && p.local && p.visita);
+  const equipos = [...new Set(ms.flatMap(p => [p.local, p.visita]))].sort((a, b) => a.localeCompare(b, 'es'));
+  const pares = {};
+  ms.forEach(p => { const k = llavePar(p.local, p.visita); const prev = pares[k]; if (!prev || (jugado(p) && !jugado(prev))) pares[k] = p; });
+  const estadoPar = (a, b) => { const p = pares[llavePar(a, b)]; return p ? (jugado(p) ? 'jugado' : 'prog') : 'falta'; };
+  const resumen = equipos.map(e => {
+    const rivales = equipos.filter(x => x !== e).map(x => ({ nombre: x, est: estadoPar(e, x) }));
+    const por = est => rivales.filter(r => r.est === est);
+    return { e, rivales, jugados: por('jugado'), prog: por('prog'), faltan: por('falta') };
+  });
+  const total = equipos.length * (equipos.length - 1) / 2;
+  const nJug = Object.values(pares).filter(p => jugado(p)).length;
+  const nProg = Object.keys(pares).length - nJug;
+  return { equipos, pares, estadoPar, resumen, total, nJug, nProg, nFalta: Math.max(0, total - nJug - nProg) };
+}
+
+function abrePartidoCon(rama, grupo, a, b) {
+  abrePartidoModal();
+  $('#partido-cat').value = rama;
+  $('#partido-grupo').value = grupo === 'Sin grupo' ? '' : grupo;
+  $('#partido-local').value = a;
+  $('#partido-visita').value = b;
+}
+
+function pintaCruces() {
+  const cont = $('#cruces-cont');
+  if (!cont) return;
+  const f = $('#filtro-cruces');
+  if (!f.dataset.listo) {
+    f.dataset.listo = '1';
+    grupoBotones(f, ['Todas', 'Femenil', 'Varonil'], estado.cruRama, v => { estado.cruRama = v; marcaGrupo(f, v); pintaCruces(); });
+  }
+  if (!esAdmin()) { cont.innerHTML = ''; return; }
+
+  const ramas = estado.cruRama === 'Todas' ? ['Femenil', 'Varonil'] : [estado.cruRama];
+  const bloques = [];
+
+  ramas.forEach(rama => gruposDeRama(rama).forEach(g => {
+    const c = crucesDeGrupo(rama, g);
+    if (c.equipos.length < 2) return;
+    const pct = n => c.total ? (n / c.total * 100) : 0;
+
+    const tarjetas = c.resumen.map(r => {
+      const n = r.rivales.length;
+      const lleno = r.faltan.length === 0;
+      return `
+      <article class="rounded-2xl bg-white p-4 shadow-card ring-1 ${r.faltan.length ? 'ring-hair/70' : 'ring-[#1F7A4C]/40'}">
+        <div class="flex items-center gap-2.5">
+          ${escudo(r.e, 36)}
+          <p class="min-w-0 flex-1 truncate font-score text-[19px] leading-tight text-court">${esc(r.e)}</p>
+          <div class="text-right leading-none">
+            <p class="num font-score text-[30px] ${lleno ? 'text-[#1F7A4C]' : 'text-[#B3322E]'}">${lleno ? '✓' : r.faltan.length}</p>
+            <p class="mt-0.5 text-[10.5px] text-muted">${lleno ? 'completo' : (r.faltan.length === 1 ? 'por jugar' : 'por jugar')}</p>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-1" title="Un segmento por rival">
+          ${r.rivales.map(x => `<span class="h-2 flex-1 rounded-full ${EST_CRUCE[x.est].barra}" title="${esc(x.nombre)}"></span>`).join('')}
+        </div>
+        <p class="mt-2 text-[12px] text-muted">
+          <span class="font-semibold text-[#1F7A4C]">${r.jugados.length}</span> jugados ·
+          <span class="font-semibold text-[#8A6100]">${r.prog.length}</span> programados ·
+          <span class="font-semibold text-[#B3322E]">${r.faltan.length}</span> sin programar
+          <span class="text-muted/70">(de ${n})</span>
+        </p>
+        ${r.faltan.length ? `
+        <p class="mt-3 text-[11.5px] font-medium uppercase tracking-wide text-muted">Le falta jugar contra</p>
+        <div class="mt-1.5 flex flex-wrap gap-1.5">
+          ${r.faltan.map(x => `
+            <button data-programa data-rama="${rama}" data-grupo="${esc(g.etiqueta)}" data-a="${esc(r.e)}" data-b="${esc(x.nombre)}"
+                    title="Programar este partido"
+                    class="inline-flex items-center gap-1 rounded-full bg-[#FDEAEA] px-2.5 py-1 text-[12.5px] font-medium text-[#B3322E] hover:bg-[#B3322E] hover:text-white">
+              ${esc(x.nombre)} ${icono('mas', 'h-3 w-3')}
+            </button>`).join('')}
+        </div>` : ''}
+        ${r.prog.length ? `
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          ${r.prog.map(x => `<span class="rounded-full bg-sun/30 px-2.5 py-1 text-[12px] text-[#8A6100]">${esc(x.nombre)} · programado</span>`).join('')}
+        </div>` : ''}
+      </article>`;
+    }).join('');
+
+    const celda = (a, b) => {
+      if (a === b) return '<td class="p-1"><div class="h-9 rounded-lg bg-mist"></div></td>';
+      const est = c.estadoPar(a, b), st = EST_CRUCE[est], p = c.pares[llavePar(a, b)];
+      let txt = 'Falta';
+      if (est === 'jugado') { const [gl, gv] = setsGanados(p); txt = p.local === a ? `${gl}-${gv}` : `${gv}-${gl}`; }
+      else if (est === 'prog') { const d = p.fecha ? fecha(p.fecha) : null; txt = d ? `${d.getDate()}/${d.getMonth() + 1}` : 'Prog.'; }
+      return `<td class="p-1"><div class="num grid h-9 min-w-[54px] place-items-center rounded-lg font-score text-[15px] ${st.bg} ${st.tx}">${txt}</div></td>`;
+    };
+
+    bloques.push(`
+    <section>
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="rounded-lg ${rama === 'Femenil' ? 'bg-rose' : 'bg-blue'} px-3 py-1 font-score text-[18px] tracking-wide text-white">${rama} · ${esc(g.etiqueta)}</span>
+        <span class="rounded-full bg-[#E6F4EC] px-2.5 py-1 text-[12.5px] font-medium text-[#1F7A4C]">${c.nJug} jugados</span>
+        <span class="rounded-full bg-sun/30 px-2.5 py-1 text-[12.5px] font-medium text-[#8A6100]">${c.nProg} programados</span>
+        <span class="rounded-full bg-[#FDEAEA] px-2.5 py-1 text-[12.5px] font-medium text-[#B3322E]">${c.nFalta} sin programar</span>
+        <span class="text-[12.5px] text-muted">de ${c.total} cruces posibles</span>
+      </div>
+      <div class="mt-3 flex h-2.5 overflow-hidden rounded-full bg-hair">
+        <span class="bg-[#1F7A4C]" style="width:${pct(c.nJug)}%"></span><span class="bg-sun" style="width:${pct(c.nProg)}%"></span><span class="bg-[#B3322E]" style="width:${pct(c.nFalta)}%"></span>
+      </div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">${tarjetas}</div>
+      <div class="mt-4 overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+        <div class="overflow-x-auto p-2">
+          <table class="w-full text-[13px]">
+            <thead><tr><th></th>${c.equipos.map(e => `<th class="px-1 pb-1 text-center font-score text-[14px] text-muted" title="${esc(e)}">${esc(iniciales(e))}</th>`).join('')}</tr></thead>
+            <tbody>${c.equipos.map(a => `
+              <tr><th scope="row" class="whitespace-nowrap py-1 pl-2 pr-3 text-left font-medium"><span class="flex items-center gap-2">${escudo(a, 22)}${esc(a)}</span></th>${c.equipos.map(b => celda(a, b)).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>`);
+  }));
+
+  cont.innerHTML = (bloques.length ? `
+    <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-[12.5px] text-muted">
+      <span class="inline-flex items-center gap-1.5"><i class="h-2.5 w-2.5 rounded-full bg-[#1F7A4C]"></i>Ya jugaron (marcador en sets)</span>
+      <span class="inline-flex items-center gap-1.5"><i class="h-2.5 w-2.5 rounded-full bg-sun"></i>Programado (fecha)</span>
+      <span class="inline-flex items-center gap-1.5"><i class="h-2.5 w-2.5 rounded-full bg-[#B3322E]"></i>Sin programar · toca el nombre para crear el partido</span>
+    </div>` + bloques.join('') : vacio('Todavía no hay partidos de grupos para calcular los cruces.'));
+
+  $$('[data-programa]', cont).forEach(b => b.addEventListener('click', () => abrePartidoCon(b.dataset.rama, b.dataset.grupo, b.dataset.a, b.dataset.b)));
 }
 
 /* ==========================================================================
@@ -2546,94 +2729,79 @@ function abrePartidoModal(id = null) {
 $('#btn-descargar-rol').addEventListener('click', () => {
   const pendientes = porJugar();
   const ramas = estado.ramaRol === 'Todas' ? ['Femenil', 'Varonil'] : [estado.ramaRol];
+  const hoy = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
+  const logo = MARCA_LOCAL || MARCA_LOGO;
 
-  const filaPartido = p => `
-    <tr class="rompe-pagina">
-      <td class="border border-hair px-2 py-1.5 align-top">${tituloDia(p.fecha)}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${p.fecha ? soloHora(p.fecha) + ' ' + meridiano(p.fecha) : '—'}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.local)} vs ${esc(p.visita)}</td>
-      <td class="border border-hair px-2 py-1.5 align-top">${esc(p.sede || '—')}</td>
-    </tr>`;
+  const calendario = (partidos, col) => agrupaPorDia(partidos).map(([dia, ps]) => `
+    <div class="rompe-pagina mt-3">
+      <div class="flex items-center gap-2 rounded-t-lg px-3 py-1.5 text-white" style="background:${col}">
+        <span class="font-score text-[16px] capitalize tracking-wide">${tituloDia(dia)}</span>
+        <span class="ml-auto text-[11px] opacity-80">${ps.length} ${ps.length === 1 ? 'partido' : 'partidos'}</span>
+      </div>
+      <table class="w-full border-collapse text-[12.5px]"><tbody>
+        ${ps.map((p, i) => `
+        <tr class="rompe-pagina" style="background:${i % 2 ? '#F4F7FB' : '#fff'}">
+          <td class="w-[78px] border-b border-hair px-3 py-2 font-score text-[17px] text-court">${p.fecha ? soloHora(p.fecha) + ' ' + meridiano(p.fecha) : '—'}</td>
+          <td class="border-b border-hair px-2 py-2">
+            <span class="inline-flex items-center gap-1.5">${escudo(p.local, 22, p.logoLocal)}<b>${esc(p.local)}</b></span>
+            <span class="px-1.5 font-score text-[13px] tracking-widest" style="color:${col}">VS</span>
+            <span class="inline-flex items-center gap-1.5">${escudo(p.visita, 22, p.logoVisita)}<b>${esc(p.visita)}</b></span>
+          </td>
+          <td class="border-b border-hair px-3 py-2 text-right text-muted">${esc(p.sede || '—')}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>`).join('');
 
-  const tablaCalendario = partidos => `
-    <table class="mt-2 w-full border-collapse text-[12.5px]">
-      <thead>
-        <tr class="bg-mist">
-          <th class="border border-hair px-2 py-1.5 text-left">Día</th>
-          <th class="border border-hair px-2 py-1.5 text-left">Hora</th>
-          <th class="border border-hair px-2 py-1.5 text-left">Partido</th>
-          <th class="border border-hair px-2 py-1.5 text-left">Cancha</th>
-        </tr>
-      </thead>
-      <tbody>${partidos.map(filaPartido).join('')}</tbody>
-    </table>`;
-
-  const tablaPosiciones = filas => !filas.length ? '' : `
-    <table class="mt-2 mb-4 w-full border-collapse text-[12.5px]">
-      <thead>
-        <tr class="bg-mist">
-          <th class="border border-hair px-2 py-1 text-left">#</th>
-          <th class="border border-hair px-2 py-1 text-left">Equipo</th>
-          <th class="border border-hair px-2 py-1 text-center">PJ</th>
-          <th class="border border-hair px-2 py-1 text-center">PG</th>
-          <th class="border border-hair px-2 py-1 text-center">PP</th>
-          <th class="border border-hair px-2 py-1 text-center">SF</th>
-          <th class="border border-hair px-2 py-1 text-center">SC</th>
-          <th class="border border-hair px-2 py-1 text-center">PF</th>
-          <th class="border border-hair px-2 py-1 text-center">PC</th>
-          <th class="border border-hair px-2 py-1 text-center">Dif</th>
-          <th class="border border-hair px-2 py-1 text-center">Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filas.map((f, i) => `
-          <tr class="rompe-pagina">
-            <td class="border border-hair px-2 py-1">${i + 1}</td>
-            <td class="border border-hair px-2 py-1">${esc(f.eq)}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.pj}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.pg}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.pp}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.sf}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.sc}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.pf}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.pc}</td>
-            <td class="border border-hair px-2 py-1 text-center">${f.pf - f.pc > 0 ? '+' : ''}${f.pf - f.pc}</td>
-            <td class="border border-hair px-2 py-1 text-center font-semibold">${f.pts}</td>
-          </tr>`).join('')}
+  const tablaPosiciones = (filas, col) => !filas.length ? '' : `
+    <p class="mt-3 font-score text-[14px] uppercase tracking-widest text-muted">Tabla de posiciones</p>
+    <table class="mt-1 w-full border-collapse text-[12px]">
+      <thead><tr class="text-white" style="background:${col}">
+        ${['#','Equipo','PJ','PG','PP','SF','SC','PF','PC','Dif','Pts'].map((h, i) => `<th class="px-2 py-1.5 ${i === 1 ? 'text-left' : 'text-center'} font-medium">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>${filas.map((f, i) => `
+        <tr class="rompe-pagina" style="background:${i === 0 ? '#FFF3C8' : (i % 2 ? '#F4F7FB' : '#fff')}">
+          <td class="border-b border-hair px-2 py-1 text-center font-score">${i + 1}</td>
+          <td class="border-b border-hair px-2 py-1"><span class="inline-flex items-center gap-1.5">${escudo(f.eq, 18)}<b>${esc(f.eq)}</b>${i === 0 ? ' ★' : ''}</span></td>
+          ${[f.pj, f.pg, f.pp, f.sf, f.sc, f.pf, f.pc, (f.pf - f.pc > 0 ? '+' : '') + (f.pf - f.pc)].map(v => `<td class="border-b border-hair px-2 py-1 text-center">${v}</td>`).join('')}
+          <td class="border-b border-hair px-2 py-1 text-center font-score text-[15px] font-semibold">${f.pts}</td>
+        </tr>`).join('')}
       </tbody>
     </table>`;
 
-  /* Un bloque por cada grupo real (Grupo A, Grupo B...) de cada rama, más un
-     bloque de Liguilla si hay partidos de liguilla sin jugar. Cada bloque
-     empieza en una página nueva, con su tabla de posiciones (con puntos) y
-     luego su calendario — así cualquiera busca directo la página de su grupo. */
   const bloques = [];
   ramas.forEach(rama => {
+    const col = rama === 'Femenil' ? '#B3327A' : '#1B57B5';
     const deRama = pendientes.filter(p => p.cat === rama);
     gruposDeRama(rama).forEach(g => {
-      const partidos = deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave)
-        .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
-      bloques.push({
-        titulo: `${rama} · ${g.etiqueta}`,
-        html: tablaPosiciones(filasDeGrupo(rama, g)) + (partidos.length ? tablaCalendario(partidos) : vacio('No hay partidos pendientes en este grupo.'))
-      });
+      const ps = deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave).sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+      bloques.push({ rama, col, titulo: g.etiqueta,
+        html: tablaPosiciones(filasDeGrupo(rama, g), col) + `<p class="mt-4 font-score text-[14px] uppercase tracking-widest text-muted">Calendario de juegos</p>` + (ps.length ? calendario(ps, col) : '<p class="mt-2 text-muted">No hay partidos pendientes en este grupo.</p>') });
     });
-    const liguilla = deRama.filter(p => p.fase !== 'grupos').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
-    if (liguilla.length) bloques.push({ titulo: `${rama} · Liguilla`, html: tablaCalendario(liguilla) });
+    const lig = deRama.filter(p => p.fase !== 'grupos').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    if (lig.length) bloques.push({ rama, col, titulo: 'Liguilla', html: calendario(lig, col) });
   });
 
   $('#imprimir-rol').innerHTML = `
-    <h1 class="font-score text-[22px]">${esc(MARCA_NOMBRE)}</h1>
-    <p class="text-[13px] text-muted">Rol de juegos y tabla de posiciones · generado ${new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</p>
+    <div class="rounded-2xl px-5 py-4 text-white" style="background:linear-gradient(135deg,#0E2647,#1B57B5)">
+      <div class="flex items-center gap-3">
+        ${logo ? `<img src="${logo}" alt="" class="h-12 w-12 rounded-xl bg-white/10 object-cover">` : ''}
+        <div>
+          <h1 class="font-score text-[26px] leading-none tracking-wide">${esc(MARCA_NOMBRE)}</h1>
+          <p class="mt-1 text-[12.5px] text-white/70">${esc(MARCA_SUBTITULO)} · ${esc(MARCA_TEMPORADA)}</p>
+        </div>
+        <span class="ml-auto rounded-lg px-3 py-1.5 font-score text-[16px] tracking-wide" style="background:#FFC93C;color:#0E2647">ROL DE JUEGOS</span>
+      </div>
+    </div>
+    <p class="mt-2 text-[11.5px] text-muted">Generado el ${hoy}. Los resultados al día están en la página de la liga.</p>
     ${bloques.length ? bloques.map((b, i) => `
-      <section class="${i > 0 ? 'pagina-nueva mt-6' : 'mt-4'}">
-        <h2 class="font-score text-[18px] text-court">${esc(b.titulo)}</h2>
+      <section class="${i > 0 ? 'pagina-nueva' : ''} mt-5">
+        <div class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-white" style="background:${b.col}">
+          <span class="font-score text-[22px] tracking-wide">${esc(b.titulo)}</span>
+          <span class="ml-auto rounded-md bg-white/20 px-2.5 py-0.5 font-score text-[14px] uppercase tracking-widest">${b.rama}</span>
+        </div>
         ${b.html}
-      </section>`).join('') : '<p class="mt-2">No hay partidos pendientes con este filtro para imprimir.</p>'}`;
+      </section>`).join('') : '<p class="mt-4">No hay partidos pendientes con este filtro para imprimir.</p>'}`;
 
-  /* La sección de impresión está oculta en pantalla (display:none) — hay
-     que mostrarla antes de imprimir, o el PDF sale en blanco, y ocultarla
-     de nuevo después para que no estorbe en la página normal. */
   $('#imprimir-rol').classList.remove('hidden');
   window.print();
   window.addEventListener('afterprint', () => $('#imprimir-rol').classList.add('hidden'), { once: true });
@@ -2745,6 +2913,7 @@ function repintaTodo() {
   const pasos = [
     ['botones de administrador', pintaBotonesAdmin],
     ['logo de la liga', pintaMarca],
+    ['pestañas', refrescaTabs],
     ['equipos', pintaEquipos],
     ['próximo partido', pintaProximo],
     ['rol de juegos', pintaRol],
@@ -2752,7 +2921,8 @@ function repintaTodo() {
     ['rama varonil', () => montaRama('Varonil')],
     ['tamaño de la liguilla', pintaTamanoLiguilla],
     ['liguilla', pintaBracket],
-    ['galería', pintaGaleria]
+    ['galería', pintaGaleria],
+    ['cruces', pintaCruces]
   ];
   const fallos = [];
   pasos.forEach(([nombre, dibuja]) => {
