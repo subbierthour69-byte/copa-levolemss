@@ -1247,5 +1247,15 @@
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
     "local": "TEC DE CHINA",
     "visita": "SEYBAPLAYA"
+  },
+  {
+    "id": "p42v21e9",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-15T09:30",
+    "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
+    "local": "TEC DE CAMPECHE",
+    "visita": "CECYTE"
   }
 ]
