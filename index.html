@@ -93,6 +93,21 @@ tailwind.config = {
   @keyframes trofeo { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.07); } }
   .trofeo-anim { display: inline-block; animation: trofeo 2.4s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(255,201,60,.55)); }
 
+  @keyframes bota { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(180deg); } }
+  .balon-anim { animation: bota 1.8s ease-in-out infinite; }
+
+  #splash { position: fixed; inset: 0; z-index: 100; overflow: hidden; animation: splashSalva .01s 8s forwards; }
+  @keyframes splashSalva { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+  #splash-base { position: absolute; inset: 0; background-color: #0E2647; }
+  #splash-casco { position: absolute; inset: 0; }
+  #splash-bola { position: absolute; left: 50%; top: 50%; width: 42vmin; height: 42vmin; margin: -21vmin 0 0 -21vmin; opacity: 0; transform: scale(.06); filter: drop-shadow(0 0 28px rgba(255,201,60,.55)); }
+  #splash-flash { position: absolute; left: 50%; top: 50%; width: 60vmin; height: 60vmin; margin: -30vmin 0 0 -30vmin; border-radius: 50%; opacity: 0; background: radial-gradient(circle, #fff 0%, rgba(255,201,60,.8) 35%, transparent 70%); }
+  #splash-grietas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+  #splash-saltar { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font: 500 12px 'Public Sans', sans-serif; letter-spacing: .12em; color: rgba(255,255,255,.5); }
+  #sidebar, #tabs-mobile { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+  body.intro #sidebar { transform: translateX(-105%); }
+  body.intro #tabs-mobile { transform: translateY(110%); }
+
   .noscroll { scrollbar-width: none; }
   .noscroll::-webkit-scrollbar { display: none; }
 
@@ -130,7 +145,8 @@ tailwind.config = {
     main { padding: 0 !important; max-width: none !important; }
     body { background: #fff !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    header, nav, #admin-toggle { display: none !important; }
+    header, nav, aside, #splash, #bienvenida, #admin-toggle { display: none !important; }
+    #contenido { padding-left: 0 !important; }
     main > section:not(#panel-rol) { display: none !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
     #imprimir-rol { position: static; padding: 0; }
@@ -139,11 +155,24 @@ tailwind.config = {
 </head>
 
 <body class="font-sans text-court antialiased">
+<!-- ============ ANIMACIÓN DE ENTRADA ============ -->
+<div id="splash" aria-hidden="true">
+  <div id="splash-base" class="net"></div>
+  <div id="splash-casco"></div>
+  <div id="splash-flash"></div>
+  <svg id="splash-bola" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9.2" fill="#fff" stroke="#FFC93C" stroke-width="1"/>
+    <path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2" stroke="#1B57B5" stroke-width="1.1"/>
+  </svg>
+  <svg id="splash-grietas" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+  <p id="splash-saltar">TOCA PARA ENTRAR</p>
+</div>
+
 
 <!-- ============ BARRA SUPERIOR ============ -->
 <header class="sticky top-0 z-40 bg-court text-white">
   <div class="mx-auto max-w-6xl px-4 sm:px-6">
-    <div class="flex items-center gap-3 py-3.5">
+    <div class="flex h-[72px] items-center gap-3">
       <span id="marca-icono" class="relative shrink-0">
         <span id="marca-icono-inner" class="grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-white/10 text-sun">
           <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -160,13 +189,42 @@ tailwind.config = {
       </span>
     </div>
 
-    <!-- Pestañas en escritorio -->
-    <nav class="hidden pb-3 sm:block">
-      <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga"
-           class="noscroll inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-white/10 p-1"></div>
-    </nav>
+
   </div>
 </header>
+
+<!-- ============ MENÚ LATERAL (escritorio) ============ -->
+<aside id="sidebar" class="fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col border-r border-white/10 bg-deep px-3 py-5 text-white sm:flex">
+  <p class="px-3 pb-3 font-score text-[13px] uppercase tracking-[.28em] text-white/45">Menú</p>
+  <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga" class="flex flex-col gap-1"></div>
+</aside>
+
+<div id="contenido" class="sm:pl-60">
+<!-- ============ BIENVENIDA ============ -->
+<section id="bienvenida" class="net relative overflow-hidden bg-deep text-white">
+  <div class="absolute inset-0 bg-gradient-to-br from-court/90 via-court/60 to-blue/50"></div>
+  <div class="relative mx-auto max-w-6xl px-4 py-8 text-center sm:px-6 sm:py-12">
+    <span class="balon-anim inline-grid h-14 w-14 place-items-center rounded-full bg-white/10 text-sun ring-1 ring-white/20">
+      <svg viewBox="0 0 24 24" class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2"/></svg>
+    </span>
+    <p id="bienvenida-temporada" class="mt-4 font-score text-[15px] uppercase tracking-[.32em] text-sun sm:text-[17px]">Temporada 2026</p>
+    <h2 class="mt-1 font-score text-[40px] leading-[1.05] tracking-wide sm:text-[64px]" style="animation: rise .7s cubic-bezier(.2,.7,.2,1) both">
+      ¡Bienvenidos, <span class="text-sun">jugadores!</span>
+    </h2>
+    <p class="mx-auto mt-3 max-w-[52ch] text-[14.5px] leading-relaxed text-white/80 sm:text-[16px]">
+      Es hora de salir a la cancha. Aquí encuentras tus equipos, el rol de juegos, los resultados y la tabla de posiciones de
+      <strong id="bienvenida-nombre" class="font-semibold text-white">LEVOLEMSS 2026</strong>.
+    </p>
+    <div class="mt-5 flex flex-wrap items-center justify-center gap-2 text-[13px] font-medium">
+      <span class="rounded-full bg-white/10 px-3.5 py-1.5 ring-1 ring-white/15">Rol de juegos</span>
+      <span class="rounded-full bg-white/10 px-3.5 py-1.5 ring-1 ring-white/15">Resultados</span>
+      <span class="rounded-full bg-white/10 px-3.5 py-1.5 ring-1 ring-white/15">Posiciones</span>
+      <span class="rounded-full bg-sun px-3.5 py-1.5 font-semibold text-court">¡Mucha suerte!</span>
+    </div>
+  </div>
+</section>
+
+
 
 <!-- ============ CONTENIDO ============ -->
 <main class="mx-auto max-w-6xl px-4 pb-28 pt-5 sm:px-6 sm:pb-16">
@@ -187,7 +245,7 @@ tailwind.config = {
   <section id="panel-rol" class="panel" role="tabpanel" aria-labelledby="tab-d-rol" tabindex="-1" hidden>
     <div id="proximo" class="stagger grid gap-4"></div>
 
-    <div class="sticky top-[70px] z-20 -mx-4 mt-5 bg-mist/90 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
+    <div class="sticky top-[72px] z-20 -mx-4 mt-5 bg-mist/90 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="font-score text-2xl tracking-wide">Rol de juegos</h2>
         <div class="flex items-center gap-2">
@@ -314,6 +372,7 @@ tailwind.config = {
   </section>
 
 </main>
+</div>
 
 <!-- ============ BARRA INFERIOR (MÓVIL, deslizable) ============ -->
 <nav id="tabs-mobile" role="tablist" aria-label="Secciones de la liga"
@@ -343,7 +402,7 @@ tailwind.config = {
 
 <!-- Botón flotante, discreto, para entrar/salir del modo administrador -->
 <button id="admin-toggle" title="Modo administrador"
-        class="fixed bottom-4 left-4 z-30 grid h-11 w-11 place-items-center rounded-full bg-court text-white shadow-lift ring-1 ring-white/10 sm:bottom-6 sm:left-6">
+        class="fixed bottom-4 left-4 z-30 grid h-11 w-11 place-items-center rounded-full bg-court text-white shadow-lift ring-1 ring-white/10 sm:bottom-6 sm:left-[16.5rem]">
   <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/>
   </svg>
@@ -1012,6 +1071,8 @@ function pintaMarca() {
   $('#marca-nombre').textContent = MARCA_NOMBRE;
   $('#marca-subtitulo').textContent = MARCA_SUBTITULO;
   $('#marca-temporada').textContent = MARCA_TEMPORADA;
+  const bn = $('#bienvenida-nombre'); if (bn) bn.textContent = MARCA_NOMBRE;
+  const bt = $('#bienvenida-temporada'); if (bt) bt.textContent = MARCA_TEMPORADA;
   document.title = MARCA_NOMBRE + ' — ' + MARCA_SUBTITULO;
 
   const existente = $('#btn-cambiar-marca');
@@ -1099,8 +1160,8 @@ function pintaTabs() {
   tabsConAdmin = esAdmin();
   $('#tabs-desktop').innerHTML = tabsVisibles().map(t => `
     <button role="tab" id="tab-d-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}"
-            class="shrink-0 rounded-lg px-3.5 py-2 font-score text-[17px] tracking-wide transition-colors">
-      ${icono(t.icono, 'mr-1.5 -mt-0.5 inline h-3.5 w-3.5')}${t.texto}
+            class="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left font-score text-[18px] tracking-wide transition-colors">
+      ${icono(t.icono, 'h-[18px] w-[18px] shrink-0')}${t.texto}
     </button>`).join('');
 
   $('#tabs-mobile > div').innerHTML = tabsVisibles().map(t => `
@@ -1194,8 +1255,8 @@ function abreTab(id, suave = false) {
     const d = $('#tab-d-' + t.id);
     if (!d) return;
     d.setAttribute('aria-selected', activo);
-    d.className = 'shrink-0 rounded-lg px-3.5 py-2 font-score text-[17px] tracking-wide transition-colors ' +
-      (activo ? 'bg-white text-court' : 'text-white/70 hover:text-white');
+    d.className = 'flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left font-score text-[18px] tracking-wide transition-colors ' +
+      (activo ? 'bg-sun text-court shadow-card' : 'text-white/75 hover:bg-white/10 hover:text-white');
 
     const m = $('#tab-m-' + t.id);
     m.setAttribute('aria-selected', activo);
@@ -3060,6 +3121,102 @@ function iniciaActualizacionAutomatica() {
   rastreaMovimientos = true; // a partir de aquí, un cambio de lugar en la tabla sí se anima
   iniciaActualizacionAutomatica();
 })();
+
+/* ==========================================================================
+   12. ANIMACIÓN DE ENTRADA: el balón se lanza, rompe la pantalla y aparece el menú
+   ========================================================================== */
+function introSplash() {
+  const sp = $('#splash');
+  if (!sp) return;
+  let visto = null;
+  try { visto = sessionStorage.getItem('lv_intro'); } catch (e) {}
+  if (visto || reducirMovimiento() || typeof sp.animate !== 'function') { sp.remove(); return; }
+  try { sessionStorage.setItem('lv_intro', '1'); } catch (e) {}
+
+  const B = document.body, H = document.documentElement;
+  B.classList.add('intro');
+  H.style.overflow = 'hidden';
+  const timers = [];
+  let fin = false;
+  const espera = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const terminar = () => {
+    if (fin) return;
+    fin = true;
+    timers.forEach(clearTimeout);
+    sp.remove();
+    H.style.overflow = '';
+    B.classList.remove('intro');
+  };
+  sp.addEventListener('click', terminar);
+  espera(terminar, 7000);
+
+  const bola = $('#splash-bola');
+  bola.animate(
+    [{ opacity: .9, transform: 'translate(-20vw,16vh) scale(.06) rotate(0deg)' },
+     { opacity: 1,  transform: 'translate(0,0) scale(1.5) rotate(620deg)' }],
+    { duration: 950, easing: 'cubic-bezier(.5,0,.9,.6)', fill: 'forwards' });
+  espera(impacto, 950);
+
+  function impacto() {
+    bola.animate(
+      [{ opacity: 1, transform: 'scale(1.5) rotate(620deg)' }, { opacity: 0, transform: 'scale(2.3) rotate(680deg)' }],
+      { duration: 180, fill: 'forwards' });
+    $('#splash-flash').animate([{ opacity: 1, transform: 'scale(.2)' }, { opacity: 0, transform: 'scale(3.2)' }], { duration: 600, easing: 'ease-out' });
+    sp.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-14px,9px)' }, { transform: 'translate(12px,-10px)' },
+                { transform: 'translate(-8px,-6px)' }, { transform: 'translate(0,0)' }], { duration: 260 });
+
+    const gr = $('#splash-grietas');
+    let d = '';
+    for (let i = 0; i < 12; i++) {
+      let a = (i / 12) * Math.PI * 2 + Math.random() * .4, x = 50, y = 50, p = 'M50 50';
+      for (let k = 0; k < 5; k++) {
+        const r = 7 + Math.random() * 10;
+        a += (Math.random() - .5) * .7;
+        x += Math.cos(a) * r * 1.4; y += Math.sin(a) * r;
+        p += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      d += `<path d="${p}" pathLength="1" vector-effect="non-scaling-stroke" stroke-dasharray="1" stroke-dashoffset="1"></path>`;
+    }
+    gr.innerHTML = d;
+    gr.style.opacity = 1;
+    $$('path', gr).forEach(p => p.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' }));
+    espera(rompe, 420);
+  }
+
+  function rompe() {
+    const hint = $('#splash-saltar'); if (hint) hint.remove();
+    $('#splash-base').remove();
+    const casco = $('#splash-casco'), W = innerWidth, Alto = innerHeight, C = 7, R = 5;
+    const v = [];
+    for (let r = 0; r <= R; r++) {
+      v[r] = [];
+      for (let c = 0; c <= C; c++) {
+        v[r][c] = [c / C * 100 + (c === 0 || c === C ? 0 : (Math.random() - .5) * 9),
+                   r / R * 100 + (r === 0 || r === R ? 0 : (Math.random() - .5) * 11)];
+      }
+    }
+    const tonos = ['#0E2647', '#112D55', '#163A69'];
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+      const a = v[r][c], b = v[r][c + 1], dd = v[r + 1][c], e = v[r + 1][c + 1];
+      const tris = Math.random() < .5 ? [[a, b, e], [a, e, dd]] : [[a, b, dd], [b, e, dd]];
+      tris.forEach(t => {
+        const cx = (t[0][0] + t[1][0] + t[2][0]) / 3, cy = (t[0][1] + t[1][1] + t[2][1]) / 3;
+        const el = document.createElement('div');
+        el.style.cssText = `position:absolute;inset:0;background:${tonos[Math.random() * 3 | 0]};clip-path:polygon(${t.map(p => p[0] + '% ' + p[1] + '%').join(',')});transform-origin:${cx}% ${cy}%`;
+        casco.appendChild(el);
+        const dx = (cx - 50) / 100 * W * (.8 + Math.random() * .8);
+        const dy = (cy - 50) / 100 * Alto * (.8 + Math.random() * .8) + Alto * .35;
+        const dist = Math.hypot(cx - 50, cy - 50) / 70;
+        el.animate(
+          [{ transform: 'none', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) rotate(${(Math.random() - .5) * 160}deg) scale(.55)`, opacity: 0 }],
+          { duration: 900, delay: dist * 350, easing: 'cubic-bezier(.45,0,.9,.55)', fill: 'forwards' });
+      });
+    }
+    $('#splash-grietas').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, fill: 'forwards' });
+    espera(terminar, 1450);
+  }
+}
+try { introSplash(); } catch (e) { const sp = $('#splash'); if (sp) sp.remove(); document.documentElement.style.overflow = ''; document.body.classList.remove('intro'); }
 </script>
 </body>
 </html>
