@@ -1287,5 +1287,25 @@
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "TEC DE CAMPECHE",
     "visita": "ONIX"
+  },
+  {
+    "id": "pvhoe57p",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-31T09:30",
+    "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
+    "local": "TEC DE CAMPECHE",
+    "visita": "ONIX"
+  },
+  {
+    "id": "pzgt1nfe",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-15T10:30",
+    "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
+    "local": "COBACAM",
+    "visita": "INSTITUTO CAMPECHANO PREPA A"
   }
 ]
