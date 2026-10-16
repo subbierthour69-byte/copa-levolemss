@@ -1227,5 +1227,15 @@
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
     "local": "CBTIS 09",
     "visita": "COBACAM LERMA"
+  },
+  {
+    "id": "plcozacf",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-31T08:30",
+    "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
+    "local": "INSTITUTO CAMPECHANO",
+    "visita": "LEONES"
   }
 ]
