@@ -4,8 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E2647">
-<title>LEVOLEMSS 2026 — Liga Estudiantil de Voleibol</title>
-<meta name="description" content="Equipos registrados, rol de juegos, resultados, tablas de posiciones, liguilla, documentos y galería de la LEVOLEMSS 2026.">
+<title>LEVOLEMSS — Liga Estudiantil de Voleibol 2026 | Campeche</title>
+<meta name="description" content="LEVOLEMSS: página de la Liga Estudiantil de Voleibol de Campeche 2026 con equipos registrados, rol de juegos, resultados, tablas de posiciones, liguilla, documentos y galería.">
+<meta name="keywords" content="LEVOLEMSS, LEVOLEMSS 2026, liga estudiantil de voleibol, voleibol Campeche, rol de juegos, resultados voleibol, liguilla">
+<meta name="author" content="Kevin Abrahan Cohuo Xool">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://subbierthour69-byte.github.io/copa-levolemss/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LEVOLEMSS 2026">
+<meta property="og:title" content="LEVOLEMSS 2026 — Liga Estudiantil de Voleibol">
+<meta property="og:description" content="Rol de juegos, resultados, posiciones y liguilla de la Liga Estudiantil de Voleibol.">
+<meta property="og:url" content="https://subbierthour69-byte.github.io/copa-levolemss/">
+<meta property="og:locale" content="es_MX">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"LEVOLEMSS 2026","alternateName":["LEVOLEMSS","Liga Estudiantil de Voleibol"],"url":"https://subbierthour69-byte.github.io/copa-levolemss/","inLanguage":"es-MX","description":"Rol de juegos, resultados, posiciones y liguilla de la Liga Estudiantil de Voleibol.","creator":{"@type":"Person","name":"Kevin Abrahan Cohuo Xool"}}
+</script>
 
 <!-- Tailwind (CDN de desarrollo). Para producción instala Tailwind con npm y compila el CSS. -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -145,7 +159,7 @@ tailwind.config = {
     main { padding: 0 !important; max-width: none !important; }
     body { background: #fff !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    header, nav, aside, #splash, #bienvenida, #admin-toggle { display: none !important; }
+    header, nav, aside, footer, #splash, #bienvenida, #admin-toggle { display: none !important; }
     #contenido { padding-left: 0 !important; }
     main > section:not(#panel-rol) { display: none !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
@@ -372,6 +386,11 @@ tailwind.config = {
   </section>
 
 </main>
+
+  <footer id="pie-creador" class="border-t border-hair px-4 pb-24 pt-6 text-center text-[13px] text-muted sm:pb-8">
+    <p>Página creada con <span class="text-[#B3322E]" aria-label="cariño">♥</span> por <strong class="font-semibold text-court" id="creador-nombre">Kevin Abrahan Cohuo Xool</strong></p>
+    <p class="mt-1 text-[12px] text-muted/80"><span id="creador-liga">LEVOLEMSS 2026</span> · Todos los derechos reservados</p>
+  </footer>
 </div>
 
 <!-- ============ BARRA INFERIOR (MÓVIL, deslizable) ============ -->
@@ -1071,6 +1090,7 @@ function pintaMarca() {
   $('#marca-nombre').textContent = MARCA_NOMBRE;
   $('#marca-subtitulo').textContent = MARCA_SUBTITULO;
   $('#marca-temporada').textContent = MARCA_TEMPORADA;
+  const cl = $('#creador-liga'); if (cl) cl.textContent = MARCA_NOMBRE;
   const bn = $('#bienvenida-nombre'); if (bn) bn.textContent = MARCA_NOMBRE;
   const bt = $('#bienvenida-temporada'); if (bt) bt.textContent = MARCA_TEMPORADA;
   document.title = MARCA_NOMBRE + ' — ' + MARCA_SUBTITULO;
