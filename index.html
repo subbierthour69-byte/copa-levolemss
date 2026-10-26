@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E2647">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <title>LEVOLEMSS — Liga Estudiantil de Voleibol 2026 | Campeche</title>
 <meta name="description" content="LEVOLEMSS: página de la Liga Estudiantil de Voleibol de Campeche 2026 con equipos registrados, rol de juegos, resultados, tablas de posiciones, liguilla, documentos y galería.">
-<meta name="keywords" content="LEVOLEMSS, LEVOLEMSS 2026, liga estudiantil de voleibol, voleibol Campeche, rol de juegos, resultados voleibol, liguilla">
+<meta name="keywords" content="LEVOLEMSS, LEVOLEMS, LEVOLEMSS 2026, liga estudiantil de voleibol, voleibol Campeche, rol de juegos, resultados voleibol, liguilla">
 <meta name="author" content="Kevin Abrahan Cohuo Xool">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://subbierthour69-byte.github.io/copa-levolemss/">
@@ -16,9 +18,13 @@
 <meta property="og:description" content="Rol de juegos, resultados, posiciones y liguilla de la Liga Estudiantil de Voleibol.">
 <meta property="og:url" content="https://subbierthour69-byte.github.io/copa-levolemss/">
 <meta property="og:locale" content="es_MX">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://subbierthour69-byte.github.io/copa-levolemss/og-imagen.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://subbierthour69-byte.github.io/copa-levolemss/og-imagen.png">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"LEVOLEMSS 2026","alternateName":["LEVOLEMSS","Liga Estudiantil de Voleibol"],"url":"https://subbierthour69-byte.github.io/copa-levolemss/","inLanguage":"es-MX","description":"Rol de juegos, resultados, posiciones y liguilla de la Liga Estudiantil de Voleibol.","creator":{"@type":"Person","name":"Kevin Abrahan Cohuo Xool"}}
+{"@context":"https://schema.org","@type":"WebSite","name":"LEVOLEMSS 2026","alternateName":["LEVOLEMSS","LEVOLEMS","Liga Estudiantil de Voleibol"],"url":"https://subbierthour69-byte.github.io/copa-levolemss/","inLanguage":"es-MX","description":"Rol de juegos, resultados, posiciones y liguilla de la Liga Estudiantil de Voleibol.","creator":{"@type":"Person","name":"Kevin Abrahan Cohuo Xool"}}
 </script>
 
 <!-- Tailwind (CDN de desarrollo). Para producción instala Tailwind con npm y compila el CSS. -->
@@ -159,7 +165,7 @@ tailwind.config = {
     main { padding: 0 !important; max-width: none !important; }
     body { background: #fff !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    header, nav, aside, footer, #splash, #bienvenida, #admin-toggle { display: none !important; }
+    header, nav, aside, footer, #mi-equipo, #splash, #bienvenida, #admin-toggle { display: none !important; }
     #contenido { padding-left: 0 !important; }
     main > section:not(#panel-rol) { display: none !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
@@ -242,6 +248,7 @@ tailwind.config = {
 
 <!-- ============ CONTENIDO ============ -->
 <main class="mx-auto max-w-6xl px-4 pb-28 pt-5 sm:px-6 sm:pb-16">
+  <div id="mi-equipo" class="mb-5"></div>
 
   <!-- ---------- EQUIPOS REGISTRADOS (primera sección) ---------- -->
   <section id="panel-equipos" class="panel" role="tabpanel" aria-labelledby="tab-d-equipos" tabindex="-1">
@@ -1317,6 +1324,92 @@ function coincideCategoria(categoriaEquipo, filtro) {
   return filtro === 'Todas' || categoriaEquipo === filtro || categoriaEquipo === 'Ambas';
 }
 
+/* ---------- Mi equipo (se guarda solo en el celular de cada persona) ---------- */
+const miEquipo = () => { try { return localStorage.getItem('lv_mi_equipo') || ''; } catch (e) { return ''; } };
+function guardaMiEquipo(n) { try { n ? localStorage.setItem('lv_mi_equipo', n) : localStorage.removeItem('lv_mi_equipo'); } catch (e) {} }
+
+function pintaMiEquipo() {
+  const c = $('#mi-equipo');
+  if (!c) return;
+  const n = miEquipo();
+  if (!n || !EQUIPOS[n]) { c.innerHTML = ''; return; }
+
+  const suyos = PARTIDOS.filter(p => (p.local === n || p.visita === n) && llaveActiva(p));
+  const rival = p => p.local === n ? p.visita : p.local;
+  const prox = suyos.filter(p => !jugado(p) && p.fecha && p.local && p.visita).sort((a, b) => fecha(a.fecha) - fecha(b.fecha));
+  const sig = prox.find(p => fecha(p.fecha) >= new Date()) || prox[0];
+  const ult = suyos.filter(jugado).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
+
+  const pos = [], vistos = new Set();
+  suyos.filter(p => p.fase === 'grupos').forEach(p => {
+    const k = p.cat + '|' + claveGrupo(p.grupo);
+    if (vistos.has(k)) return;
+    vistos.add(k);
+    const g = gruposDeRama(p.cat).find(x => x.clave === claveGrupo(p.grupo));
+    const i = g ? filasDeGrupo(p.cat, g).findIndex(f => f.eq === n) : -1;
+    if (i >= 0) pos.push(`${i + 1}° · ${p.cat}${g.etiqueta !== 'Sin grupo' ? ' ' + g.etiqueta : ''}`);
+  });
+
+  let ultTxt = 'Aún no juega';
+  if (ult) {
+    const [a, b] = setsGanados(ult);
+    ultTxt = `${(ult.local === n) === (a > b) ? 'Ganó' : 'Perdió'} ${ult.local === n ? a + '-' + b : b + '-' + a} vs ${esc(rival(ult))}`;
+  }
+  const dato = (t, v) => `<div><dt class="text-white/55">${t}</dt><dd class="mt-0.5 font-medium">${v}</dd></div>`;
+
+  c.innerHTML = `
+  <section class="net overflow-hidden rounded-[22px] bg-deep text-white shadow-lift">
+    <div class="bg-gradient-to-br from-court/90 via-court/60 to-blue/45 p-4 sm:p-5">
+      <div class="flex items-center gap-3">
+        ${escudo(n, 44, EQUIPOS[n].logo)}
+        <div class="min-w-0 flex-1">
+          <p class="text-[12px] text-sun">★ Mi equipo</p>
+          <p class="truncate font-score text-[24px] leading-tight">${esc(n)}</p>
+        </div>
+        <button data-dejar-equipo class="rounded-lg bg-white/10 px-3 py-1.5 text-[12.5px] hover:bg-white/20">Dejar de seguir</button>
+      </div>
+      <dl class="mt-4 grid gap-3 border-t border-white/15 pt-3 text-[13.5px] sm:grid-cols-3">
+        ${dato('Posición', pos.length ? pos.join('<br>') : 'Sin partidos jugados')}
+        ${dato('Próximo partido', sig ? `${esc(rival(sig))}<br><span class="text-white/70">${tituloDia(sig.fecha)} · ${hora(sig.fecha)}</span>` : 'Sin partidos programados')}
+        ${dato('Último resultado', ultTxt)}
+      </dl>
+    </div>
+  </section>`;
+  $('[data-dejar-equipo]', c).addEventListener('click', () => { guardaMiEquipo(''); repintaTodo(); });
+}
+
+/* ---------- Validación de resultados (reglas del voleibol) ---------- */
+function validaSets(sets) {
+  if (!sets.length) return '';
+  let a = 0, b = 0;
+  for (let i = 0; i < sets.length; i++) {
+    if (a === 3 || b === 3) return `Sobran sets: el partido ya había terminado antes del set ${i + 1}.`;
+    const [x, y] = sets[i], meta = i === 4 ? 15 : 25, g = Math.max(x, y), p = Math.min(x, y);
+    if (x === y) return `El set ${i + 1} está empatado (${x}-${y}).`;
+    if (g < meta) return `El set ${i + 1} (${x}-${y}) no llega a ${meta} puntos.`;
+    if (g === meta ? p > meta - 2 : g - p !== 2) return `El set ${i + 1} (${x}-${y}) debe ganarse por 2 puntos de diferencia.`;
+    x > y ? a++ : b++;
+  }
+  if (a < 3 && b < 3) return `El partido no está terminado: nadie llegó a 3 sets (van ${a}-${b}).`;
+  return '';
+}
+
+/* ---------- Compartir un partido por WhatsApp / apps del celular ---------- */
+const URL_PAGINA = 'https://subbierthour69-byte.github.io/copa-levolemss/';
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-compartir]');
+  if (!btn) return;
+  const base = PARTIDOS.find(x => x.id === btn.dataset.compartir);
+  if (!base) return;
+  const q = base.fase === 'grupos' ? base : { ...base, ...(bracketResuelto(base.liga)[base.llave] || {}) };
+  const cuerpo = jugado(q)
+    ? (([a, b]) => `${q.local} ${a}-${b} ${q.visita}\nParciales: ${q.sets.map(t => t.join('-')).join(', ')}`)(setsGanados(q))
+    : `${q.local} vs ${q.visita}\n${tituloDia(q.fecha)}${q.fecha ? ' · ' + hora(q.fecha) : ''}${q.sede ? '\n' + q.sede : ''}`;
+  const texto = `🏐 ${MARCA_NOMBRE} · ${q.cat} · ${etiquetaFase(q)}\n${cuerpo}\n${URL_PAGINA}`;
+  if (navigator.share) navigator.share({ text: texto }).catch(() => {});
+  else window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+});
+
 function pintaEquipos() {
   const lista = Object.entries(EQUIPOS)
     .filter(([, e]) => coincideCategoria(e.categoria, estado.filtroEquipos))
@@ -1345,6 +1438,8 @@ function pintaEquipos() {
           ${icono('cerrar', 'h-3.5 w-3.5')}
         </button>
       </div>` : ''}
+      <button data-seguir="${esc(nombre)}" title="${miEquipo() === nombre ? 'Dejar de seguir' : 'Seguir a este equipo'}"
+              class="absolute left-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg text-[18px] leading-none ring-1 ring-hair ${miEquipo() === nombre ? 'bg-sun text-court' : 'bg-white text-muted hover:text-court'}">★</button>
       ${escudo(nombre, 60, e.logo)}
       <p class="font-score text-[18px] leading-tight text-court">${nombre}</p>
       <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium ${COLOR_CAT[e.categoria]}">
@@ -1352,6 +1447,7 @@ function pintaEquipos() {
       </span>
     </article>`).join('');
 
+  $$('[data-seguir]', grid).forEach(b => b.addEventListener('click', () => { guardaMiEquipo(miEquipo() === b.dataset.seguir ? '' : b.dataset.seguir); repintaTodo(); }));
   if (esAdmin()) $('#btn-agregar-equipo').addEventListener('click', () => abreEquipoModal());
   $$('[data-editar-equipo]', grid).forEach(b => b.addEventListener('click', () => abreEquipoModal(b.dataset.editarEquipo)));
   $$('[data-borrar-equipo]', grid).forEach(b => b.addEventListener('click', () => borraEquipo(b.dataset.borrarEquipo)));
@@ -1456,6 +1552,7 @@ function tarjetaPartido(p) {
         <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${chipCat}">${icono(fem ? 'femenil' : 'varonil', 'h-3 w-3')}${p.cat}</span>
         <span class="rounded-full bg-mist px-2.5 py-1 text-muted">${etiquetaFase(p)}</span>
         <span class="inline-flex items-center gap-1 text-muted sm:ml-auto">${icono('ubicacion', 'h-3 w-3 shrink-0')}${esc(p.sede || 'Cancha por definir')}</span>
+        <button data-compartir="${p.id}" class="rounded-full bg-mist px-2.5 py-1 font-medium text-court ring-1 ring-hair hover:bg-sky">Compartir</button>
       </div>
     </div>
     ${esAdmin() ? `
@@ -1608,6 +1705,7 @@ function tarjetaResultado(p) {
     <p class="mt-3 border-t border-hair pt-2.5 text-[12.5px] text-muted sm:hidden">
       Parciales: ${p.sets.map(s => s[0] + '-' + s[1]).join(', ')}
     </p>
+    <div class="mt-3 flex justify-end"><button data-compartir="${p.id}" class="rounded-lg bg-mist px-3 py-1.5 text-[12.5px] font-medium text-court ring-1 ring-hair hover:bg-sky">Compartir</button></div>
   </article>`;
 }
 
@@ -2948,6 +3046,9 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
     return;
   }
 
+  const aviso = validaSets(sets);
+  if (aviso && !confirm('⚠ ' + aviso + '\n\n¿Guardar de todos modos?')) return;
+
   if (idActual) {
     /* En liguilla, la categoría, el grupo, la llave, avanzaA y ranura NO se
        tocan aquí — se conservan tal cual, para no descuadrar el bracket. */
@@ -3022,6 +3123,7 @@ function repintaTodo() {
     ['pestañas', refrescaTabs],
     ['equipos', pintaEquipos],
     ['próximo partido', pintaProximo],
+    ['mi equipo', pintaMiEquipo],
     ['rol de juegos', pintaRol],
     ['rama femenil', () => montaRama('Femenil')],
     ['rama varonil', () => montaRama('Varonil')],
