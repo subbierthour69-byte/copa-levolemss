@@ -316,6 +316,14 @@ tailwind.config = {
     <div id="bracket" class="mt-6"></div>
   </section>
 
+  <!-- ---------- HISTORIAL ---------- -->
+  <section id="panel-historial" class="panel" role="tabpanel" aria-labelledby="tab-d-historial" tabindex="-1" hidden>
+    <h2 class="font-score text-2xl tracking-wide">Historial y campeones</h2>
+    <p class="mt-1 text-[14px] text-muted">Los campeones de cada temporada de la liga.</p>
+    <div id="historial-lista" class="mt-5 grid gap-4 sm:grid-cols-2"></div>
+    <div id="historial-admin" class="mt-10"></div>
+  </section>
+
   <!-- ---------- CRUCES (solo administrador) ---------- -->
   <section id="panel-cruces" class="panel" role="tabpanel" aria-labelledby="tab-d-cruces" tabindex="-1" hidden>
     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -683,6 +691,7 @@ tailwind.config = {
 <input id="input-foto" type="file" accept="image/*" class="hidden">
 <input id="input-logo" type="file" accept="image/*" class="hidden">
 <input id="input-marca" type="file" accept="image/*" class="hidden">
+<input id="input-respaldo" type="file" accept="application/json,.json" class="hidden">
 
 <script>
 /* ==========================================================================
@@ -933,6 +942,9 @@ const FOTOS_DEMO = [
 ];
 let FOTOS = FOTOS_DEMO;
 
+/* Temporadas archivadas (data/temporadas.json): alimentan el Historial. */
+let TEMPORADAS = [];
+
 /* --- Logo de la liga (el ícono redondo junto a "LEVOLEMSS 2026") ----------
    Vacío por defecto: se dibuja el balón de vóley de siempre. En cuanto se
    suba uno desde el modo administrador, se guarda en data/marca.json y ese
@@ -1055,7 +1067,8 @@ const ICONOS = {
   subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
   cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>',
   buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
-  cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>'
+  cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>',
+  historial:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -1161,6 +1174,7 @@ const TABS = [
   { id:'femenil',    icono:'femenil',    texto:'Femenil',       corto:'Femenil' },
   { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
   { id:'liguilla',   icono:'liguilla',   texto:'Liguilla',      corto:'Liguilla' },
+  { id:'historial',  icono:'historial',  texto:'Historial',     corto:'Historial' },
   { id:'documentos', icono:'documentos', texto:'Documentos',    corto:'Docs' },
   { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' },
   { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true }
@@ -1177,15 +1191,15 @@ const estado = {
   sub: { Femenil:'resultados', Varonil:'resultados' }
 };
 
-const tabsVisibles = () => TABS.filter(t => !t.admin || esAdmin());
+const tabsVisibles = () => TABS.filter(t => t.admin ? esAdmin() : (t.id !== 'historial' || esAdmin() || TEMPORADAS.length > 0));
 let tabsConAdmin = null;
 function refrescaTabs() {
-  if (tabsConAdmin === esAdmin()) return;
+  if (tabsConAdmin === claveTabs()) return;
   pintaTabs();
   abreTab(estado.tab, true);
 }
 function pintaTabs() {
-  tabsConAdmin = esAdmin();
+  tabsConAdmin = claveTabs();
   $('#tabs-desktop').innerHTML = tabsVisibles().map(t => `
     <button role="tab" id="tab-d-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}"
             class="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left font-score text-[18px] tracking-wide transition-colors">
@@ -1272,7 +1286,7 @@ function animaEntrada(el) {
 }
 
 function abreTab(id, suave = false) {
-  if (id === 'cruces' && !esAdmin()) id = 'equipos';
+  if (!tabsVisibles().some(t => t.id === id)) id = 'equipos';
   estado.tab = id;
 
   TABS.forEach(t => {
@@ -2397,6 +2411,174 @@ function pintaCruces() {
 }
 
 /* ==========================================================================
+   Historial de temporadas, respaldo y registro de cambios
+   ========================================================================== */
+const claveTabs = () => esAdmin() + '|' + (TEMPORADAS.length > 0);
+const accionAdmin = async fn => { try { await fn(); } catch (e) { avisaFlotante('No se pudo: ' + e.message, true); } };
+
+/* Guarda una copia completa de la temporada y anota a sus campeones. */
+async function archivaTemporada(nombre) {
+  const id = slug(nombre) || 'temporada';
+  const campeones = LIGUILLAS.map(l => {
+    const f = bracketResuelto(l.id).F1;
+    if (f && jugado(f) && f.local && f.visita) {
+      const [a, b] = setsGanados(f), gl = a > b;
+      return { liga: l.nombre, cat: l.cat, campeon: gl ? f.local : f.visita, finalista: gl ? f.visita : f.local, marcador: Math.max(a, b) + '-' + Math.min(a, b) };
+    }
+    return { liga: l.nombre, cat: l.cat, campeon: '', finalista: '', marcador: '' };
+  });
+  const snap = { version: 1, nombre, fecha: new Date().toISOString(), equipos: EQUIPOS, partidos: PARTIDOS, liguillas: LIGUILLA_EQUIPOS,
+                 marca: { nombre: MARCA_NOMBRE, subtitulo: MARCA_SUBTITULO, temporada: MARCA_TEMPORADA } };
+  const copia = await ghLeeJSON(`data/temporadas/${id}.json`, null);
+  await ghEscribeJSON(`data/temporadas/${id}.json`, snap, copia.sha, `Archiva temporada: ${nombre}`);
+  const idx = await ghLeeJSON('data/temporadas.json', []);
+  const lista = idx.valor.filter(t => t.id !== id);
+  lista.push({ id, nombre, fecha: snap.fecha, campeones, equipos: Object.keys(EQUIPOS).length, partidos: PARTIDOS.filter(p => jugado(p)).length });
+  await ghEscribeJSON('data/temporadas.json', lista, idx.sha, `Actualiza historial: ${nombre}`);
+  TEMPORADAS = lista;
+  return id;
+}
+
+async function nuevaTemporada() {
+  const actual = prompt('Nombre de la temporada que termina (se archivará):', MARCA_TEMPORADA);
+  if (!actual || !actual.trim()) return;
+  const yA = (actual.match(/\d{4}/) || [])[0];
+  const nueva = prompt('Nombre de la NUEVA temporada:', yA ? actual.replace(yA, String(+yA + 1)) : '');
+  if (!nueva || !nueva.trim()) return;
+  if (!confirm(`Se archivará "${actual}" y se borrarán TODOS sus partidos para empezar "${nueva}". Los equipos, logos y fotos se conservan. ¿Continuar?`)) return;
+
+  await archivaTemporada(actual.trim());
+  const yN = (nueva.match(/\d{4}/) || [])[0], yO = (MARCA_TEMPORADA.match(/\d{4}/) || [])[0];
+  const nombre = yN && yO && yN !== yO ? MARCA_NOMBRE.replace(yO, yN) : MARCA_NOMBRE;
+  PARTIDOS = normalizaPartidos([]);
+  const p = await ghLeeJSON('data/partidos.json', []);
+  await ghEscribeJSON('data/partidos.json', PARTIDOS, p.sha, `Nueva temporada: ${nueva.trim()}`);
+  const m = await ghLeeJSON('data/marca.json', {});
+  m.valor.temporada = nueva.trim(); m.valor.nombre = nombre;
+  await ghEscribeJSON('data/marca.json', m.valor, m.sha, `Nueva temporada: ${nueva.trim()}`);
+  MARCA_TEMPORADA = nueva.trim(); MARCA_NOMBRE = nombre;
+  repintaTodo();
+  avisaFlotante('Temporada archivada. Ya puedes capturar la nueva.');
+}
+
+function descargaRespaldo() {
+  const r = { version: 1, creado: new Date().toISOString(), equipos: EQUIPOS, partidos: PARTIDOS, liguillas: LIGUILLA_EQUIPOS, galeria: FOTOS, temporadas: TEMPORADAS,
+              marca: { nombre: MARCA_NOMBRE, subtitulo: MARCA_SUBTITULO, temporada: MARCA_TEMPORADA } };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' }));
+  a.download = 'respaldo-levolemss-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* Vuelve a poner en la página lo que trae un respaldo o una temporada archivada. */
+async function aplicaRespaldo(r) {
+  if (!r || !r.equipos || !Array.isArray(r.partidos)) throw new Error('El archivo no parece un respaldo de esta página.');
+  const guarda = async (ruta, valor, msg, defecto) => { const x = await ghLeeJSON(ruta, defecto); await ghEscribeJSON(ruta, valor, x.sha, msg); };
+  await guarda('data/equipos.json', r.equipos, 'Restaura equipos', {});
+  await guarda('data/partidos.json', r.partidos, 'Restaura partidos', []);
+  await guarda('data/liguillas.json', r.liguillas || {}, 'Restaura liguillas', {});
+  if (r.marca) { const m = await ghLeeJSON('data/marca.json', {}); await ghEscribeJSON('data/marca.json', { ...m.valor, ...r.marca }, m.sha, 'Restaura datos de la liga'); }
+  if (Array.isArray(r.galeria)) { await guarda('data/galeria.json', r.galeria, 'Restaura galería', []); FOTOS = r.galeria; }
+  if (Array.isArray(r.temporadas)) { await guarda('data/temporadas.json', r.temporadas, 'Restaura historial', []); TEMPORADAS = r.temporadas; }
+  EQUIPOS = r.equipos; LIGUILLA_EQUIPOS = r.liguillas || {}; PARTIDOS = normalizaPartidos(r.partidos);
+  if (r.marca) { MARCA_NOMBRE = r.marca.nombre || MARCA_NOMBRE; MARCA_SUBTITULO = r.marca.subtitulo ?? MARCA_SUBTITULO; MARCA_TEMPORADA = r.marca.temporada ?? MARCA_TEMPORADA; }
+  repintaTodo();
+  avisaFlotante('Datos restaurados.');
+}
+
+$('#input-respaldo').addEventListener('change', e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  accionAdmin(async () => {
+    const r = JSON.parse(await file.text());
+    if (!confirm('Esto reemplaza los equipos, partidos y datos actuales con los del archivo. ¿Continuar?')) return;
+    await aplicaRespaldo(r);
+  });
+});
+
+async function cargaCambios() {
+  const c = $('#cambios-lista');
+  c.innerHTML = '<p class="text-[13px] text-muted">Cargando…</p>';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits?per_page=30&sha=${GITHUB_BRANCH}`,
+      { headers: { Authorization: `Bearer ${token()}`, Accept: 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error(await ghErrorMsg(r));
+    c.innerHTML = (await r.json()).map(x => `
+      <div class="flex gap-3 rounded-xl bg-white px-4 py-2.5 text-[13px] shadow-card ring-1 ring-hair/70">
+        <span class="w-[120px] shrink-0 text-muted">${new Date(x.commit.author.date).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+        <span class="min-w-0 flex-1">${esc(x.commit.message.split('\n')[0])}</span>
+        <span class="shrink-0 text-muted">${esc((x.author && x.author.login) || x.commit.author.name)}</span>
+      </div>`).join('');
+  } catch (e) { c.innerHTML = `<p class="text-[13px] text-[#B3322E]">No se pudo cargar: ${esc(e.message)}</p>`; }
+}
+
+function pintaHistorial() {
+  const lista = $('#historial-lista');
+  if (!lista) return;
+  const ts = [...TEMPORADAS].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+  lista.innerHTML = ts.length ? ts.map(t => `
+    <article class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+      <div class="flex items-center justify-between gap-2 bg-court px-4 py-3 text-white">
+        <h3 class="font-score text-[21px] tracking-wide">${esc(t.nombre)}</h3>
+        <span class="text-[12px] text-white/60">${t.equipos || 0} equipos · ${t.partidos || 0} partidos</span>
+      </div>
+      ${(t.campeones || []).map(c => `
+        <div class="flex items-center gap-3 border-t border-hair px-4 py-3">
+          <span class="text-sun">${icono('liguilla', 'h-7 w-7')}</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-[12px] text-muted">${esc(c.liga)}</p>
+            <p class="truncate font-score text-[19px] text-court">${c.campeon ? esc(c.campeon) : 'Sin final jugada'}</p>
+            ${c.campeon ? `<p class="text-[12.5px] text-muted">Final: ${esc(c.campeon)} ${esc(c.marcador)} ${esc(c.finalista)}</p>` : ''}
+          </div>
+          ${c.campeon ? escudo(c.campeon, 38) : ''}
+        </div>`).join('')}
+    </article>`).join('') : vacio('Aquí aparecerá el salón de campeones cuando se archive la primera temporada.');
+
+  const ad = $('#historial-admin');
+  if (!esAdmin()) { ad.innerHTML = ''; return; }
+  const btn = (id, txt, cls) => `<button id="${id}" class="rounded-xl px-4 py-2.5 font-score text-[16px] tracking-wide shadow-card ${cls}">${txt}</button>`;
+  const claro = 'bg-white text-court ring-1 ring-hair hover:bg-mist';
+  ad.innerHTML = `
+    <h3 class="font-score text-[22px] tracking-wide">Administración de temporadas</h3>
+    <p class="mt-1 max-w-[64ch] text-[13.5px] leading-relaxed text-muted">Archivar guarda una copia completa de la temporada y anota a sus campeones. Empezar nueva temporada archiva la actual y borra sus partidos; los equipos, logos y fotos se conservan.</p>
+    <div class="mt-3 flex flex-wrap gap-2">
+      ${btn('btn-archivar', 'Archivar temporada actual', 'bg-court text-white hover:bg-deep')}
+      ${btn('btn-nueva-temp', 'Empezar nueva temporada', 'bg-sun text-court')}
+      ${btn('btn-respaldo', 'Descargar respaldo', claro)}
+      ${btn('btn-restaurar-archivo', 'Restaurar desde archivo', claro)}
+    </div>
+    ${ts.length ? `<div class="mt-4 space-y-2">${ts.map(t => `
+      <div class="flex items-center gap-3 rounded-xl bg-white px-4 py-2.5 shadow-card ring-1 ring-hair/70">
+        <span class="min-w-0 flex-1 truncate text-[14px] font-medium">${esc(t.nombre)}</span>
+        <button data-restaurar-temp="${esc(t.id)}" class="rounded-lg bg-mist px-3 py-1.5 text-[12.5px] font-medium ring-1 ring-hair hover:bg-sky">Restaurar copia</button>
+      </div>`).join('')}</div>` : ''}
+    <h3 class="mt-8 font-score text-[22px] tracking-wide">Registro de cambios</h3>
+    <p class="mt-1 text-[13.5px] text-muted">Quién cambió qué y cuándo, tomado del historial de GitHub.</p>
+    <button id="btn-cambios" class="mt-3 rounded-xl px-4 py-2.5 font-score text-[16px] tracking-wide shadow-card ${claro}">Ver últimos cambios</button>
+    <div id="cambios-lista" class="mt-3 space-y-1.5"></div>`;
+
+  $('#btn-archivar').addEventListener('click', () => accionAdmin(async () => {
+    const n = prompt('Nombre de la temporada a archivar:', MARCA_TEMPORADA);
+    if (!n || !n.trim()) return;
+    await archivaTemporada(n.trim());
+    repintaTodo();
+    avisaFlotante('Temporada archivada.');
+  }));
+  $('#btn-nueva-temp').addEventListener('click', () => accionAdmin(nuevaTemporada));
+  $('#btn-respaldo').addEventListener('click', descargaRespaldo);
+  $('#btn-restaurar-archivo').addEventListener('click', () => $('#input-respaldo').click());
+  $('#btn-cambios').addEventListener('click', cargaCambios);
+  $$('[data-restaurar-temp]', ad).forEach(b => b.addEventListener('click', () => accionAdmin(async () => {
+    if (!confirm('Esto reemplaza los equipos y partidos actuales con los de esa copia. ¿Continuar?')) return;
+    const x = await ghLeeJSON(`data/temporadas/${b.dataset.restaurarTemp}.json`, null);
+    if (!x.valor) throw new Error('No se encontró la copia de esa temporada.');
+    await aplicaRespaldo(x.valor);
+  })));
+}
+
+/* ==========================================================================
    8. DOCUMENTOS
    ========================================================================== */
 /* La descarga (carpeta de Drive) y la subida (Google Forms) están embebidas
@@ -3241,7 +3423,8 @@ function repintaTodo() {
     ['tamaño de la liguilla', pintaTamanoLiguilla],
     ['liguilla', pintaBracket],
     ['galería', pintaGaleria],
-    ['cruces', pintaCruces]
+    ['cruces', pintaCruces],
+    ['historial', pintaHistorial]
   ];
   const fallos = [];
   pasos.forEach(([nombre, dibuja]) => {
@@ -3297,14 +3480,14 @@ const parseaSeguro = t => { try { return t ? JSON.parse(t) : null; } catch (e) {
    última vez, para no redibujar la página en balde. */
 let HUELLA_DATOS = '';
 async function cargaDatos() {
-  const nombres = ['liguillas', 'equipos', 'partidos', 'logos', 'galeria', 'marca'];
+  const nombres = ['liguillas', 'equipos', 'partidos', 'logos', 'galeria', 'marca', 'temporadas'];
   const textos = await Promise.all(nombres.map(leeTextoPublicado));
 
   const huella = textos.map(t => t || '').join('\u0001');
   if (huella === HUELLA_DATOS) return false;
   HUELLA_DATOS = huella;
 
-  const [cfg, mapaEquipos, listaPartidos, mapaLogos, fotos, datosMarca] = textos.map(parseaSeguro);
+  const [cfg, mapaEquipos, listaPartidos, mapaLogos, fotos, datosMarca, temps] = textos.map(parseaSeguro);
 
   if (cfg && typeof cfg === 'object') {
     Object.entries(cfg).forEach(([id, n]) => { if (TAMANOS_LIGUILLA.includes(+n)) LIGUILLA_EQUIPOS[id] = +n; });
@@ -3316,6 +3499,7 @@ async function cargaDatos() {
     Object.entries(mapaLogos).forEach(([nombre, url]) => { if (EQUIPOS[nombre]) EQUIPOS[nombre].logo = url; });
   }
   if (Array.isArray(fotos)) FOTOS = fotos;
+  if (Array.isArray(temps)) TEMPORADAS = temps;
   if (datosMarca && typeof datosMarca === 'object') {
     if (datosMarca.logo) MARCA_LOGO = datosMarca.logo;
     if (datosMarca.nombre) MARCA_NOMBRE = datosMarca.nombre;
