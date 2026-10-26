@@ -265,6 +265,7 @@ tailwind.config = {
   <!-- ---------- ROL DE JUEGOS ---------- -->
   <section id="panel-rol" class="panel" role="tabpanel" aria-labelledby="tab-d-rol" tabindex="-1" hidden>
     <div id="proximo" class="stagger grid gap-4"></div>
+    <div id="hoy" class="mt-5"></div>
 
     <div class="sticky top-[72px] z-20 -mx-4 mt-5 bg-mist/90 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -1324,6 +1325,112 @@ function coincideCategoria(categoriaEquipo, filtro) {
   return filtro === 'Todas' || categoriaEquipo === filtro || categoriaEquipo === 'Ambas';
 }
 
+/* ==========================================================================
+   Canchas con mapa, vista "Hoy", calendario y alertas de choque
+   ========================================================================== */
+const CIUDAD_MAPAS = 'Campeche';
+/* Para que una cancha abra su ubicación EXACTA, agrega una línea con parte de su
+   nombre y el enlace que da Google Maps (Compartir → Copiar enlace). Ejemplo:
+     'Auditorio': 'https://maps.app.goo.gl/XXXXXXXX',
+   Si una cancha no está aquí, se busca su nombre + la ciudad en Google Maps. */
+const CANCHAS = {
+};
+function urlMapa(sede) {
+  const k = Object.keys(CANCHAS).find(c => normaliza(sede).includes(normaliza(c)));
+  return k ? CANCHAS[k] : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(sede + ' ' + CIUDAD_MAPAS);
+}
+function sedeLink(sede, extra = '') {
+  if (!sede) return `<span class="inline-flex items-center gap-1 text-muted ${extra}">${icono('ubicacion', 'h-3 w-3 shrink-0')}Cancha por definir</span>`;
+  return `<a href="${urlMapa(sede)}" target="_blank" rel="noopener" title="Ver en Google Maps"
+            class="inline-flex items-center gap-1 text-blue underline-offset-2 hover:underline ${extra}">${icono('ubicacion', 'h-3 w-3 shrink-0')}${esc(sede)}</a>`;
+}
+
+/* Un partido dura unos 90 minutos; dos partidos que empiezan con menos de eso
+   de diferencia en la misma cancha, o con el mismo equipo, se pisan. */
+function detectaChoques(n, id) {
+  if (!n.fecha) return [];
+  const t = fecha(n.fecha).getTime(), msgs = [];
+  PARTIDOS.forEach(o => {
+    if (o.id === id || !o.fecha || !llaveActiva(o)) return;
+    if (Math.abs(fecha(o.fecha).getTime() - t) >= 90 * 60000) return;
+    const quien = `${o.local || 'Por definir'} vs ${o.visita || 'Por definir'}`;
+    if (n.sede && o.sede && n.sede.trim().toLowerCase() === o.sede.trim().toLowerCase()) msgs.push(`Misma cancha (${o.sede}) a las ${hora(o.fecha)}: ${quien}.`);
+    [n.local, n.visita].filter(Boolean).forEach(eq => { if (o.local === eq || o.visita === eq) msgs.push(`${eq} ya juega a las ${hora(o.fecha)}: ${quien}.`); });
+  });
+  return [...new Set(msgs)];
+}
+
+function tickCuenta() {
+  const el = $('#cuenta');
+  if (!el) return;
+  const ms = +el.dataset.t - Date.now();
+  if (ms <= 0) { el.textContent = '¡Ya empezó!'; return; }
+  const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4), sg = Math.floor(ms % 6e4 / 1e3);
+  const p2 = n => String(n).padStart(2, '0');
+  el.textContent = d ? `${d} d ${p2(h)} h ${p2(m)} min` : `${p2(h)}:${p2(m)}:${p2(sg)}`;
+}
+
+function pintaHoy() {
+  const c = $('#hoy');
+  if (!c) return;
+  const ahora = new Date();
+  const dia = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+  const lista = filtraRama([...porJugar(), ...resultadosDe('Femenil'), ...resultadosDe('Varonil')])
+    .filter(p => p.fecha && claveDia(p.fecha) === dia).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const sig = filtraRama(porJugar()).filter(p => p.fecha && fecha(p.fecha) > ahora).sort((a, b) => fecha(a.fecha) - fecha(b.fecha))[0];
+  if (!lista.length && !sig) { c.innerHTML = ''; return; }
+
+  const estadoDe = p => {
+    if (jugado(p)) { const [a, b] = setsGanados(p); return [`Final ${a}-${b}`, 'bg-sky text-blue']; }
+    const t = fecha(p.fecha);
+    if (ahora >= t && ahora < new Date(t.getTime() + 90 * 60000)) return ['En juego', 'bg-[#E6F4EC] text-[#1F7A4C]'];
+    if (ahora >= t) return ['Resultado pendiente', 'bg-mist text-muted'];
+    return ['Próximo', 'bg-sun/30 text-[#8A6100]'];
+  };
+  const fila = p => { const [txt, cls] = estadoDe(p); return `
+    <div class="flex items-center gap-3 border-t border-hair px-4 py-3">
+      <span class="num w-[62px] shrink-0 font-score text-[21px] leading-none text-court">${soloHora(p.fecha)}<small class="ml-0.5 text-[11px] text-muted">${meridiano(p.fecha)}</small></span>
+      <div class="min-w-0 flex-1">
+        <p class="truncate font-score text-[18px] leading-tight text-court">${esc(p.local)} <span class="text-muted">vs</span> ${esc(p.visita)}</p>
+        <p class="mt-0.5 text-[12.5px] text-muted">${p.cat} · ${sedeLink(p.sede)}</p>
+      </div>
+      <span class="shrink-0 rounded-full px-2.5 py-1 text-[12px] font-medium ${cls}">${txt}</span>
+    </div>`; };
+
+  c.innerHTML = `
+  <section class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+    <div class="flex flex-wrap items-center justify-between gap-2 bg-court px-4 py-3 text-white">
+      <div><p class="text-[12px] text-sun">Hoy</p><h3 class="font-score text-[21px] capitalize tracking-wide">${tituloDia(dia)}</h3></div>
+      ${sig ? `<div class="text-right"><p class="text-[11.5px] text-white/60">Siguiente partido en</p><p id="cuenta" data-t="${fecha(sig.fecha).getTime()}" class="num font-score text-[21px] text-sun"></p></div>` : ''}
+    </div>
+    ${lista.length ? lista.map(fila).join('')
+      : `<p class="px-4 py-5 text-[14px] text-muted">Hoy no hay partidos${sig ? `. El siguiente es ${esc(sig.local)} vs ${esc(sig.visita)}, ${tituloDia(sig.fecha)} a las ${hora(sig.fecha)}.` : '.'}</p>`}
+  </section>`;
+  tickCuenta();
+}
+setInterval(tickCuenta, 1000);
+setInterval(() => { if (document.visibilityState === 'visible') pintaHoy(); }, 60000);
+
+/* Agregar un partido al calendario del celular (archivo .ics) */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-calendario]');
+  if (!b) return;
+  const p = PARTIDOS.find(x => x.id === b.dataset.calendario);
+  if (!p || !p.fecha) return;
+  const t = fecha(p.fecha), fin = new Date(t.getTime() + 90 * 60000), p2 = n => String(n).padStart(2, '0');
+  const f = d => `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}T${p2(d.getHours())}${p2(d.getMinutes())}00`;
+  const x = v => String(v || '').replace(/\\/g, '\\\\').replace(/[;,]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//LEVOLEMSS//ES', 'BEGIN:VEVENT', `UID:${p.id}@levolemss`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART:${f(t)}`, `DTEND:${f(fin)}`,
+    `SUMMARY:${x('🏐 ' + p.local + ' vs ' + p.visita)}`, `LOCATION:${x(p.sede)}`,
+    `DESCRIPTION:${x(MARCA_NOMBRE + ' · ' + p.cat + ' · ' + etiquetaFase(p) + '\n' + URL_PAGINA)}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
+  a.download = 'partido-' + slug(p.local + '-' + p.visita) + '.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+});
+
 /* ---------- Mi equipo (se guarda solo en el celular de cada persona) ---------- */
 const miEquipo = () => { try { return localStorage.getItem('lv_mi_equipo') || ''; } catch (e) { return ''; } };
 function guardaMiEquipo(n) { try { n ? localStorage.setItem('lv_mi_equipo', n) : localStorage.removeItem('lv_mi_equipo'); } catch (e) {} }
@@ -1492,7 +1599,7 @@ function tarjetaProximo(p, simultaneo) {
         <div><dt class="text-white/55">Fecha</dt><dd class="mt-0.5 font-medium">${tituloDia(p.fecha)}</dd></div>
         <div><dt class="text-white/55">Categoría</dt><dd class="mt-0.5 font-medium">${p.cat}</dd></div>
         <div><dt class="text-white/55">Fase</dt><dd class="mt-0.5 font-medium">${etiquetaFase(p)}</dd></div>
-        <div><dt class="text-white/55">Cancha</dt><dd class="mt-0.5 font-medium">${esc(p.sede || '—')}</dd></div>
+        <div><dt class="text-white/55">Cancha</dt><dd class="mt-0.5 font-medium">${p.sede ? `<a href="${urlMapa(p.sede)}" target="_blank" rel="noopener" class="underline decoration-white/40 underline-offset-2 hover:decoration-sun">${esc(p.sede)}</a>` : '—'}</dd></div>
       </dl>
     </div>
   </article>`;
@@ -1551,7 +1658,8 @@ function tarjetaPartido(p) {
       <div class="mt-3 flex flex-wrap items-center gap-1.5 border-t border-dashed border-hair pt-2.5 text-[12px]">
         <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${chipCat}">${icono(fem ? 'femenil' : 'varonil', 'h-3 w-3')}${p.cat}</span>
         <span class="rounded-full bg-mist px-2.5 py-1 text-muted">${etiquetaFase(p)}</span>
-        <span class="inline-flex items-center gap-1 text-muted sm:ml-auto">${icono('ubicacion', 'h-3 w-3 shrink-0')}${esc(p.sede || 'Cancha por definir')}</span>
+        ${sedeLink(p.sede, 'sm:ml-auto')}
+        ${p.fecha ? `<button data-calendario="${p.id}" class="rounded-full bg-mist px-2.5 py-1 font-medium text-court ring-1 ring-hair hover:bg-sky">Agregar al calendario</button>` : ''}
         <button data-compartir="${p.id}" class="rounded-full bg-mist px-2.5 py-1 font-medium text-court ring-1 ring-hair hover:bg-sky">Compartir</button>
       </div>
     </div>
@@ -3048,6 +3156,8 @@ $('#partido-modal-guardar').addEventListener('click', async () => {
 
   const aviso = validaSets(sets);
   if (aviso && !confirm('⚠ ' + aviso + '\n\n¿Guardar de todos modos?')) return;
+  const choques = sets.length ? [] : detectaChoques({ fecha, sede, local, visita }, idActual);
+  if (choques.length && !confirm('⚠ Posible choque de horario:\n\n• ' + choques.join('\n• ') + '\n\n¿Guardar de todos modos?')) return;
 
   if (idActual) {
     /* En liguilla, la categoría, el grupo, la llave, avanzaA y ranura NO se
@@ -3123,6 +3233,7 @@ function repintaTodo() {
     ['pestañas', refrescaTabs],
     ['equipos', pintaEquipos],
     ['próximo partido', pintaProximo],
+    ['hoy', pintaHoy],
     ['mi equipo', pintaMiEquipo],
     ['rol de juegos', pintaRol],
     ['rama femenil', () => montaRama('Femenil')],
@@ -3151,6 +3262,7 @@ grupoBotones($('#filtro-equipos'), ['Todas', 'Femenil', 'Varonil'], estado.filtr
 $('#filtro-rol-select').addEventListener('change', e => {
   estado.ramaRol = e.target.value;
   pintaProximo();
+  pintaHoy();
   pintaRol();
 });
 
