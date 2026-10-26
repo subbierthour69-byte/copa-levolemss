@@ -276,6 +276,10 @@ tailwind.config = {
             <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3" transform="rotate(180 12 12)"/></svg>
             PDF
           </button>
+          <button id="btn-captura-rapida" data-solo-admin
+                  class="hidden shrink-0 items-center gap-1.5 rounded-lg bg-sun px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card hover:brightness-95">
+            Captura rápida
+          </button>
           <button id="btn-agregar-partido" data-solo-admin
                   class="hidden shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
             <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -316,6 +320,18 @@ tailwind.config = {
     <div id="bracket" class="mt-6"></div>
   </section>
 
+  <!-- ---------- ESTADÍSTICAS ---------- -->
+  <section id="panel-estadisticas" class="panel" role="tabpanel" aria-labelledby="tab-d-estadisticas" tabindex="-1" hidden>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Estadísticas</h2>
+        <p class="mt-1 text-[14px] text-muted">Calculadas con todos los resultados capturados, incluida la liguilla.</p>
+      </div>
+      <div id="filtro-estadisticas" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+    </div>
+    <div id="estadisticas-cont" class="mt-5"></div>
+  </section>
+
   <!-- ---------- HISTORIAL ---------- -->
   <section id="panel-historial" class="panel" role="tabpanel" aria-labelledby="tab-d-historial" tabindex="-1" hidden>
     <h2 class="font-score text-2xl tracking-wide">Historial y campeones</h2>
@@ -333,6 +349,7 @@ tailwind.config = {
       </div>
       <div id="filtro-cruces" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
     </div>
+    <div class="mt-4"><button id="btn-generar-cal" class="inline-flex items-center gap-2 rounded-xl bg-sun px-4 py-2.5 font-score text-[16px] tracking-wide text-court shadow-card hover:brightness-95">Generar calendario de los cruces pendientes</button></div>
     <div id="cruces-cont" class="mt-5 space-y-10"></div>
   </section>
 
@@ -683,6 +700,39 @@ tailwind.config = {
       <button id="partido-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
         Guardar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Captura rápida de resultados (solo administrador) -->
+<div id="captura" class="fixed inset-0 z-50 hidden flex-col bg-mist" role="dialog" aria-modal="true" aria-label="Captura rápida">
+  <div class="flex items-center justify-between bg-court px-4 py-3 text-white">
+    <h3 class="font-score text-[20px] tracking-wide">Captura rápida</h3>
+    <button id="captura-cerrar" class="rounded-lg bg-white/10 px-3 py-1.5 text-[13px] hover:bg-white/20">Cerrar</button>
+  </div>
+  <div id="captura-cuerpo" class="mx-auto w-full max-w-md flex-1 overflow-y-auto p-4"></div>
+</div>
+
+<!-- Modal: generador de calendario -->
+<div id="cal-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-court/70 p-4 py-8" role="dialog" aria-modal="true" aria-label="Generar calendario">
+  <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-lift">
+    <h3 class="font-score text-[20px] tracking-wide text-court">Generar calendario</h3>
+    <p class="mt-1 text-[13px] leading-relaxed text-muted">Acomoda los cruces que faltan (de la rama que tengas elegida en Cruces) sin que un equipo juegue dos veces a la vez ni se repita cancha y hora. Primero ves la propuesta y luego decides si guardarla.</p>
+    <div class="mt-3 grid grid-cols-2 gap-3">
+      <label class="block"><span class="mb-1 block text-[13px] font-medium text-court">Fecha inicial</span><input id="cal-fecha" type="date" class="w-full rounded-lg border border-hair px-3 py-2.5 text-[14px]"></label>
+      <label class="block"><span class="mb-1 block text-[13px] font-medium text-court">Duración (min)</span><input id="cal-dur" type="number" min="30" max="180" value="90" class="w-full rounded-lg border border-hair px-3 py-2.5 text-[14px]"></label>
+      <label class="block"><span class="mb-1 block text-[13px] font-medium text-court">Primer partido</span><input id="cal-hora" type="time" value="08:00" class="w-full rounded-lg border border-hair px-3 py-2.5 text-[14px]"></label>
+      <label class="block"><span class="mb-1 block text-[13px] font-medium text-court">Terminar antes de</span><input id="cal-fin" type="time" value="20:00" class="w-full rounded-lg border border-hair px-3 py-2.5 text-[14px]"></label>
+    </div>
+    <label class="mt-3 block"><span class="mb-1 block text-[13px] font-medium text-court">Canchas (separadas por coma)</span>
+      <input id="cal-canchas" type="text" placeholder="Ej. Auditorio — Cancha 1, Domo Deportivo" class="w-full rounded-lg border border-hair px-3 py-2.5 text-[14px]"></label>
+    <div class="mt-3"><span class="mb-1 block text-[13px] font-medium text-court">Días de juego</span><div id="cal-dias" class="flex flex-wrap gap-2"></div></div>
+    <div id="cal-prev" class="mt-3 hidden max-h-56 overflow-y-auto rounded-lg bg-mist p-3 text-[12.5px] leading-relaxed"></div>
+    <div id="cal-aviso" class="mt-3 hidden text-[13px]"></div>
+    <div class="mt-4 flex gap-2">
+      <button id="cal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">Cancelar</button>
+      <button id="cal-previsualizar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">Ver propuesta</button>
+      <button id="cal-guardar" class="hidden flex-1 rounded-xl bg-sun px-4 py-2.5 font-score text-[15px] tracking-wide text-court shadow-card">Guardar</button>
     </div>
   </div>
 </div>
@@ -1068,7 +1118,8 @@ const ICONOS = {
   cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>',
   buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
   cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>',
-  historial:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+  historial:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  estadisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -1174,6 +1225,7 @@ const TABS = [
   { id:'femenil',    icono:'femenil',    texto:'Femenil',       corto:'Femenil' },
   { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
   { id:'liguilla',   icono:'liguilla',   texto:'Liguilla',      corto:'Liguilla' },
+  { id:'estadisticas', icono:'estadisticas', texto:'Estadísticas', corto:'Stats' },
   { id:'historial',  icono:'historial',  texto:'Historial',     corto:'Historial' },
   { id:'documentos', icono:'documentos', texto:'Documentos',    corto:'Docs' },
   { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' },
@@ -2579,6 +2631,211 @@ function pintaHistorial() {
 }
 
 /* ==========================================================================
+   Generador de calendario, captura rápida y estadísticas
+   ========================================================================== */
+const dos = n => String(n).padStart(2, '0');
+let CAL_PLAN = [];
+
+function paresFaltantes() {
+  const ramas = estado.cruRama === 'Todas' ? ['Femenil', 'Varonil'] : [estado.cruRama], out = [];
+  ramas.forEach(r => gruposDeRama(r).forEach(g => {
+    const c = crucesDeGrupo(r, g);
+    c.equipos.forEach((a, i) => c.equipos.slice(i + 1).forEach(b => {
+      if (c.estadoPar(a, b) === 'falta') out.push({ cat: r, grupo: g.etiqueta === 'Sin grupo' ? '' : g.etiqueta, a, b });
+    }));
+  }));
+  return out;
+}
+
+function generaPlan() {
+  const v = id => $('#' + id).value;
+  const f0 = v('cal-fecha'), dur = +v('cal-dur') || 90;
+  const [h0, m0] = (v('cal-hora') || '08:00').split(':').map(Number), [h1, m1] = (v('cal-fin') || '20:00').split(':').map(Number);
+  const canchas = v('cal-canchas').split(',').map(x => x.trim()).filter(Boolean);
+  const dias = $$('#cal-dias input:checked').map(x => +x.value);
+  if (!f0 || !canchas.length || !dias.length) throw new Error('Pon la fecha inicial, al menos una cancha y un día de juego.');
+  let restante = paresFaltantes();
+  if (!restante.length) throw new Error('No hay cruces pendientes en la rama elegida.');
+  const total = restante.length, plan = [], loc = {};
+  const choca = (iso, eqs, sede) => [...PARTIDOS, ...plan].some(o => o.fecha && Math.abs(fecha(o.fecha) - fecha(iso)) < dur * 60000 &&
+    ((sede && o.sede && o.sede.trim().toLowerCase() === sede.toLowerCase()) || eqs.some(e => o.local === e || o.visita === e)));
+  const d0 = new Date(f0 + 'T00:00');
+  for (let k = 0; k < 120 && restante.length; k++) {
+    const d = new Date(d0); d.setDate(d0.getDate() + k);
+    if (!dias.includes(d.getDay())) continue;
+    for (let min = h0 * 60 + m0; min + dur <= h1 * 60 + m1 && restante.length; min += dur) {
+      const iso = `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}T${dos(Math.floor(min / 60))}:${dos(min % 60)}`;
+      const prev = `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}T${dos(Math.floor((min - dur) / 60))}:${dos((min - dur) % 60)}`;
+      for (const sede of canchas) {
+        if (!restante.length) break;
+        const libre = (x, descansa) => !choca(iso, [x.a, x.b], sede) && (!descansa || !choca(prev, [x.a, x.b], ''));
+        let i = restante.findIndex(x => libre(x, true));
+        if (i < 0) i = restante.findIndex(x => libre(x, false));
+        if (i < 0) continue;
+        const x = restante.splice(i, 1)[0];
+        const aLocal = (loc[x.a] || 0) <= (loc[x.b] || 0);
+        const local = aLocal ? x.a : x.b, visita = aLocal ? x.b : x.a;
+        loc[local] = (loc[local] || 0) + 1;
+        plan.push({ id: 'p' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat: x.cat, grupo: x.grupo, fecha: iso, sede, local, visita });
+      }
+    }
+  }
+  return { plan, sobran: restante.length, total };
+}
+
+function abreGeneradorCal() {
+  $('#cal-dias').innerHTML = [['L', 1], ['M', 2], ['X', 3], ['J', 4], ['V', 5], ['S', 6], ['D', 0]].map(([t, n]) => `
+    <label class="cursor-pointer"><input type="checkbox" value="${n}" class="peer sr-only" ${n === 6 || n === 0 ? 'checked' : ''}>
+      <span class="grid h-9 w-9 place-items-center rounded-lg bg-mist font-score text-[16px] text-muted ring-1 ring-hair peer-checked:bg-court peer-checked:text-white">${t}</span></label>`).join('');
+  if (!$('#cal-fecha').value) $('#cal-fecha').value = new Date().toISOString().slice(0, 10);
+  CAL_PLAN = [];
+  $('#cal-prev').classList.add('hidden'); $('#cal-aviso').classList.add('hidden'); $('#cal-guardar').classList.add('hidden');
+  $('#cal-modal').classList.replace('hidden', 'flex');
+}
+$('#btn-generar-cal').addEventListener('click', abreGeneradorCal);
+$('#cal-cancelar').addEventListener('click', () => $('#cal-modal').classList.replace('flex', 'hidden'));
+$('#cal-previsualizar').addEventListener('click', () => {
+  try {
+    const { plan, sobran, total } = generaPlan();
+    CAL_PLAN = plan;
+    $('#cal-prev').classList.remove('hidden');
+    $('#cal-prev').innerHTML = plan.length ? plan.map(p => `<div class="py-0.5"><b>${tituloDia(p.fecha)} ${hora(p.fecha)}</b> · ${esc(p.sede)}<br><span class="text-muted">${p.cat}${p.grupo ? ' ' + esc(p.grupo) : ''}:</span> ${esc(p.local)} vs ${esc(p.visita)}</div>`).join('') : 'No cupo ningún partido con esas horas y canchas.';
+    avisaEn('#cal-aviso', !sobran && plan.length > 0, sobran ? `Se acomodaron ${plan.length} de ${total}. Faltan ${sobran}: agrega más días, canchas u horas.` : `Se acomodaron los ${total} cruces pendientes.`);
+    $('#cal-guardar').classList.toggle('hidden', !plan.length);
+  } catch (e) { avisaEn('#cal-aviso', false, e.message); }
+});
+$('#cal-guardar').addEventListener('click', async () => {
+  if (!CAL_PLAN.length) return;
+  const antes = PARTIDOS.length;
+  PARTIDOS.push(...CAL_PLAN);
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, `Genera calendario: ${CAL_PLAN.length} partidos`);
+    $('#cal-modal').classList.replace('flex', 'hidden');
+    avisaFlotante(`Se agregaron ${CAL_PLAN.length} partidos al rol.`);
+    CAL_PLAN = [];
+    repintaTodo();
+  } catch (e) { PARTIDOS.length = antes; avisaEn('#cal-aviso', false, 'No se pudo guardar: ' + e.message); }
+});
+
+/* ---------- Captura rápida ---------- */
+const CAP = { cola: [], i: 0 };
+function colaCaptura() {
+  const out = PARTIDOS.filter(p => p.fase === 'grupos' && !jugado(p) && p.local && p.visita);
+  LIGUILLAS.forEach(l => Object.values(bracketResuelto(l.id)).forEach(p => { if (p.fase !== 'grupos' && !jugado(p) && p.local && p.visita) out.push(p); }));
+  return out.sort((a, b) => (a.fecha || '9').localeCompare(b.fecha || '9'));
+}
+function abreCaptura() {
+  CAP.cola = colaCaptura(); CAP.i = 0;
+  $('#captura').classList.replace('hidden', 'flex');
+  document.body.style.overflow = 'hidden';
+  pintaCaptura();
+}
+function cierraCaptura() { $('#captura').classList.replace('flex', 'hidden'); document.body.style.overflow = ''; }
+const filaCap = n => `<div data-cap-fila class="flex items-center justify-center gap-3"><span class="w-12 text-right text-[13px] text-muted">Set ${n}</span>
+  <input type="number" inputmode="numeric" min="0" max="99" data-l class="h-14 w-20 rounded-xl border border-hair bg-white text-center font-score text-[26px] focus:outline-none focus:ring-2 focus:ring-blue">
+  <span class="text-muted">–</span>
+  <input type="number" inputmode="numeric" min="0" max="99" data-v class="h-14 w-20 rounded-xl border border-hair bg-white text-center font-score text-[26px] focus:outline-none focus:ring-2 focus:ring-blue"></div>`;
+function pintaCaptura() {
+  const c = $('#captura-cuerpo'), p = CAP.cola[CAP.i];
+  if (!p) { c.innerHTML = vacio('No quedan partidos por capturar. ¡Listo!'); return; }
+  const lado = (n, logo) => `<div class="min-w-0">${escudo(n, 56, logo)}<p class="mt-2 font-score text-[22px] leading-tight text-court">${esc(n)}</p></div>`;
+  c.innerHTML = `
+    <p class="text-[13px] text-muted">Partido ${CAP.i + 1} de ${CAP.cola.length} · ${p.cat} · ${esc(etiquetaFase(p))}</p>
+    <p class="mt-0.5 text-[12.5px] text-muted">${p.fecha ? tituloDia(p.fecha) + ' · ' + hora(p.fecha) : 'Sin fecha'}${p.sede ? ' · ' + esc(p.sede) : ''}</p>
+    <div class="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center">${lado(p.local, p.logoLocal)}<span class="font-score text-[20px] text-sun">VS</span>${lado(p.visita, p.logoVisita)}</div>
+    <div id="cap-sets" class="mt-5 space-y-2">${[1, 2, 3].map(filaCap).join('')}</div>
+    <button id="cap-mas" class="mt-3 w-full text-center text-[13px] font-medium text-blue hover:underline">+ Agregar set</button>
+    <div id="cap-aviso" class="mt-3 hidden text-[13px]"></div>
+    <div class="mt-5 grid grid-cols-3 gap-2">
+      <button id="cap-ant" class="rounded-xl bg-white px-3 py-3 font-score text-[16px] text-muted ring-1 ring-hair">Anterior</button>
+      <button id="cap-saltar" class="rounded-xl bg-white px-3 py-3 font-score text-[16px] text-court ring-1 ring-hair">Saltar</button>
+      <button id="cap-guardar" class="rounded-xl bg-court px-3 py-3 font-score text-[16px] text-white shadow-card">Guardar</button>
+    </div>`;
+  const mueve = d => { CAP.i = Math.max(0, Math.min(CAP.cola.length - 1, CAP.i + d)); pintaCaptura(); };
+  $('#cap-mas').addEventListener('click', () => { const n = $$('[data-cap-fila]', c).length; if (n < 5) $('#cap-sets').insertAdjacentHTML('beforeend', filaCap(n + 1)); });
+  $('#cap-ant').addEventListener('click', () => mueve(-1));
+  $('#cap-saltar').addEventListener('click', () => mueve(1));
+  $('#cap-guardar').addEventListener('click', () => guardaCaptura(p));
+}
+async function guardaCaptura(p) {
+  const sets = [];
+  $$('#cap-sets [data-cap-fila]').forEach(fila => {
+    const l = $('[data-l]', fila).value, v = $('[data-v]', fila).value;
+    if (l !== '' && v !== '') sets.push([parseInt(l, 10), parseInt(v, 10)]);
+  });
+  if (!sets.length) { avisaEn('#cap-aviso', false, 'Captura al menos un set.'); return; }
+  const aviso = validaSets(sets);
+  if (aviso && !confirm('⚠ ' + aviso + '\n\n¿Guardar de todos modos?')) return;
+  const idx = PARTIDOS.findIndex(x => x.id === p.id);
+  if (idx === -1) { avisaEn('#cap-aviso', false, 'Ese partido ya no existe.'); return; }
+  const anterior = PARTIDOS[idx];
+  PARTIDOS[idx] = { ...anterior, sets };
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, `Resultado: ${p.local} vs ${p.visita}`);
+    CAP.cola.splice(CAP.i, 1);
+    if (CAP.i >= CAP.cola.length) CAP.i = Math.max(0, CAP.cola.length - 1);
+    repintaTodo();
+    pintaCaptura();
+    avisaFlotante('Resultado guardado.');
+  } catch (e) { PARTIDOS[idx] = anterior; avisaEn('#cap-aviso', false, 'No se pudo guardar: ' + e.message); }
+}
+$('#btn-captura-rapida').addEventListener('click', abreCaptura);
+$('#captura-cerrar').addEventListener('click', cierraCaptura);
+
+/* ---------- Estadísticas ---------- */
+function pintaEstadisticas() {
+  const cont = $('#estadisticas-cont');
+  if (!cont) return;
+  const f = $('#filtro-estadisticas');
+  if (!f.dataset.listo) {
+    f.dataset.listo = '1';
+    grupoBotones(f, ['Todas', 'Femenil', 'Varonil'], 'Todas', v => { estado.estRama = v; marcaGrupo(f, v); pintaEstadisticas(); });
+  }
+  const rama = estado.estRama || 'Todas';
+  const ps = (rama === 'Todas' ? ['Femenil', 'Varonil'] : [rama]).flatMap(r => resultadosDe(r)).sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+  if (!ps.length) { cont.innerHTML = vacio('Las estadísticas aparecen cuando se capturan los primeros resultados.'); return; }
+
+  const eq = {}, T = n => (eq[n] ||= { n, pj: 0, pg: 0, sets: 0, pf: 0, pc: 0, racha: 0 });
+  let nSets = 0, nPts = 0;
+  const todosSets = [];
+  ps.forEach(p => {
+    const [a, b] = setsGanados(p), L = T(p.local), V = T(p.visita);
+    L.pj++; V.pj++;
+    if (a > b) { L.pg++; L.racha++; V.racha = 0; } else { V.pg++; V.racha++; L.racha = 0; }
+    p.sets.forEach(([x, y], i) => { L.pf += x; L.pc += y; V.pf += y; V.pc += x; L.sets++; V.sets++; nSets++; nPts += x + y; todosSets.push({ p, i, x, y }); });
+  });
+  const eqs = Object.values(eq);
+  const fila = n => ({ escudo: escudo(n, 26), t: esc(n) });
+  const caja = (titulo, filas) => `
+    <section class="rounded-2xl bg-white p-4 shadow-card ring-1 ring-hair/70">
+      <h3 class="font-score text-[19px] tracking-wide text-court">${titulo}</h3>
+      <div class="mt-2 divide-y divide-hair">${filas.length ? filas.map((r, i) => `
+        <div class="flex items-center gap-2.5 py-2">
+          <span class="num w-5 shrink-0 text-center font-score text-[16px] ${i === 0 ? 'text-court' : 'text-muted'}">${i + 1}</span>${r.escudo || ''}
+          <div class="min-w-0 flex-1"><p class="truncate text-[14px] font-medium">${r.t}</p>${r.s ? `<p class="text-[12px] text-muted">${r.s}</p>` : ''}</div>
+          <span class="num shrink-0 font-score text-[19px] text-court">${r.v}</span>
+        </div>`).join('') : '<p class="py-3 text-[13px] text-muted">Sin datos todavía.</p>'}</div>
+    </section>`;
+  const dato = (t, v) => `<div class="rounded-2xl bg-white p-4 text-center shadow-card ring-1 ring-hair/70"><p class="num font-score text-[34px] leading-none text-court">${v}</p><p class="mt-1.5 text-[12.5px] text-muted">${t}</p></div>`;
+  const cerrados = ps.map(p => ({ p, dif: Math.abs(p.sets.reduce((a, s) => a + s[0], 0) - p.sets.reduce((a, s) => a + s[1], 0)) })).sort((a, b) => a.dif - b.dif).slice(0, 5);
+
+  cont.innerHTML = `
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      ${dato('Partidos jugados', ps.length)}${dato('Sets jugados', nSets)}${dato('Puntos anotados', nPts)}${dato('Puntos por set (promedio)', (nPts / nSets).toFixed(1))}
+    </div>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      ${caja('Más victorias', [...eqs].sort((a, b) => b.pg - a.pg || a.pj - b.pj).slice(0, 5).map(e => ({ ...fila(e.n), s: `${e.pj} jugados`, v: e.pg })))}
+      ${caja('Racha ganadora actual', eqs.filter(e => e.racha > 0).sort((a, b) => b.racha - a.racha).slice(0, 5).map(e => ({ ...fila(e.n), s: 'victorias seguidas', v: e.racha })))}
+      ${caja('Mejor ataque', [...eqs].sort((a, b) => b.pf / b.sets - a.pf / a.sets).slice(0, 5).map(e => ({ ...fila(e.n), s: 'puntos anotados por set', v: (e.pf / e.sets).toFixed(1) })))}
+      ${caja('Mejor defensa', [...eqs].sort((a, b) => a.pc / a.sets - b.pc / b.sets).slice(0, 5).map(e => ({ ...fila(e.n), s: 'puntos recibidos por set', v: (e.pc / e.sets).toFixed(1) })))}
+      ${caja('Partidos más cerrados', cerrados.map(({ p, dif }) => { const [a, b] = setsGanados(p); return { t: `${esc(p.local)} ${a}-${b} ${esc(p.visita)}`, s: 'diferencia total de puntos', v: dif }; }))}
+      ${caja('Sets más disputados', todosSets.sort((a, b) => (b.x + b.y) - (a.x + a.y)).slice(0, 5).map(({ p, i, x, y }) => ({ t: `${esc(p.local)} vs ${esc(p.visita)}`, s: `Set ${i + 1}`, v: `${x}-${y}` })))}
+    </div>`;
+}
+
+/* ==========================================================================
    8. DOCUMENTOS
    ========================================================================== */
 /* La descarga (carpeta de Drive) y la subida (Google Forms) están embebidas
@@ -3403,9 +3660,11 @@ $('#partido-modal-eliminar').addEventListener('click', async () => {
    raro), las demás se siguen mostrando y aparece un aviso rojo que dice cuál
    fue, en vez de que todo se quede a medias sin explicación. */
 function pintaBotonesAdmin() {
-  const b = $('#btn-agregar-partido');
-  b.classList.toggle('hidden', !esAdmin());
-  b.classList.toggle('inline-flex', esAdmin());
+  ['#btn-agregar-partido', '#btn-captura-rapida'].forEach(id => {
+    const b = $(id);
+    b.classList.toggle('hidden', !esAdmin());
+    b.classList.toggle('inline-flex', esAdmin());
+  });
 }
 
 function repintaTodo() {
@@ -3424,7 +3683,8 @@ function repintaTodo() {
     ['liguilla', pintaBracket],
     ['galería', pintaGaleria],
     ['cruces', pintaCruces],
-    ['historial', pintaHistorial]
+    ['historial', pintaHistorial],
+    ['estadísticas', pintaEstadisticas]
   ];
   const fallos = [];
   pasos.forEach(([nombre, dibuja]) => {
