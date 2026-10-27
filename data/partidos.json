@@ -1307,5 +1307,15 @@
     "sede": "UAC:CCDU",
     "local": "TIGRILLAS PREPA A",
     "visita": "CECYTE A"
+  },
+  {
+    "id": "poqfo6od",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-26T18:00",
+    "sede": "UAC:CCDU",
+    "local": "TIGRILLA SUPERIOR A",
+    "visita": "TIGRILLAS PREPA A"
   }
 ]
