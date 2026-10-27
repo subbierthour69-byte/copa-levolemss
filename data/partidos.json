@@ -1297,5 +1297,15 @@
     "sede": "UAC:CCDU",
     "local": "TIGRILLA SUPERIOR A",
     "visita": "CBTIS 09"
+  },
+  {
+    "id": "p50h945p",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-29T17:00",
+    "sede": "UAC:CCDU",
+    "local": "TIGRILLAS PREPA A",
+    "visita": "CECYTE A"
   }
 ]
