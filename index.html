@@ -123,6 +123,11 @@ tailwind.config = {
   #splash-bola { position: absolute; left: 50%; top: 50%; width: 42vmin; height: 42vmin; margin: -21vmin 0 0 -21vmin; opacity: 0; transform: scale(.06); filter: drop-shadow(0 0 28px rgba(255,201,60,.55)); }
   #splash-flash { position: absolute; left: 50%; top: 50%; width: 60vmin; height: 60vmin; margin: -30vmin 0 0 -30vmin; border-radius: 50%; opacity: 0; background: radial-gradient(circle, #fff 0%, rgba(255,201,60,.8) 35%, transparent 70%); }
   #splash-grietas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+  #splash-velo { position: absolute; inset: 0; background: rgba(14,38,71,.9); opacity: 0; }
+  #splash-bienvenida { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px; text-align: center; color: #fff; opacity: 0; font-family: 'Barlow Condensed', sans-serif; }
+  #splash-bienvenida p { margin: 0; font-size: clamp(22px, 5vw, 38px); letter-spacing: .32em; text-transform: uppercase; color: #FFC93C; }
+  #splash-bienvenida h1 { margin: 6px 0 0; font-size: clamp(46px, 13vw, 130px); line-height: 1; letter-spacing: 2px; }
+  #splash-bienvenida span { margin-top: 18px; width: 90px; height: 4px; border-radius: 4px; background: #FFC93C; }
   #splash-saltar { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font: 500 12px 'Public Sans', sans-serif; letter-spacing: .12em; color: rgba(255,255,255,.5); }
   #sidebar, #tabs-mobile { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
   body.intro #sidebar { transform: translateX(-105%); }
@@ -161,7 +166,7 @@ tailwind.config = {
   }
 
   @media print {
-    @page { size: A4; margin: 0; }
+    @page { margin: 0; }
     main { padding: 0 !important; max-width: none !important; }
     body { background: #fff !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -180,11 +185,35 @@ tailwind.config = {
   <div id="splash-base" class="net"></div>
   <div id="splash-casco"></div>
   <div id="splash-flash"></div>
-  <svg id="splash-bola" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="9.2" fill="#fff" stroke="#FFC93C" stroke-width="1"/>
-    <path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2" stroke="#1B57B5" stroke-width="1.1"/>
+  <svg id="splash-bola" viewBox="0 0 200 200">
+    <defs>
+      <radialGradient id="gB" cx="35%" cy="30%" r="85%"><stop offset="0" stop-color="#3F7BFF"/><stop offset=".55" stop-color="#1B3FD0"/><stop offset="1" stop-color="#0A1F80"/></radialGradient>
+      <radialGradient id="gY" cx="40%" cy="30%" r="85%"><stop offset="0" stop-color="#FFE066"/><stop offset=".55" stop-color="#F7B900"/><stop offset="1" stop-color="#C98600"/></radialGradient>
+      <radialGradient id="gW" cx="40%" cy="30%" r="90%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".65" stop-color="#E6EAF5"/><stop offset="1" stop-color="#A9B2CF"/></radialGradient>
+      <radialGradient id="gS" cx="32%" cy="26%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gO" cx="50%" cy="50%" r="50%"><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#06124A" stop-opacity=".45"/></radialGradient>
+      <clipPath id="cBola"><circle cx="100" cy="100" r="96"/></clipPath>
+    </defs>
+    <g clip-path="url(#cBola)">
+      <rect width="200" height="200" fill="url(#gW)"/>
+      <path d="M8 74 C18 32 58 6 108 6 C90 40 86 78 100 110 C70 98 40 104 6 122 Z" fill="url(#gB)"/>
+      <path d="M44 24 C64 12 82 8 100 6 C82 38 80 74 93 108 C74 98 56 98 38 106 C32 74 34 44 44 24Z" fill="url(#gW)"/>
+      <path d="M104 54 C152 40 194 82 197 132 C198 162 180 186 150 197 C140 160 120 130 96 114 C108 94 110 74 104 54Z" fill="url(#gY)"/>
+      <path d="M104 54 C132 36 172 46 193 86 C197 100 198 114 197 126 C170 98 130 84 100 86 C98 74 100 64 104 54Z" fill="url(#gB)"/>
+      <path d="M110 8 C142 4 172 20 188 50 C160 36 128 38 106 52 C104 36 104 20 110 8Z" fill="url(#gY)"/>
+      <path d="M4 130 C40 108 82 106 112 120 C142 132 172 152 192 162 C172 192 122 204 90 202 C58 192 28 172 4 130Z" fill="url(#gW)"/>
+      <path d="M28 174 C70 150 122 150 164 180 C142 198 92 204 58 196Z" fill="url(#gY)"/>
+      <circle cx="100" cy="100" r="96" fill="url(#gS)"/>
+      <circle cx="100" cy="100" r="96" fill="url(#gO)"/>
+    </g>
+    <g fill="none" stroke="#0A1F80" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round">
+      <path d="M108 6 C90 40 86 78 100 110 C121 128 140 160 150 197"/><path d="M6 122 C40 104 70 98 100 110"/><path d="M100 110 C140 100 170 110 197 128"/>
+    </g>
+    <circle cx="100" cy="100" r="96" fill="none" stroke="#0A1F80" stroke-opacity=".3" stroke-width="2"/>
   </svg>
   <svg id="splash-grietas" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+  <div id="splash-velo"></div>
+  <div id="splash-bienvenida"><p>¡Bienvenidos a</p><h1 id="splash-titulo">LEVOLEMSS 2026</h1><span></span></div>
   <p id="splash-saltar">TOCA PARA ENTRAR</p>
 </div>
 
@@ -214,7 +243,7 @@ tailwind.config = {
 </header>
 
 <!-- ============ MENÚ LATERAL (escritorio) ============ -->
-<aside id="sidebar" class="fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col overflow-y-auto overscroll-contain border-r border-white/10 bg-deep px-3 py-5 text-white sm:flex">
+<aside id="sidebar" class="fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col border-r border-white/10 bg-deep px-3 py-5 text-white sm:flex">
   <p class="px-3 pb-3 font-score text-[13px] uppercase tracking-[.28em] text-white/45">Menú</p>
   <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga" class="flex flex-col gap-1"></div>
 </aside>
@@ -1119,7 +1148,8 @@ const ICONOS = {
   buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
   cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>',
   historial:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-  estadisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>'
+  estadisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+  basura:       '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1.5 1.5 0 001.5 1.4h7A1.5 1.5 0 0017 19l1-12M9 7V4.5A1.5 1.5 0 0110.5 3h3A1.5 1.5 0 0115 4.5V7"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -1222,14 +1252,14 @@ $('#marca-modal-guardar').addEventListener('click', async () => {
 const TABS = [
   { id:'equipos',    icono:'equipos',    texto:'Equipos',       corto:'Equipos' },
   { id:'rol',        icono:'rol',        texto:'Rol de Juegos', corto:'Rol' },
+  { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true },
   { id:'femenil',    icono:'femenil',    texto:'Femenil',       corto:'Femenil' },
   { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
   { id:'liguilla',   icono:'liguilla',   texto:'Liguilla',      corto:'Liguilla' },
   { id:'estadisticas', icono:'estadisticas', texto:'Estadísticas', corto:'Stats' },
   { id:'historial',  icono:'historial',  texto:'Historial',     corto:'Historial' },
   { id:'documentos', icono:'documentos', texto:'Documentos',    corto:'Docs' },
-  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' },
-  { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true }
+  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' }
 ];
 
 const estado = {
@@ -1644,7 +1674,11 @@ function tarjetaProximo(p, simultaneo) {
 
   return `
   <article class="net overflow-hidden rounded-[22px] bg-deep text-white shadow-lift">
-    <div class="h-full bg-gradient-to-br from-court/85 via-court/60 to-blue/45 p-5 ${simultaneo ? 'sm:p-6' : 'sm:p-7'}">
+    <div class="relative h-full bg-gradient-to-br from-court/85 via-court/60 to-blue/45 p-5 ${simultaneo ? 'sm:p-6' : 'sm:p-7'}">
+      ${esAdmin() ? `<div class="absolute right-3 top-3 flex gap-1.5">
+        <button data-editar-partido="${p.id}" title="Editar partido" class="grid h-8 w-8 place-items-center rounded-lg bg-white/15 text-white hover:bg-white/25">${icono('lapiz', 'h-3.5 w-3.5')}</button>
+        <button data-eliminar-partido="${p.id}" title="Eliminar partido" class="grid h-8 w-8 place-items-center rounded-lg bg-white/15 text-[#FFB4B0] hover:bg-white/25">${icono('basura', 'h-3.5 w-3.5')}</button>
+      </div>` : ''}
       <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="text-[13px] text-white/70">Próximo partido</p>
         ${simultaneo ? `<span class="rounded-md bg-sun px-2 py-0.5 font-score text-[14px] tracking-wide text-court">A la misma hora · ${esc(p.sede || 'Cancha por definir')}</span>` : ''}
@@ -1715,7 +1749,7 @@ function tarjetaPartido(p) {
       <p class="num font-score text-[26px] leading-none text-court">${p.fecha ? soloHora(p.fecha) : '—'}</p>
       <p class="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">${p.fecha ? meridiano(p.fecha) : ''}</p>
     </div>
-    <div class="min-w-0 flex-1 p-3.5 ${esAdmin() ? 'pr-12' : ''}">
+    <div class="min-w-0 flex-1 p-3.5 ${esAdmin() ? 'pr-24' : ''}">
       <div class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
         ${equipo(p.local, p.logoLocal)}
         <span class="self-start rounded-full bg-court px-2.5 py-0.5 font-score text-[12px] tracking-widest text-sun sm:self-center">VS</span>
@@ -1734,6 +1768,7 @@ function tarjetaPartido(p) {
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
     </button>` : ''}
+    ${esAdmin() ? btnBorrar(p.id) : ''}
   </article>`;
 }
 
@@ -1865,7 +1900,8 @@ function tarjetaResultado(p) {
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
     </button>` : ''}
-    <div class="mb-3 flex flex-wrap items-center gap-2 pr-8 text-[12.5px]">
+    ${esAdmin() ? btnBorrar(p.id) : ''}
+    <div class="mb-3 flex flex-wrap items-center gap-2 ${esAdmin() ? 'pr-20' : 'pr-8'} text-[12.5px]">
       <span class="rounded-md ${p.fase === 'grupos' ? 'bg-sky text-blue' : 'bg-sun/25 text-court'} px-2 py-0.5 font-medium">
         ${etiquetaFase(p)}
       </span>
@@ -2836,6 +2872,45 @@ function pintaEstadisticas() {
 }
 
 /* ==========================================================================
+   Eliminar partidos (botón de basura en el Próximo partido, el Rol y los Resultados)
+   ========================================================================== */
+const btnBorrar = id => `<button data-eliminar-partido="${id}" title="Eliminar partido"
+  class="absolute right-[46px] top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}</button>`;
+
+async function eliminaPartido(id) {
+  const idx = PARTIDOS.findIndex(p => p.id === id);
+  if (idx === -1) { avisaFlotante('Ese partido ya no existe.', true); return; }
+  const p = PARTIDOS[idx], esLiguilla = p.fase !== 'grupos';
+  const nombre = `${p.local || 'Por definir'} vs ${p.visita || 'Por definir'}`;
+  if (!confirm(esLiguilla
+    ? `¿Vaciar el partido de liguilla ${nombre}? Se le quitan equipos y resultado (queda "Por definir"); la llave se conserva.`
+    : `¿Eliminar el partido ${nombre}? No se puede deshacer.`)) return;
+
+  const copia = [...PARTIDOS];
+  if (esLiguilla) {
+    const { fase, llave, avanzaA, ranura, cat, liga } = p;
+    PARTIDOS[idx] = { id, fase, llave, avanzaA, ranura, cat, liga, fecha: p.fecha, sede: p.sede, local: '', visita: '' };
+  } else PARTIDOS.splice(idx, 1);
+
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, esLiguilla ? `Vacía partido de liguilla: ${nombre}` : `Elimina partido: ${nombre}`);
+    repintaTodo();
+    avisaFlotante(esLiguilla ? 'Partido vaciado.' : 'Partido eliminado.');
+  } catch (e) {
+    PARTIDOS = copia;
+    repintaTodo();
+    avisaFlotante('No se pudo eliminar: ' + e.message, true);
+  }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-eliminar-partido]');
+  if (b) { eliminaPartido(b.dataset.eliminarPartido); return; }
+  const ed = e.target.closest('#proximo [data-editar-partido]');
+  if (ed) abrePartidoModal(ed.dataset.editarPartido);
+});
+
+/* ==========================================================================
    8. DOCUMENTOS
    ========================================================================== */
 /* La descarga (carpeta de Drive) y la subida (Google Forms) están embebidas
@@ -3460,15 +3535,15 @@ $('#btn-descargar-rol').addEventListener('click', () => {
   const logo = MARCA_LOCAL || MARCA_LOGO;
 
   const estilos = `<style>
-    .hoja{width:210mm;height:295mm;box-sizing:border-box;padding:9mm;background:#fff;color:#000;display:flex;flex-direction:column;break-after:page;font-family:'Public Sans',sans-serif}
+    .hoja{box-sizing:border-box;width:100%;padding:9mm 9mm 6mm;background:#fff;color:#000;break-after:page;font-family:'Public Sans',sans-serif}
     .hoja:last-child{break-after:auto}
     .pr-top{position:relative;text-align:center;margin-bottom:5mm;font-family:'Barlow Condensed',sans-serif}
     .pr-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
     .pr-top h1{margin:0;font-size:46px;line-height:1;letter-spacing:2px}
     .pr-top .sub{margin-top:4px;font-size:30px;line-height:1;color:#000;letter-spacing:1px;text-transform:uppercase}
     .pr-top .lg{margin-top:4px;font-size:20px;letter-spacing:1px;opacity:.92;text-transform:uppercase}
-    .pr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5mm;align-content:start;flex:1}
-    .card{border:2px solid #000;border-radius:3mm;overflow:hidden;background:#fff;align-self:start}
+    .pr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5mm;align-content:start}
+    .card{border:2px solid #000;border-radius:3mm;overflow:hidden;background:#fff;align-self:start;break-inside:avoid}
     .ch{background:#E8E8E8;color:#000;border-bottom:2px solid #000;text-align:center;padding:3px 4px;font:700 26px 'Barlow Condensed',sans-serif;letter-spacing:1px}
     .ch small{font-size:15px;margin-left:5px;opacity:.7}
     .fila{display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #ccc}
@@ -3487,7 +3562,7 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     .tp td:nth-child(2),.tp th:nth-child(2){text-align:left}
     .tp tr.l td{background:#E0E0E0;font-weight:700}
     .tp td:last-child{font-weight:700;font-size:17px}
-    .pf{margin-top:auto;background:#fff;color:#000;border-top:2px solid #000;border-radius:0;text-align:center;padding:8px 12px;font-weight:700;font-size:15px;letter-spacing:.6px;text-transform:uppercase}
+    .pf{margin-top:7mm;background:#fff;color:#000;border-top:2px solid #000;border-radius:0;text-align:center;padding:8px 12px;font-weight:700;font-size:15px;letter-spacing:.6px;text-transform:uppercase}
   </style>`;
 
   const cabeza = (rama, col, titulo) => `
@@ -3542,7 +3617,7 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     const cartas = [];
     if (b.filas.length) cartas.push(cardPos(b.filas));
     agrupaPorDia(ps).forEach(([dia, arr]) => {
-      for (let k = 0; k < arr.length; k += 5) cartas.push(cardDia(dia, arr.slice(k, k + 5), k > 0));
+      for (let k = 0; k < arr.length; k += 4) cartas.push(cardDia(dia, arr.slice(k, k + 4), k > 0));
     });
     if (!cartas.length) return;
     for (let i = 0; i < cartas.length; i += 4) {
@@ -3891,7 +3966,19 @@ function introSplash() {
       });
     }
     $('#splash-grietas').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, fill: 'forwards' });
-    espera(terminar, 1450);
+    espera(muestraBienvenida, 650);
+  }
+
+  function muestraBienvenida() {
+    $('#splash-titulo').textContent = MARCA_NOMBRE;
+    const velo = $('#splash-velo'), msg = $('#splash-bienvenida');
+    velo.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'forwards' });
+    msg.animate([{ opacity: 0, transform: 'scale(.85) translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 750, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+    espera(() => {
+      velo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, fill: 'forwards' });
+      msg.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 600, fill: 'forwards' });
+      espera(terminar, 650);
+    }, 1900);
   }
 }
 try { introSplash(); } catch (e) { const sp = $('#splash'); if (sp) sp.remove(); document.documentElement.style.overflow = ''; document.body.classList.remove('intro'); }
