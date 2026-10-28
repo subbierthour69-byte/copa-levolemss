@@ -133,6 +133,9 @@ tailwind.config = {
   body.intro #sidebar { transform: translateX(-105%); }
   body.intro #tabs-mobile { transform: translateY(110%); }
 
+  .side-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.28) transparent; -webkit-overflow-scrolling: touch; }
+  .side-scroll::-webkit-scrollbar { width: 6px; }
+  .side-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.28); border-radius: 6px; }
   .noscroll { scrollbar-width: none; }
   .noscroll::-webkit-scrollbar { display: none; }
 
@@ -175,6 +178,15 @@ tailwind.config = {
     main > section:not(#panel-rol) { display: none !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
     #imprimir-rol { position: static; padding: 0; }
+  }
+
+  @media print {
+    @page { size: letter portrait; margin: 0; }
+    html, body { height: auto !important; overflow: visible !important; }
+    .panel, #panel-rol, #contenido, main { animation: none !important; transform: none !important; opacity: 1 !important; overflow: visible !important; }
+    #imprimir-rol { display: block !important; }
+    #imprimir-rol .hoja { height: 278mm; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    #imprimir-rol .hoja:last-child { break-after: auto; page-break-after: auto; }
   }
 </style>
 </head>
@@ -243,9 +255,9 @@ tailwind.config = {
 </header>
 
 <!-- ============ MENÚ LATERAL (escritorio) ============ -->
-<aside id="sidebar" class="fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col border-r border-white/10 bg-deep px-3 py-5 text-white sm:flex">
+<aside id="sidebar" class="side-scroll fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col overflow-y-auto overscroll-contain border-r border-white/10 bg-deep px-3 py-5 pb-8 text-white sm:flex">
   <p class="px-3 pb-3 font-score text-[13px] uppercase tracking-[.28em] text-white/45">Menú</p>
-  <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga" class="flex flex-col gap-1"></div>
+  <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga" class="flex shrink-0 flex-col gap-1"></div>
 </aside>
 
 <div id="contenido" class="sm:pl-60">
@@ -1390,6 +1402,7 @@ function abreTab(id, suave = false) {
   });
 
   history.replaceState(null, '', '#' + id);
+  const dAct = $('#tab-d-' + id); if (dAct && dAct.scrollIntoView) dAct.scrollIntoView({ block: 'nearest' });
   if (!suave) window.scrollTo({ top: 0 });
 }
 
@@ -1789,6 +1802,8 @@ function pintaRol() {
           <span style="font-size:9.5px;letter-spacing:.1em;margin-top:2px;opacity:.7;text-transform:uppercase">${d ? MESES[d.getMonth()].slice(0, 3) : ''}</span>
         </div>
         <span class="h-px flex-1 bg-hair"></span>
+        ${esAdmin() ? `<button type="button" data-eliminar-dia="${dia || ''}" title="Eliminar todos los partidos de este día"
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[14px] tracking-wide text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}Eliminar día</button>` : ''}
       </div>
       <div class="stagger space-y-3">${partidos.map(tarjetaPartido).join('')}</div>
     </section>`;
@@ -2903,7 +2918,32 @@ async function eliminaPartido(id) {
     avisaFlotante('No se pudo eliminar: ' + e.message, true);
   }
 }
+async function eliminaDia(dia) {
+  const delDia = filtraRama(porJugar()).filter(p => (claveDia(p.fecha) || '') === dia);
+  const grupos = delDia.filter(p => p.fase === 'grupos');
+  const liguilla = delDia.length - grupos.length;
+  if (!grupos.length) { avisaFlotante(liguilla ? 'Ese día solo tiene partidos de liguilla; bórralos uno por uno.' : 'No hay partidos que eliminar en ese día.', true); return; }
+  let etiqueta = 'sin fecha';
+  if (dia) { const d = fecha(dia + 'T00:00'); etiqueta = `${DIA_CORTO[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`; }
+  if (!confirm(`¿Eliminar los ${grupos.length} partido(s) pendientes del ${etiqueta}? No se puede deshacer.` + (liguilla ? ` (${liguilla} de liguilla no se tocan.)` : ''))) return;
+
+  const ids = new Set(grupos.map(p => p.id));
+  const copia = [...PARTIDOS];
+  PARTIDOS = PARTIDOS.filter(p => !ids.has(p.id));
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, `Elimina ${grupos.length} partido(s) del día ${etiqueta}`);
+    repintaTodo();
+    avisaFlotante('Día eliminado del rol.');
+  } catch (e) {
+    PARTIDOS = copia;
+    repintaTodo();
+    avisaFlotante('No se pudo eliminar: ' + e.message, true);
+  }
+}
 document.addEventListener('click', e => {
+  const bd = e.target.closest('[data-eliminar-dia]');
+  if (bd) { eliminaDia(bd.dataset.eliminarDia); return; }
   const b = e.target.closest('[data-eliminar-partido]');
   if (b) { eliminaPartido(b.dataset.eliminarPartido); return; }
   const ed = e.target.closest('#proximo [data-editar-partido]');
