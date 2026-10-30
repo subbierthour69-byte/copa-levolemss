@@ -1316,17 +1316,7 @@
     "fecha": "2026-10-29T17:00",
     "sede": "UAC:CCDU",
     "local": "TIGRILLAS PREPA A",
-    "visita": "CECYTE A",
-    "sets": [
-      [
-        14,
-        25
-      ],
-      [
-        19,
-        25
-      ]
-    ]
+    "visita": "CECYTE A"
   },
   {
     "id": "poqfo6od",
@@ -1336,16 +1326,6 @@
     "fecha": "2026-10-29T18:00",
     "sede": "UAC:CCDU",
     "local": "TIGRILLA SUPERIOR A",
-    "visita": "TIGRILLAS PREPA A",
-    "sets": [
-      [
-        25,
-        10
-      ],
-      [
-        25,
-        13
-      ]
-    ]
+    "visita": "TIGRILLAS PREPA A"
   }
 ]
