@@ -1316,7 +1316,17 @@
     "fecha": "2026-10-29T17:00",
     "sede": "UAC:CCDU",
     "local": "TIGRILLAS PREPA A",
-    "visita": "CECYTE A"
+    "visita": "CECYTE A",
+    "sets": [
+      [
+        14,
+        25
+      ],
+      [
+        19,
+        25
+      ]
+    ]
   },
   {
     "id": "poqfo6od",
