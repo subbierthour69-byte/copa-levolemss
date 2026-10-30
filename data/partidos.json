@@ -1296,7 +1296,17 @@
     "fecha": "2026-10-29T16:00",
     "sede": "UAC:CCDU",
     "local": "TIGRILLA SUPERIOR A",
-    "visita": "CBTIS 09"
+    "visita": "CBTIS 09",
+    "sets": [
+      [
+        25,
+        10
+      ],
+      [
+        25,
+        13
+      ]
+    ]
   },
   {
     "id": "p50h945p",
