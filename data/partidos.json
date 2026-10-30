@@ -1336,6 +1336,16 @@
     "fecha": "2026-10-29T18:00",
     "sede": "UAC:CCDU",
     "local": "TIGRILLA SUPERIOR A",
-    "visita": "TIGRILLAS PREPA A"
+    "visita": "TIGRILLAS PREPA A",
+    "sets": [
+      [
+        25,
+        10
+      ],
+      [
+        25,
+        13
+      ]
+    ]
   }
 ]
