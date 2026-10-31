@@ -1609,5 +1609,25 @@
         0
       ]
     ]
+  },
+  {
+    "id": "pbrm4pp5",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-31T13:31",
+    "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
+    "local": "TEC DE CAMPECHE",
+    "visita": "COBACAM",
+    "sets": [
+      [
+        25,
+        0
+      ],
+      [
+        25,
+        0
+      ]
+    ]
   }
 ]
