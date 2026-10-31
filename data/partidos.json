@@ -1296,7 +1296,21 @@
     "fecha": "2026-10-31T10:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "TEC DE CAMPECHE",
-    "visita": "COBACAM"
+    "visita": "COBACAM",
+    "sets": [
+      [
+        25,
+        13
+      ],
+      [
+        21,
+        25
+      ],
+      [
+        15,
+        11
+      ]
+    ]
   },
   {
     "id": "pmqgo9bg",
