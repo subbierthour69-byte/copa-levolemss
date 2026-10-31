@@ -1320,7 +1320,17 @@
     "fecha": "2026-10-31T12:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "TEC DE CHINA",
-    "visita": "COBACAM"
+    "visita": "COBACAM",
+    "sets": [
+      [
+        25,
+        0
+      ],
+      [
+        25,
+        0
+      ]
+    ]
   },
   {
     "id": "p74ht43j",
