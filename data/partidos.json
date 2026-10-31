@@ -1126,7 +1126,17 @@
     "fecha": "2026-10-31T09:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "CECYTE B",
-    "visita": "KATANA"
+    "visita": "KATANA",
+    "sets": [
+      [
+        25,
+        13
+      ],
+      [
+        25,
+        9
+      ]
+    ]
   },
   {
     "id": "psc0hevs",
