@@ -162,7 +162,7 @@ tailwind.config = {
 
   @media print {
     body * { visibility: hidden; }
-    #imprimir-rol, #imprimir-rol *, #imprimir-rolalt, #imprimir-rolalt * { visibility: visible; }
+    #imprimir-rol, #imprimir-rol *, #imprimir-rolalt, #imprimir-rolalt *, .imprimir-tabla, .imprimir-tabla * { visibility: visible; }
     #imprimir-rol, #imprimir-rolalt { position: absolute; inset: 0; padding: 24px; }
     #imprimir-rol .rompe-pagina { break-inside: avoid; }
     #imprimir-rol .pagina-nueva { break-before: page; }
@@ -175,7 +175,10 @@ tailwind.config = {
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     header, nav, aside, footer, #mi-equipo, #splash, #bienvenida, #admin-toggle { display: none !important; }
     #contenido { padding-left: 0 !important; }
-    main > section:not(#panel-rol):not(#panel-rolalt) { display: none !important; }
+    main > section:not(#panel-rol):not(#panel-rolalt):not(.panel-imprime) { display: none !important; }
+    .panel-imprime > *:not(.imprimir-tabla) { display: none !important; }
+    .imprimir-tabla { position: static; padding: 0; display: block !important; }
+    .imprimir-tabla .fila-lider { background-color: rgba(255,201,60,.18) !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
     #panel-rolalt > *:not(#imprimir-rolalt) { display: none !important; }
     #imprimir-rol, #imprimir-rolalt { position: static; padding: 0; }
@@ -1961,16 +1964,25 @@ function montaRama(rama) {
         <div data-res class="mt-5 space-y-8"></div>
       </div>
       <div id="sub-${rama}-posiciones" class="subpanel" role="tabpanel" hidden>
-        <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
+          <button type="button" data-pdf-tabla
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
+            Descargar PDF
+          </button>
+        </div>
         <p class="mt-1 max-w-[62ch] text-[14px] leading-relaxed text-muted">
           Solo cuenta la fase de grupos, y cada grupo tiene su propia tabla.
           Se ordena por partidos ganados; si hay empate, por puntos; después por cociente de sets (SF ÷ SC) y, al final, por cociente de puntos (PF ÷ PC).
         </p>
         <div data-tabla class="mt-4"></div>
       </div>
-    </div>`;
+    </div>
+    <div class="imprimir-tabla hidden"></div>`;
 
   $$('[data-sub]', panel).forEach(b => b.addEventListener('click', () => abreSub(rama, b.dataset.sub, true)));
+  $('[data-pdf-tabla]', panel).addEventListener('click', () => imprimeTabla(rama));
 
   const buscar = $('[data-buscar]', panel);
   buscar.value = estado.busqueda[rama] || '';
@@ -2254,6 +2266,48 @@ function htmlTabla(filas, descripcion, clave = '') {
     </table>
     </div>
   </div>`;
+}
+
+/* Descarga en PDF la tabla de posiciones tal cual se ve en pantalla: toma el
+   HTML ya dibujado y le pone un encabezado con el logo. El PDF se genera con
+   el diálogo de impresión del navegador ("Guardar como PDF"). */
+function imprimeTabla(rama) {
+  const panel = $('#panel-' + rama.toLowerCase());
+  const cont = $('.imprimir-tabla', panel);
+  const origen = $('[data-tabla]', panel);
+  if (!origen.querySelector('table')) { avisaFlotante('Todavía no hay tablas con resultados para descargar.', true); return; }
+
+  const logo = MARCA_LOCAL || MARCA_LOGO;
+  const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+  cont.innerHTML = `
+    <style>
+      .itp{box-sizing:border-box;width:100%;padding:10mm 10mm 8mm;background:#fff;color:#0E2647;font-family:'Public Sans',sans-serif}
+      .itp *{animation:none !important;transition:none !important}
+      .itp-top{position:relative;text-align:center;margin-bottom:7mm;font-family:'Barlow Condensed',sans-serif}
+      .itp-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
+      .itp-top h1{margin:0;font-size:44px;line-height:1;letter-spacing:2px;color:#000}
+      .itp-top .sub{margin-top:4px;font-size:28px;line-height:1;letter-spacing:1px;text-transform:uppercase;color:#000}
+      .itp-top .lg{margin-top:4px;font-size:19px;letter-spacing:1px;text-transform:uppercase;opacity:.9;color:#000}
+      .itp section{break-inside:avoid}
+      .itp-pie{margin-top:6mm;border-top:2px solid #000;padding-top:8px;text-align:center;font-weight:700;font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:#000}
+    </style>
+    <div class="itp">
+      <div class="itp-top">
+        ${logo ? `<img src="${logo}" alt="">` : ''}
+        <h1>TABLA DE POSICIONES</h1>
+        <div class="sub">Rama ${rama.toLowerCase()}</div>
+        <div class="lg">${esc(MARCA_NOMBRE)} · ${esc(MARCA_TEMPORADA)}</div>
+      </div>
+      ${origen.innerHTML}
+      <div class="itp-pie">${esc(MARCA_NOMBRE)} • Posiciones ${rama} • ${hoy}</div>
+    </div>`;
+
+  panel.classList.add('panel-imprime');
+  cont.classList.remove('hidden');
+  setTimeout(() => window.print(), 350);
+  window.addEventListener('afterprint', () => {
+    cont.classList.add('hidden'); cont.innerHTML = ''; panel.classList.remove('panel-imprime');
+  }, { once: true });
 }
 
 function pintaTabla(rama) {
