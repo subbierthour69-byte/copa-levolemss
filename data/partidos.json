@@ -1330,7 +1330,17 @@
     "fecha": "2026-10-31T11:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "COBACAM LERMA",
-    "visita": "SEYBAPLAYA"
+    "visita": "SEYBAPLAYA",
+    "sets": [
+      [
+        13,
+        25
+      ],
+      [
+        16,
+        25
+      ]
+    ]
   },
   {
     "id": "pp9wrz5i",
