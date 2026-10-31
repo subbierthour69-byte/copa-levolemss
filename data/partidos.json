@@ -1170,7 +1170,21 @@
     "fecha": "2026-10-31T11:30",
     "sede": "CANCHA 2 (20 DE NOVIEMBRE)",
     "local": "KATANA",
-    "visita": "CENTINELAS"
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        25,
+        19
+      ],
+      [
+        21,
+        25
+      ],
+      [
+        15,
+        13
+      ]
+    ]
   },
   {
     "id": "pc0x8euj",
