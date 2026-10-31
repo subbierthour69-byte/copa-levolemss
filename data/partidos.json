@@ -1324,7 +1324,21 @@
     "fecha": "2026-10-31T09:30",
     "sede": "CANCHA 1 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "ONIX",
-    "visita": "TEC DE CAMPECHE"
+    "visita": "TEC DE CAMPECHE",
+    "sets": [
+      [
+        25,
+        21
+      ],
+      [
+        20,
+        25
+      ],
+      [
+        9,
+        15
+      ]
+    ]
   },
   {
     "id": "p52xk2gn",
