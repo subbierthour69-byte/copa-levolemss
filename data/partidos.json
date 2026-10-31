@@ -1392,7 +1392,17 @@
     "fecha": "2026-10-31T12:30",
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "TEC DE CAMPECHE",
-    "visita": "CECYTE A"
+    "visita": "CECYTE A",
+    "sets": [
+      [
+        22,
+        25
+      ],
+      [
+        18,
+        25
+      ]
+    ]
   },
   {
     "id": "pp9mj7x4",
