@@ -1324,7 +1324,21 @@
     "fecha": "2026-10-31T12:30",
     "sede": "CANCHA 2 (20 DE NOVIEMBRE)",
     "local": "INSTITUTO CAMPECHANO PREPA A",
-    "visita": "INSTITUTO CAMPECHANO SUPERIOR A"
+    "visita": "INSTITUTO CAMPECHANO SUPERIOR A",
+    "sets": [
+      [
+        25,
+        21
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        13,
+        15
+      ]
+    ]
   },
   {
     "id": "po1x9j3m",
