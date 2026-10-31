@@ -1204,7 +1204,21 @@
     "fecha": "2026-10-31T08:30",
     "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
     "local": "INSTITUTO CAMPECHANO",
-    "visita": "LEONES"
+    "visita": "LEONES",
+    "sets": [
+      [
+        10,
+        15
+      ],
+      [
+        25,
+        12
+      ],
+      [
+        19,
+        17
+      ]
+    ]
   },
   {
     "id": "pwrrnf5p",
