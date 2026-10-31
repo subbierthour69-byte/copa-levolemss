@@ -1146,7 +1146,21 @@
     "fecha": "2026-10-31T10:30",
     "sede": "CANCHA 2 (UNIDAD 20 DE NOVIEMBRE)",
     "local": "CENTINELAS",
-    "visita": "INSTITUTO CAMPECHANO PREPA B"
+    "visita": "INSTITUTO CAMPECHANO PREPA B",
+    "sets": [
+      [
+        26,
+        24
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        15,
+        12
+      ]
+    ]
   },
   {
     "id": "pd16vpzk",
