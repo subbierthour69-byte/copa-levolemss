@@ -1565,5 +1565,29 @@
         0
       ]
     ]
+  },
+  {
+    "id": "prkfc3vv",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "",
+    "fecha": "2026-09-27T09:30",
+    "sede": "CANCHA 7 DE AGOSTO",
+    "local": "INSTITUTO CAMPECHANO SUPERIOR A",
+    "visita": "TIGRILLAS PREPA A",
+    "sets": [
+      [
+        25,
+        23
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        16,
+        14
+      ]
+    ]
   }
 ]
