@@ -162,8 +162,8 @@ tailwind.config = {
 
   @media print {
     body * { visibility: hidden; }
-    #imprimir-rol, #imprimir-rol * { visibility: visible; }
-    #imprimir-rol { position: absolute; inset: 0; padding: 24px; }
+    #imprimir-rol, #imprimir-rol *, #imprimir-rolalt, #imprimir-rolalt * { visibility: visible; }
+    #imprimir-rol, #imprimir-rolalt { position: absolute; inset: 0; padding: 24px; }
     #imprimir-rol .rompe-pagina { break-inside: avoid; }
     #imprimir-rol .pagina-nueva { break-before: page; }
   }
@@ -175,18 +175,19 @@ tailwind.config = {
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     header, nav, aside, footer, #mi-equipo, #splash, #bienvenida, #admin-toggle { display: none !important; }
     #contenido { padding-left: 0 !important; }
-    main > section:not(#panel-rol) { display: none !important; }
+    main > section:not(#panel-rol):not(#panel-rolalt) { display: none !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
-    #imprimir-rol { position: static; padding: 0; }
+    #panel-rolalt > *:not(#imprimir-rolalt) { display: none !important; }
+    #imprimir-rol, #imprimir-rolalt { position: static; padding: 0; }
   }
 
   @media print {
     @page { size: letter portrait; margin: 0; }
     html, body { height: auto !important; overflow: visible !important; }
-    .panel, #panel-rol, #contenido, main { animation: none !important; transform: none !important; opacity: 1 !important; overflow: visible !important; }
-    #imprimir-rol { display: block !important; }
-    #imprimir-rol .hoja { height: 278mm; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
-    #imprimir-rol .hoja:last-child { break-after: auto; page-break-after: auto; }
+    .panel, #panel-rol, #panel-rolalt, #contenido, main { animation: none !important; transform: none !important; opacity: 1 !important; overflow: visible !important; }
+    #imprimir-rol, #imprimir-rolalt { display: block !important; }
+    #imprimir-rol .hoja, #imprimir-rolalt .hoja { height: 278mm; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    #imprimir-rol .hoja:last-child, #imprimir-rolalt .hoja:last-child { break-after: auto; page-break-after: auto; }
   }
 </style>
 </head>
@@ -355,6 +356,11 @@ tailwind.config = {
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="font-score text-2xl tracking-wide">Rol alternativo</h2>
         <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-alt-pdf" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
+            Descargar PDF
+          </button>
           <button id="btn-alt-copiar" type="button"
                   class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
             Copiar del rol oficial
@@ -387,6 +393,7 @@ tailwind.config = {
     </div>
 
     <div id="rolalt-lista" class="mt-5 space-y-7"></div>
+    <div id="imprimir-rolalt" class="hidden"></div>
   </section>
 
   <!-- ---------- RAMAS (se generan con JavaScript) ---------- -->
@@ -3670,9 +3677,8 @@ function abrePartidoModal(id = null) {
   $('#partido-modal').classList.replace('hidden', 'flex');
 }
 
-$('#btn-descargar-rol').addEventListener('click', () => {
-  const pendientes = porJugar();
-  const ramas = estado.ramaRol === 'Todas' ? ['Femenil', 'Varonil'] : [estado.ramaRol];
+function imprimeRol(pendientes, ramas, destinoSel, tituloDoc, etiquetaPie) {
+  const destino = $(destinoSel);
   const hoy = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
   const logo = MARCA_LOCAL || MARCA_LOGO;
 
@@ -3710,7 +3716,7 @@ $('#btn-descargar-rol').addEventListener('click', () => {
   const cabeza = (rama, col, titulo) => `
     <div class="pr-top">
       ${logo ? `<img src="${logo}" alt="">` : ''}
-      <h1>CALENDARIO</h1>
+      <h1>${tituloDoc}</h1>
       <div class="sub">${rama} · ${esc(titulo)}</div>
       <div class="lg">${esc(MARCA_NOMBRE)} · ${esc(MARCA_TEMPORADA)}</div>
     </div>`;
@@ -3743,7 +3749,12 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     const col = rama === 'Femenil' ? '#B3327A' : '#1B57B5';
     const deRama = pendientes.filter(p => p.cat === rama);
     const lista = [];
-    gruposDeRama(rama).forEach(g => lista.push({
+    const gs = gruposDeRama(rama);
+    deRama.filter(p => p.fase === 'grupos').forEach(p => {
+      const k = claveGrupo(p.grupo);
+      if (!gs.some(g => g.clave === k)) gs.push({ clave: k, etiqueta: (p.grupo || '').trim() || 'Sin grupo', valor: k || '__sin' });
+    });
+    gs.forEach(g => lista.push({
       titulo: g.etiqueta,
       filas: filasDeGrupo(rama, g),
       ps: deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave)
@@ -3764,16 +3775,28 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     if (!cartas.length) return;
     for (let i = 0; i < cartas.length; i += 4) {
       hojas.push(`<div class="hoja">${cabeza(b.rama, b.col, b.titulo)}<div class="pr-grid">${cartas.slice(i, i + 4).join('')}</div>
-        <div class="pf">${esc(MARCA_NOMBRE)} • Rol de juegos • ${hoy}</div></div>`);
+        <div class="pf">${esc(MARCA_NOMBRE)} • ${etiquetaPie} • ${hoy}</div></div>`);
     }
   });
 
-  $('#imprimir-rol').innerHTML = estilos + (hojas.length ? hojas.join('')
+  destino.innerHTML = estilos + (hojas.length ? hojas.join('')
     : `<div class="hoja">${cabeza('', '', 'Sin partidos')}<p style="text-align:center">No hay partidos pendientes con este filtro para imprimir.</p></div>`);
 
-  $('#imprimir-rol').classList.remove('hidden');
+  destino.classList.remove('hidden');
   setTimeout(() => window.print(), 350);
-  window.addEventListener('afterprint', () => { $('#imprimir-rol').classList.add('hidden'); $('#imprimir-rol').innerHTML = ''; }, { once: true });
+  window.addEventListener('afterprint', () => { destino.classList.add('hidden'); destino.innerHTML = ''; }, { once: true });
+}
+
+$('#btn-descargar-rol').addEventListener('click', () => {
+  const ramas = estado.ramaRol === 'Todas' ? ['Femenil', 'Varonil'] : [estado.ramaRol];
+  imprimeRol(porJugar(), ramas, '#imprimir-rol', 'CALENDARIO', 'Rol de juegos');
+});
+
+/* PDF del rol alternativo (mismo diseño que el oficial) */
+$('#btn-alt-pdf').addEventListener('click', () => {
+  if (!ROL_ALT.length) { avisaFlotante('El rol alternativo está vacío.', true); return; }
+  const ramas = altRama === 'Todas' ? ['Femenil', 'Varonil'] : [altRama];
+  imprimeRol(altFiltrado(), ramas, '#imprimir-rolalt', 'CALENDARIO ALTERNATIVO', 'Rol alternativo');
 });
 
 $('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
