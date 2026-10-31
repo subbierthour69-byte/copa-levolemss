@@ -1589,5 +1589,25 @@
         0
       ]
     ]
+  },
+  {
+    "id": "p5pyq9ll",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-10-31T12:30",
+    "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
+    "local": "INSTITUTO CAMPECHANO PREPA A",
+    "visita": "COBACAM",
+    "sets": [
+      [
+        25,
+        0
+      ],
+      [
+        25,
+        0
+      ]
+    ]
   }
 ]
