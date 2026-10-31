@@ -1569,5 +1569,25 @@
         13
       ]
     ]
+  },
+  {
+    "id": "p21zydzq",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "",
+    "fecha": "2026-10-31T13:30",
+    "sede": "CANCHA 4 (20 DE NOVIEMBRE)",
+    "local": "TEC DE CAMPECHE",
+    "visita": "COBACAM",
+    "sets": [
+      [
+        25,
+        0
+      ],
+      [
+        25,
+        0
+      ]
+    ]
   }
 ]
