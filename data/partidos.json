@@ -1294,7 +1294,17 @@
     "fecha": "2026-10-31T08:30",
     "sede": "CANCHA 1 (20 DE NOVIEMBRE)",
     "local": "CECYTE A",
-    "visita": "ONIX"
+    "visita": "ONIX",
+    "sets": [
+      [
+        25,
+        22
+      ],
+      [
+        25,
+        19
+      ]
+    ]
   },
   {
     "id": "p24g1aui",
