@@ -69,6 +69,8 @@ tailwind.config = {
   .num { font-variant-numeric: tabular-nums; }
 
   .panel[hidden], .subpanel[hidden] { display: none; }
+  summary::-webkit-details-marker { display: none; }
+  details[open] > summary .chev { transform: rotate(180deg); }
 
   /* Transición al cambiar de pestaña: el panel entra con un fundido suave y
      sus tarjetas aparecen una tras otra (efecto escalonado). El JS le pone la
@@ -189,8 +191,8 @@ tailwind.config = {
     html, body { height: auto !important; overflow: visible !important; }
     .panel, #panel-rol, #panel-rolalt, #contenido, main { animation: none !important; transform: none !important; opacity: 1 !important; overflow: visible !important; }
     #imprimir-rol, #imprimir-rolalt { display: block !important; }
-    #imprimir-rol .hoja, #imprimir-rolalt .hoja { height: 278mm; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
-    #imprimir-rol .hoja:last-child, #imprimir-rolalt .hoja:last-child { break-after: auto; page-break-after: auto; }
+    #imprimir-rol .hoja, #imprimir-rolalt .hoja, .imprimir-tabla .hoja { height: 278mm; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    #imprimir-rol .hoja:last-child, #imprimir-rolalt .hoja:last-child, .imprimir-tabla .hoja:last-child { break-after: auto; page-break-after: auto; }
   }
 </style>
 </head>
@@ -364,6 +366,10 @@ tailwind.config = {
             <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
             Descargar PDF
           </button>
+          <button id="btn-alt-guardar" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            Guardar como rol
+          </button>
           <button id="btn-alt-copiar" type="button"
                   class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
             Copiar del rol oficial
@@ -397,6 +403,26 @@ tailwind.config = {
 
     <div id="rolalt-lista" class="mt-5 space-y-7"></div>
     <div id="imprimir-rolalt" class="hidden"></div>
+  </section>
+
+  <!-- ---------- TODOS LOS ROLES (solo administrador) ---------- -->
+  <section id="panel-roles" class="panel" role="tabpanel" aria-labelledby="tab-d-roles" tabindex="-1" hidden>
+    <div class="flex items-start gap-3 rounded-2xl bg-[#FFF6DB] px-4 py-3 text-[13.5px] leading-relaxed text-court ring-1 ring-sun/70">
+      <svg viewBox="0 0 24 24" class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>
+      <p><strong>Solo tú lo ves.</strong> Aquí están el rol oficial, tu Plan B y todos los roles que guardaste. Los guardados viven únicamente en este navegador.</p>
+    </div>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Todos los roles</h2>
+        <p class="mt-1 text-[14px] text-muted">Abre cualquiera para verlo, descargarlo, cargarlo al Plan B o publicarlo.</p>
+      </div>
+      <button id="btn-roles-guardar" type="button"
+              class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar el Plan B como rol
+      </button>
+    </div>
+    <div id="roles-lista" class="mt-5 space-y-4"></div>
+    <div class="imprimir-tabla hidden"></div>
   </section>
 
   <!-- ---------- RAMAS (se generan con JavaScript) ---------- -->
@@ -445,7 +471,8 @@ tailwind.config = {
       </div>
       <div id="filtro-cruces" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
     </div>
-    <div class="mt-4"><button id="btn-generar-cal" class="inline-flex items-center gap-2 rounded-xl bg-sun px-4 py-2.5 font-score text-[16px] tracking-wide text-court shadow-card hover:brightness-95">Generar calendario de los cruces pendientes</button></div>
+    <div class="mt-4 flex flex-wrap gap-2"><button id="btn-revisar-cruces" class="inline-flex items-center gap-2 rounded-xl bg-court px-4 py-2.5 font-score text-[16px] tracking-wide text-white shadow-card hover:bg-deep">Revisar encuentros repetidos</button><button id="btn-generar-cal" class="inline-flex items-center gap-2 rounded-xl bg-sun px-4 py-2.5 font-score text-[16px] tracking-wide text-court shadow-card hover:brightness-95">Generar calendario de los cruces pendientes</button></div>
+    <div id="cruces-revision" class="mt-4"></div>
     <div id="cruces-cont" class="mt-5 space-y-10"></div>
   </section>
 
@@ -1268,6 +1295,7 @@ const ICONOS = {
   subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
   cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>',
   buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  roles:        '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 17l9 5 9-5"/>',
   rolalt:       '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M9 13.5h6l-2-2M15 17H9l2 2"/>',
   cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>',
   historial:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -1376,6 +1404,7 @@ const TABS = [
   { id:'equipos',    icono:'equipos',    texto:'Equipos',       corto:'Equipos' },
   { id:'rol',        icono:'rol',        texto:'Rol de Juegos', corto:'Rol' },
   { id:'rolalt',     icono:'rolalt',     texto:'Rol alternativo', corto:'Plan B', admin:true },
+  { id:'roles',      icono:'roles',      texto:'Todos los roles', corto:'Roles', admin:true },
   { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true },
   { id:'femenil',    icono:'femenil',    texto:'Femenil',       corto:'Femenil' },
   { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
@@ -2676,6 +2705,129 @@ function pintaCruces() {
   $$('[data-programa]', cont).forEach(b => b.addEventListener('click', () => abrePartidoCon(b.dataset.rama, b.dataset.grupo, b.dataset.a, b.dataset.b)));
 }
 
+
+/* ---------- Revisión de encuentros repetidos ---------- */
+/* Revisa el rol oficial y el Plan B: mismo cruce programado más de una vez,
+   Plan B que repite un partido ya jugado, y empalmes de cancha u horario. */
+function analizaEncuentros() {
+  const hall = [];
+  const oficial = PARTIDOS.filter(p => p.fase === 'grupos' && p.local && p.visita);
+  const porPar = (lista, origen) => {
+    const m = new Map();
+    lista.forEach(p => {
+      const k = p.cat + '|' + llavePar(p.local, p.visita);
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push({ o: origen, p });
+    });
+    return m;
+  };
+  const titulo = it => `${it[0].p.local} vs ${it[0].p.visita}`;
+  const grupoTxt = it => [...new Set(it.map(x => (x.p.grupo || '').trim() || 'Sin grupo'))].join(' / ');
+
+  const repetidos = (lista, origen) => porPar(lista, origen).forEach(items => {
+    if (items.length < 2) return;
+    const exacto = items.some((a, i) => items.some((b, j) => i < j && a.p.fecha && a.p.fecha === b.p.fecha));
+    hall.push({
+      nivel: 'rep', cat: items[0].p.cat, grupo: grupoTxt(items), titulo: titulo(items), items,
+      motivo: (exacto ? 'Duplicado exacto (misma fecha y hora)' : `Se enfrentan ${items.length} veces`) +
+        (origen === 'alt' ? ' en el Plan B' : ' en el rol oficial') +
+        (new Set(items.map(x => claveGrupo(x.p.grupo))).size > 1 ? ' · con grupos distintos' : '')
+    });
+  });
+  repetidos(oficial, 'oficial');
+  repetidos(ROL_ALT, 'alt');
+
+  /* Plan B que repite un partido que ya se jugó en el rol oficial */
+  const jugados = porPar(oficial.filter(jugado), 'oficial');
+  porPar(ROL_ALT, 'alt').forEach((arr, k) => {
+    if (jugados.has(k)) {
+      const items = [...jugados.get(k), ...arr];
+      hall.push({ nivel: 'rep', cat: items[0].p.cat, grupo: grupoTxt(items), titulo: titulo(items), items, motivo: 'El Plan B repite un partido que ya se jugó' });
+    }
+  });
+
+  /* Empalmes de horario (mismo criterio de 90 min que usa el resto de la página) */
+  const empalmes = (lista, origen) => {
+    const l = lista.filter(p => p.fecha && p.local && p.visita);
+    for (let i = 0; i < l.length; i++) for (let j = i + 1; j < l.length; j++) {
+      const a = l[i], b = l[j];
+      if (Math.abs(fecha(a.fecha).getTime() - fecha(b.fecha).getTime()) >= 90 * 60000) continue;
+      const msgs = [];
+      if (a.sede && b.sede && a.sede.trim().toLowerCase() === b.sede.trim().toLowerCase()) msgs.push(`Misma cancha (${a.sede})`);
+      [a.local, a.visita].forEach(e => { if (e === b.local || e === b.visita) msgs.push(`${e} juega en los dos`); });
+      if (msgs.length) hall.push({
+        nivel: 'emp', cat: a.cat === b.cat ? a.cat : 'Varias', grupo: '', titulo: `${a.local} vs ${a.visita}  ·  ${b.local} vs ${b.visita}`,
+        items: [{ o: origen, p: a }, { o: origen, p: b }],
+        motivo: 'Empalme de horario: ' + msgs.join(' · ') + (origen === 'alt' ? ' (Plan B)' : '')
+      });
+    }
+  };
+  empalmes(PARTIDOS.filter(p => !jugado(p) && llaveActiva(p)), 'oficial');
+  empalmes(ROL_ALT, 'alt');
+
+  return { hall, nOficial: oficial.length, nAlt: ROL_ALT.length };
+}
+
+function pintaRevision() {
+  const cont = $('#cruces-revision');
+  if (!cont) return;
+  if (!esAdmin()) { cont.innerHTML = ''; delete cont.dataset.activo; return; }
+  cont.dataset.activo = '1';
+  const { hall, nOficial, nAlt } = analizaEncuentros();
+  const nRep = hall.filter(h => h.nivel === 'rep').length, nEmp = hall.length - nRep;
+  const alcance = `${nOficial} encuentro(s) del rol oficial${nAlt ? ` y ${nAlt} del Plan B` : ''}`;
+
+  if (!hall.length) {
+    cont.innerHTML = `<div class="flex items-center gap-2 rounded-2xl bg-[#E6F4EC] px-4 py-3 text-[14px] text-[#1F7A4C] ring-1 ring-[#1F7A4C]/30">${icono('correcto', 'h-5 w-5 shrink-0')}<span>Todo en orden: revisé ${alcance} y no hay repetidos ni empalmes.</span></div>`;
+    return;
+  }
+
+  const fila = x => {
+    const p = x.p;
+    const est = jugado(p) ? (() => { const [gl, gv] = setsGanados(p); return `Jugado ${gl}-${gv}`; })() : 'Pendiente';
+    return `
+      <div class="flex flex-wrap items-center gap-2 rounded-xl bg-mist px-3 py-2 text-[13px]">
+        <span class="rounded-full ${x.o === 'alt' ? 'bg-[#FFF6DB] text-[#8A6500]' : 'bg-sky text-blue'} px-2.5 py-0.5 text-[12px] font-medium">${x.o === 'alt' ? 'Plan B' : 'Oficial'}</span>
+        <span class="num font-medium text-court">${p.fecha ? `${esc(tituloDia(p.fecha))} · ${soloHora(p.fecha)} ${meridiano(p.fecha)}` : 'Sin fecha'}</span>
+        <span class="text-muted">${esc(p.sede || 'Sin cancha')}</span>
+        <span class="ml-auto rounded-full ${jugado(p) ? 'bg-[#E6F4EC] text-[#1F7A4C]' : 'bg-sun/30 text-[#8A6100]'} px-2.5 py-0.5 text-[12px] font-medium">${est}</span>
+        <button type="button" data-rev-ed="${x.o}:${p.id}" class="inline-flex items-center gap-1 rounded-lg bg-court px-2.5 py-1 text-[12px] font-medium text-white hover:bg-deep">${icono('lapiz', 'h-3 w-3')}Editar</button>
+      </div>`;
+  };
+
+  cont.innerHTML = `
+    <div class="flex items-center gap-2 rounded-2xl bg-[#FDEAEA] px-4 py-3 text-[14px] text-[#B3322E] ring-1 ring-[#B3322E]/30">
+      ${icono('alerta', 'h-5 w-5 shrink-0')}
+      <span>Revisé ${alcance}: encontré <strong>${nRep}</strong> repetido(s) y <strong>${nEmp}</strong> empalme(s).</span>
+    </div>
+    <div class="mt-3 space-y-3">
+      ${hall.map(h => `
+      <article class="rounded-2xl bg-white p-4 shadow-card ring-1 ring-[#B3322E]/25">
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="min-w-0 flex-1 font-score text-[19px] leading-tight text-court">${esc(h.titulo)}</p>
+          ${h.cat !== 'Varias' ? `<span class="rounded-full ${h.cat === 'Femenil' ? 'bg-[#FCE8F3] text-rose' : 'bg-sky text-blue'} px-2.5 py-1 text-[12px] font-medium">${h.cat}</span>` : ''}
+          ${h.grupo ? `<span class="rounded-full bg-mist px-2.5 py-1 text-[12px] text-muted">${esc(h.grupo)}</span>` : ''}
+        </div>
+        <p class="mt-1 text-[13px] font-medium text-[#B3322E]">${esc(h.motivo)}</p>
+        <div class="mt-3 space-y-1.5">${h.items.map(fila).join('')}</div>
+      </article>`).join('')}
+    </div>`;
+}
+function refrescaRevision() {
+  const c = $('#cruces-revision');
+  if (c && c.dataset.activo) pintaRevision();
+}
+$('#btn-revisar-cruces').addEventListener('click', () => {
+  pintaRevision();
+  const c = $('#cruces-revision'); if (c.scrollIntoView) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+$('#cruces-revision').addEventListener('click', e => {
+  const b = e.target.closest('[data-rev-ed]');
+  if (!b) return;
+  const [origen, id] = b.dataset.revEd.split(':');
+  if (origen === 'alt') abreAltModal(id); else abrePartidoModal(id);
+});
+
 /* ==========================================================================
    Historial de temporadas, respaldo y registro de cambios
    ========================================================================== */
@@ -3969,10 +4121,10 @@ const altFiltrado = () => (altRama === 'Todas' ? ROL_ALT : ROL_ALT.filter(p => p
   .slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
 
 /* Avisa si en el rol alternativo hay choques: misma hora y misma cancha, o un equipo en dos partidos a la vez */
-function altChoques(p) {
+function altChoques(p, lista = ROL_ALT) {
   if (!p.fecha) return [];
   const res = [];
-  ROL_ALT.forEach(o => {
+  lista.forEach(o => {
     if (o.id === p.id || o.fecha !== p.fecha) return;
     if (p.sede && o.sede && p.sede.trim().toLowerCase() === o.sede.trim().toLowerCase()) res.push('Misma cancha y hora');
     [p.local, p.visita].forEach(e => { if (e && (o.local === e || o.visita === e)) res.push(e + ' juega 2 a la vez'); });
@@ -3980,14 +4132,14 @@ function altChoques(p) {
   return [...new Set(res)];
 }
 
-function tarjetaPartidoAlt(p) {
+function tarjetaPartidoAlt(p, o = {}) {
   const fem = p.cat === 'Femenil';
   const color = fem ? 'bg-rose' : 'bg-blue';
   const chipCat = fem ? 'bg-[#FCE8F3] text-rose' : 'bg-sky text-blue';
-  const choques = altChoques(p);
-  const equipo = (nombre, der) => `
+  const choques = altChoques(p, o.lista || ROL_ALT);
+  const equipo = (nombre, der, logo) => `
     <div class="flex min-w-0 flex-1 items-center gap-2.5 ${der ? 'sm:flex-row-reverse sm:text-right' : ''}">
-      ${escudo(nombre, 40)}
+      ${escudo(nombre, 40, logo)}
       <p class="min-w-0 truncate font-score text-[20px] leading-tight text-court">${esc(nombre)}</p>
     </div>`;
   return `
@@ -3997,28 +4149,34 @@ function tarjetaPartidoAlt(p) {
       <p class="num font-score text-[26px] leading-none text-court">${p.fecha ? soloHora(p.fecha) : '—'}</p>
       <p class="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">${p.fecha ? meridiano(p.fecha) : ''}</p>
     </div>
-    <div class="min-w-0 flex-1 p-3.5 pr-24">
+    <div class="min-w-0 flex-1 p-3.5 ${o.leer ? '' : 'pr-24'}">
       <div class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-        ${equipo(p.local)}
+        ${equipo(p.local, false, p.logoLocal)}
         <span class="self-start rounded-full bg-court px-2.5 py-0.5 font-score text-[12px] tracking-widest text-sun sm:self-center">VS</span>
-        ${equipo(p.visita, true)}
+        ${equipo(p.visita, true, p.logoVisita)}
       </div>
       <div class="mt-3 flex flex-wrap items-center gap-1.5 border-t border-dashed border-hair pt-2.5 text-[12px]">
         <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${chipCat}">${icono(fem ? 'femenil' : 'varonil', 'h-3 w-3')}${p.cat}</span>
-        <span class="rounded-full bg-mist px-2.5 py-1 text-muted">${esc(p.grupo || 'Sin grupo')}</span>
-        <span class="rounded-full bg-[#FFF6DB] px-2.5 py-1 font-medium text-[#8A6500]">Plan B</span>
+        <span class="rounded-full bg-mist px-2.5 py-1 text-muted">${esc(p.fase && p.fase !== 'grupos' ? etiquetaFase(p) : (p.grupo || 'Sin grupo'))}</span>
+        ${o.leer ? '' : '<span class="rounded-full bg-[#FFF6DB] px-2.5 py-1 font-medium text-[#8A6500]">Plan B</span>'}
         ${choques.map(c => `<span class="rounded-full bg-[#FDEAEA] px-2.5 py-1 font-medium text-[#B3322E]">⚠ ${esc(c)}</span>`).join('')}
         ${sedeLink(p.sede, 'sm:ml-auto')}
       </div>
     </div>
-    <button data-alt-editar="${p.id}" title="Editar partido"
+    ${o.leer ? '' : `<button data-alt-editar="${p.id}" title="Editar partido"
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">${icono('lapiz', 'h-3.5 w-3.5')}</button>
     <button data-alt-eliminar="${p.id}" title="Eliminar partido"
-            class="absolute right-[46px] top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}</button>
+            class="absolute right-[46px] top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}</button>`}
   </article>`;
 }
 
+/* Al repintar el Plan B también se refrescan la revisión de cruces y "Todos los roles" */
 function pintaRolAlt() {
+  pintaRolAltLista();
+  [refrescaRevision, pintaRoles].forEach(f => { try { f(); } catch (e) { console.error(e); } });
+}
+
+function pintaRolAltLista() {
   const cont = $('#rolalt-lista');
   if (!cont) return;
   if (!esAdmin()) { cont.innerHTML = ''; return; }   // el público nunca recibe este contenido
@@ -4150,15 +4308,15 @@ $('#btn-alt-vaciar').addEventListener('click', () => {
 /* ---------- Publicar el Plan B como rol oficial ---------- */
 /* Solo toca los partidos pendientes de fase de grupos de los DÍAS que cubre el
    rol alternativo. Los partidos ya jugados y la liguilla nunca se modifican. */
-$('#btn-alt-publicar').addEventListener('click', async () => {
-  if (!ROL_ALT.length) { avisaFlotante('El rol alternativo está vacío.', true); return; }
-  const dias = new Set(ROL_ALT.map(p => claveDia(p.fecha)));
-  const quitar = PARTIDOS.filter(p => p.fase === 'grupos' && !jugado(p) && dias.has(claveDia(p.fecha)));
-  if (!confirm(`Vas a PUBLICAR el rol alternativo como oficial.\n\n• Se quitan ${quitar.length} partido(s) pendientes del rol oficial en ${dias.size} día(s).\n• Se publican ${ROL_ALT.length} partido(s) del Plan B.\n• Los partidos ya jugados y la liguilla no se tocan.\n\nTodo el público lo verá. ¿Continuar?`)) return;
+async function publicaRolComoOficial(lista) {
+  if (!lista.length) { avisaFlotante('Ese rol está vacío.', true); return; }
+  const dias = new Set(lista.map(p => claveDia(p.fecha || '')));
+  const quitar = PARTIDOS.filter(p => p.fase === 'grupos' && !jugado(p) && dias.has(claveDia(p.fecha || '')));
+  if (!confirm(`Vas a PUBLICAR este rol como oficial.\n\n• Se quitan ${quitar.length} partido(s) pendientes del rol oficial en ${dias.size} día(s).\n• Se publican ${lista.length} partido(s) de este rol.\n• Los partidos ya jugados y la liguilla no se tocan.\n\nTodo el público lo verá. ¿Continuar?`)) return;
 
   const copia = [...PARTIDOS];
   const ids = new Set(quitar.map(p => p.id));
-  const nuevos = ROL_ALT.map(p => ({ id: 'p' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat: p.cat, grupo: p.grupo, fecha: p.fecha, sede: p.sede, local: p.local, visita: p.visita }));
+  const nuevos = lista.map(p => ({ id: 'p' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat: p.cat, grupo: p.grupo, fecha: p.fecha, sede: p.sede, local: p.local, visita: p.visita }));
   PARTIDOS = [...PARTIDOS.filter(p => !ids.has(p.id)), ...nuevos];
   try {
     const x = await ghLeeJSON('data/partidos.json', []);
@@ -4169,6 +4327,152 @@ $('#btn-alt-publicar').addEventListener('click', async () => {
     PARTIDOS = copia;
     repintaTodo();
     avisaFlotante('No se pudo publicar: ' + err.message, true);
+  }
+}
+$('#btn-alt-publicar').addEventListener('click', () => publicaRolComoOficial(ROL_ALT));
+$('#btn-alt-guardar').addEventListener('click', () => guardaRolActual());
+
+/* ==========================================================================
+   10c. TODOS LOS ROLES — solo administrador
+   ========================================================================== */
+/* Reúne el rol oficial, el Plan B y los roles que guardes. Los guardados se
+   quedan en el localStorage de este navegador (no se suben a GitHub). */
+const ROLES_KEY = 'lv_roles_guardados';
+let ROLES_GUARDADOS = (() => {
+  try { const a = JSON.parse(localStorage.getItem(ROLES_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+})();
+const ROLES_ABIERTOS = new Set(['oficial', 'alt']);
+function guardaRoles() {
+  try { localStorage.setItem(ROLES_KEY, JSON.stringify(ROLES_GUARDADOS)); return true; }
+  catch (e) { avisaFlotante('No se pudo guardar en este navegador.', true); return false; }
+}
+const nuevoId = pre => pre + Math.random().toString(36).slice(2, 9);
+const clonaParaAlt = lista => lista.filter(p => p.fase === 'grupos' && p.local && p.visita).map(p => ({
+  id: nuevoId('a'), fase: 'grupos', cat: p.cat, grupo: p.grupo || '', fecha: p.fecha || '', sede: p.sede || '', local: p.local, visita: p.visita
+}));
+
+function rolesTodos() {
+  const jug = PARTIDOS.filter(p => jugado(p) && llaveActiva(p)).length;
+  return [
+    { id: 'oficial', nombre: 'Rol oficial', badge: 'Público', lista: porJugar(), nota: `${jug} ya jugados`, tipo: 'oficial' },
+    { id: 'alt', nombre: 'Plan B (rol alternativo)', badge: 'Solo tú', lista: ROL_ALT, nota: 'en edición', tipo: 'alt' },
+    ...ROLES_GUARDADOS.map(r => ({
+      id: r.id, nombre: r.nombre, badge: 'Guardado', lista: r.partidos || [], tipo: 'guardado',
+      nota: 'guardado el ' + new Date(r.creado).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+    }))
+  ];
+}
+
+function diasHtmlSoloLectura(lista) {
+  return agrupaPorDia(lista).map(([dia, partidos]) => {
+    const d = dia ? fecha(dia + 'T00:00') : null;
+    return `
+    <section>
+      <div class="mb-3 flex items-center gap-3">
+        <div style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;padding:7px 14px;border-radius:14px;background:#0E2647;color:#fff;line-height:1">
+          <span style="font-size:10px;letter-spacing:.14em;color:#FFC93C;font-weight:600">${d ? DIA_CORTO[d.getDay()] : '—'}</span>
+          <span class="num font-score" style="font-size:28px;margin-top:3px">${d ? d.getDate() : '?'}</span>
+          <span style="font-size:9.5px;letter-spacing:.1em;margin-top:2px;opacity:.7;text-transform:uppercase">${d ? MESES[d.getMonth()].slice(0, 3) : ''}</span>
+        </div>
+        <span class="h-px flex-1 bg-hair"></span>
+      </div>
+      <div class="space-y-3">${partidos.map(p => tarjetaPartidoAlt(p, { leer: true, lista })).join('')}</div>
+    </section>`;
+  }).join('');
+}
+
+function pintaRoles() {
+  const cont = $('#roles-lista');
+  if (!cont) return;
+  if (!esAdmin()) { cont.innerHTML = ''; return; }
+
+  const bt = (accion, id, txt, tono = 'base') => `<button type="button" data-rol-accion="${accion}" data-rol-id="${id}"
+    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 font-score text-[15px] tracking-wide shadow-card ${
+      tono === 'sun' ? 'bg-sun text-court hover:brightness-95' : tono === 'rojo' ? 'bg-white text-[#B3322E] ring-1 ring-hair hover:bg-[#FDEAEA]' : 'bg-white text-court ring-1 ring-hair hover:bg-mist'}">${txt}</button>`;
+  const chip = { 'Público': 'bg-sky text-blue', 'Solo tú': 'bg-[#FFF6DB] text-[#8A6500]', 'Guardado': 'bg-mist text-muted ring-1 ring-hair' };
+
+  cont.innerHTML = rolesTodos().map(r => {
+    const lista = r.lista.slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    const dias = new Set(lista.map(p => claveDia(p.fecha || ''))).size;
+    const botones = [
+      bt('pdf', r.id, 'Descargar PDF'),
+      r.tipo === 'alt' ? bt('editar', r.id, 'Editar') : '',
+      r.tipo === 'alt' ? bt('guardar', r.id, 'Guardar como rol') : '',
+      r.tipo !== 'alt' ? bt('cargar', r.id, 'Cargar al Plan B') : '',
+      r.tipo !== 'oficial' ? bt('publicar', r.id, 'Publicar como oficial', 'sun') : '',
+      r.tipo === 'guardado' ? bt('eliminar', r.id, 'Eliminar', 'rojo') : ''
+    ].join('');
+    return `
+    <details data-rol="${esc(r.id)}" class="rounded-2xl bg-white shadow-card ring-1 ring-hair/70" ${ROLES_ABIERTOS.has(r.id) ? 'open' : ''}>
+      <summary class="flex cursor-pointer list-none flex-wrap items-center gap-3 p-4">
+        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky text-blue">${icono('rol', 'h-5 w-5')}</span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate font-score text-[20px] leading-tight text-court">${esc(r.nombre)}</p>
+          <p class="text-[12.5px] text-muted">${lista.length} partido(s) · ${dias} día(s) · ${esc(r.nota)}</p>
+        </div>
+        <span class="rounded-full ${chip[r.badge]} px-2.5 py-1 text-[12px] font-medium">${r.badge}</span>
+        <svg viewBox="0 0 24 24" class="chev h-4 w-4 shrink-0 text-muted transition-transform" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="border-t border-hair p-4">
+        <div class="flex flex-wrap gap-2">${botones}</div>
+        <div class="mt-5 space-y-7">${lista.length ? diasHtmlSoloLectura(lista) : vacio('Este rol no tiene partidos.')}</div>
+      </div>
+    </details>`;
+  }).join('') + (ROLES_GUARDADOS.length ? '' : vacio('Todavía no guardas ningún rol. Arma tu Plan B y usa <strong>Guardar como rol</strong> para conservar una versión aquí.'));
+}
+
+function guardaRolActual() {
+  if (!ROL_ALT.length) { avisaFlotante('El Plan B está vacío; no hay nada que guardar.', true); return; }
+  const sug = 'Plan B ' + new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  const nombre = (prompt('Ponle un nombre a este rol:', sug) || '').trim();
+  if (!nombre) return;
+  ROLES_GUARDADOS.unshift({ id: nuevoId('r'), nombre, creado: new Date().toISOString(), partidos: JSON.parse(JSON.stringify(ROL_ALT)) });
+  if (!guardaRoles()) { ROLES_GUARDADOS.shift(); return; }
+  ROLES_ABIERTOS.add(ROLES_GUARDADOS[0].id);
+  pintaRoles();
+  avisaFlotante(`Rol "${nombre}" guardado en Todos los roles.`);
+}
+$('#btn-roles-guardar').addEventListener('click', guardaRolActual);
+
+function pdfDeRol(r) {
+  if (!r.lista.length) { avisaFlotante('Ese rol no tiene partidos para descargar.', true); return; }
+  const panel = $('#panel-roles');
+  panel.classList.add('panel-imprime');
+  window.addEventListener('afterprint', () => panel.classList.remove('panel-imprime'), { once: true });
+  const oficial = r.tipo === 'oficial';
+  imprimeRol(r.lista.slice(), ['Femenil', 'Varonil'], '#panel-roles .imprimir-tabla',
+    oficial ? 'CALENDARIO' : 'CALENDARIO ALTERNATIVO', oficial ? 'Rol de juegos' : esc(r.nombre));
+}
+
+$('#roles-lista').addEventListener('toggle', e => {
+  const d = e.target;
+  if (d && d.dataset && d.dataset.rol) { d.open ? ROLES_ABIERTOS.add(d.dataset.rol) : ROLES_ABIERTOS.delete(d.dataset.rol); }
+}, true);
+
+$('#roles-lista').addEventListener('click', e => {
+  const b = e.target.closest('[data-rol-accion]');
+  if (!b) return;
+  const r = rolesTodos().find(x => x.id === b.dataset.rolId);
+  if (!r) return;
+  const acc = b.dataset.rolAccion;
+
+  if (acc === 'pdf') pdfDeRol(r);
+  else if (acc === 'editar') abreTab('rolalt');
+  else if (acc === 'guardar') guardaRolActual();
+  else if (acc === 'publicar') publicaRolComoOficial(r.lista);
+  else if (acc === 'cargar') {
+    const nuevos = clonaParaAlt(r.lista);
+    if (!nuevos.length) { avisaFlotante('Ese rol no tiene partidos de fase de grupos para cargar.', true); return; }
+    if (ROL_ALT.length && !confirm(`El Plan B actual tiene ${ROL_ALT.length} partido(s) y se va a reemplazar. Si quieres conservarlo, guárdalo primero como rol. ¿Continuar?`)) return;
+    ROL_ALT = nuevos; guardaAlt(); pintaRolAlt();
+    avisaFlotante(`"${r.nombre}" cargado al Plan B. Ya puedes editarlo.`);
+  }
+  else if (acc === 'eliminar') {
+    if (!confirm(`¿Eliminar el rol guardado "${r.nombre}"? No se puede deshacer.`)) return;
+    ROLES_GUARDADOS = ROLES_GUARDADOS.filter(x => x.id !== r.id);
+    ROLES_ABIERTOS.delete(r.id); guardaRoles(); pintaRoles();
+    avisaFlotante('Rol eliminado.');
   }
 });
 
