@@ -1228,7 +1228,17 @@
     "fecha": "2026-10-31T09:30",
     "sede": "CANCHA 5 (20 DE NOVIEMBRE)",
     "local": "TEC DE CHINA",
-    "visita": "SEYBAPLAYA"
+    "visita": "SEYBAPLAYA",
+    "sets": [
+      [
+        28,
+        26
+      ],
+      [
+        25,
+        22
+      ]
+    ]
   },
   {
     "id": "p42v21e9",
