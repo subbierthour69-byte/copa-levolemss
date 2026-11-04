@@ -1639,5 +1639,15 @@
     "sede": "POR DEFINIR",
     "local": "CBTIS 09",
     "visita": "ONIX"
+  },
+  {
+    "id": "po7s4mik",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-11-28T22:30",
+    "sede": "POR DEFINIR",
+    "local": "CECYTE A",
+    "visita": "INSTITUTO CAMPECHANO SUPERIOR A"
   }
 ]
