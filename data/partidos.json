@@ -1679,5 +1679,15 @@
     "sede": "POR DEFINIR",
     "local": "INSTITUTO CAMPECHANO SUPERIOR A",
     "visita": "TEC DE CAMPECHE"
+  },
+  {
+    "id": "p2trn966",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-11-28T02:30",
+    "sede": "POR DEFINIR",
+    "local": "TIGRILLAS PREPA A",
+    "visita": "ONIX"
   }
 ]
