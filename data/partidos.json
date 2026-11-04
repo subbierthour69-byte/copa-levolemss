@@ -1619,5 +1619,15 @@
     "sede": "CCDU",
     "local": "TIGRILLAS SUPERIOR B",
     "visita": "KATANA"
+  },
+  {
+    "id": "pm2fiots",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo A",
+    "fecha": "2026-11-28T08:30",
+    "sede": "POR DEFINIR",
+    "local": "CBTIS 09",
+    "visita": "INSTITUTO CAMPECHANO PREPA A"
   }
 ]
