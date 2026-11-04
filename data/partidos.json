@@ -1599,5 +1599,15 @@
     "sede": "CCDU",
     "local": "TIGRILLAS SUPERIOR B",
     "visita": "TIGRILLAS PREPA B"
+  },
+  {
+    "id": "p4mzzqc8",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "",
+    "fecha": "2026-11-11T17:00",
+    "sede": "CCDU",
+    "local": "CECYTE B",
+    "visita": "TIGRILLAS PREPA B"
   }
 ]
