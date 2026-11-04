@@ -1609,5 +1609,15 @@
     "sede": "CCDU",
     "local": "CECYTE B",
     "visita": "TIGRILLAS PREPA B"
+  },
+  {
+    "id": "plesr4pb",
+    "fase": "grupos",
+    "cat": "Femenil",
+    "grupo": "Grupo B",
+    "fecha": "2026-11-11T18:00",
+    "sede": "CCDU",
+    "local": "TIGRILLAS SUPERIOR B",
+    "visita": "KATANA"
   }
 ]
