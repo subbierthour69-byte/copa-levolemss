@@ -1729,5 +1729,15 @@
     "sede": "POR DEFINIR",
     "local": "CBTIS 09",
     "visita": "CECYTE"
+  },
+  {
+    "id": "prajd1hc",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-11-28T12:30",
+    "sede": "POR DEFINIR",
+    "local": "CECYTE",
+    "visita": "LEONES"
   }
 ]
