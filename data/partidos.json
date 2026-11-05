@@ -1699,5 +1699,15 @@
     "sede": "POR DEFINIR",
     "local": "TEC DE CAMPECHE",
     "visita": "SEYBAPLAYA"
+  },
+  {
+    "id": "psvl75b0",
+    "fase": "grupos",
+    "cat": "Varonil",
+    "grupo": "Grupo A",
+    "fecha": "2026-11-28T09:30",
+    "sede": "POR DEFINIR",
+    "local": "SEYBAPLAYA",
+    "visita": "CBTIS 09"
   }
 ]
