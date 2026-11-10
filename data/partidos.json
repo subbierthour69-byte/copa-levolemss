@@ -1618,7 +1618,17 @@
     "fecha": "2026-11-09T17:00",
     "sede": "CCDU",
     "local": "CECYTE B",
-    "visita": "TIGRILLAS PREPA B"
+    "visita": "TIGRILLAS PREPA B",
+    "sets": [
+      [
+        23,
+        25
+      ],
+      [
+        22,
+        25
+      ]
+    ]
   },
   {
     "id": "plesr4pb",
