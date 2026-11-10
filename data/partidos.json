@@ -1638,7 +1638,17 @@
     "fecha": "2026-11-09T18:00",
     "sede": "CCDU",
     "local": "TIGRILLAS SUPERIOR B",
-    "visita": "KATANA"
+    "visita": "KATANA",
+    "sets": [
+      [
+        25,
+        15
+      ],
+      [
+        25,
+        6
+      ]
+    ]
   },
   {
     "id": "pm2fiots",
