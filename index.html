@@ -69,6 +69,8 @@ tailwind.config = {
   .num { font-variant-numeric: tabular-nums; }
 
   .panel[hidden], .subpanel[hidden] { display: none; }
+  summary::-webkit-details-marker { display: none; }
+  details[open] > summary .chev { transform: rotate(180deg); }
 
   /* Transición al cambiar de pestaña: el panel entra con un fundido suave y
      sus tarjetas aparecen una tras otra (efecto escalonado). El JS le pone la
@@ -123,11 +125,19 @@ tailwind.config = {
   #splash-bola { position: absolute; left: 50%; top: 50%; width: 42vmin; height: 42vmin; margin: -21vmin 0 0 -21vmin; opacity: 0; transform: scale(.06); filter: drop-shadow(0 0 28px rgba(255,201,60,.55)); }
   #splash-flash { position: absolute; left: 50%; top: 50%; width: 60vmin; height: 60vmin; margin: -30vmin 0 0 -30vmin; border-radius: 50%; opacity: 0; background: radial-gradient(circle, #fff 0%, rgba(255,201,60,.8) 35%, transparent 70%); }
   #splash-grietas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+  #splash-velo { position: absolute; inset: 0; background: rgba(14,38,71,.9); opacity: 0; }
+  #splash-bienvenida { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px; text-align: center; color: #fff; opacity: 0; font-family: 'Barlow Condensed', sans-serif; }
+  #splash-bienvenida p { margin: 0; font-size: clamp(22px, 5vw, 38px); letter-spacing: .32em; text-transform: uppercase; color: #FFC93C; }
+  #splash-bienvenida h1 { margin: 6px 0 0; font-size: clamp(46px, 13vw, 130px); line-height: 1; letter-spacing: 2px; }
+  #splash-bienvenida span { margin-top: 18px; width: 90px; height: 4px; border-radius: 4px; background: #FFC93C; }
   #splash-saltar { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font: 500 12px 'Public Sans', sans-serif; letter-spacing: .12em; color: rgba(255,255,255,.5); }
   #sidebar, #tabs-mobile { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
   body.intro #sidebar { transform: translateX(-105%); }
   body.intro #tabs-mobile { transform: translateY(110%); }
 
+  .side-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.28) transparent; -webkit-overflow-scrolling: touch; }
+  .side-scroll::-webkit-scrollbar { width: 6px; }
+  .side-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.28); border-radius: 6px; }
   .noscroll { scrollbar-width: none; }
   .noscroll::-webkit-scrollbar { display: none; }
 
@@ -154,22 +164,35 @@ tailwind.config = {
 
   @media print {
     body * { visibility: hidden; }
-    #imprimir-rol, #imprimir-rol * { visibility: visible; }
-    #imprimir-rol { position: absolute; inset: 0; padding: 24px; }
+    #imprimir-rol, #imprimir-rol *, #imprimir-rolalt, #imprimir-rolalt *, .imprimir-tabla, .imprimir-tabla * { visibility: visible; }
+    #imprimir-rol, #imprimir-rolalt { position: absolute; inset: 0; padding: 24px; }
     #imprimir-rol .rompe-pagina { break-inside: avoid; }
     #imprimir-rol .pagina-nueva { break-before: page; }
   }
 
   @media print {
-    @page { size: A4; margin: 0; }
+    @page { margin: 0; }
     main { padding: 0 !important; max-width: none !important; }
     body { background: #fff !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     header, nav, aside, footer, #mi-equipo, #splash, #bienvenida, #admin-toggle { display: none !important; }
     #contenido { padding-left: 0 !important; }
-    main > section:not(#panel-rol) { display: none !important; }
+    main > section:not(#panel-rol):not(#panel-rolalt):not(.panel-imprime) { display: none !important; }
+    .panel-imprime > *:not(.imprimir-tabla) { display: none !important; }
+    .imprimir-tabla { position: static; padding: 0; display: block !important; }
+    .imprimir-tabla .fila-lider { background-color: rgba(255,201,60,.18) !important; }
     #panel-rol > *:not(#imprimir-rol) { display: none !important; }
-    #imprimir-rol { position: static; padding: 0; }
+    #panel-rolalt > *:not(#imprimir-rolalt) { display: none !important; }
+    #imprimir-rol, #imprimir-rolalt { position: static; padding: 0; }
+  }
+
+  @media print {
+    @page { size: letter portrait; margin: 0; }
+    html, body { height: auto !important; overflow: visible !important; }
+    .panel, #panel-rol, #panel-rolalt, #contenido, main { animation: none !important; transform: none !important; opacity: 1 !important; overflow: visible !important; }
+    #imprimir-rol, #imprimir-rolalt { display: block !important; }
+    #imprimir-rol .hoja, #imprimir-rolalt .hoja, .imprimir-tabla .hoja { height: 278mm; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    #imprimir-rol .hoja:last-child, #imprimir-rolalt .hoja:last-child, .imprimir-tabla .hoja:last-child { break-after: auto; page-break-after: auto; }
   }
 </style>
 </head>
@@ -180,11 +203,35 @@ tailwind.config = {
   <div id="splash-base" class="net"></div>
   <div id="splash-casco"></div>
   <div id="splash-flash"></div>
-  <svg id="splash-bola" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="9.2" fill="#fff" stroke="#FFC93C" stroke-width="1"/>
-    <path d="M4 9.5c4.6-1.3 10.8-.6 15.6 2.4M6.5 19c1.2-4.4 4.6-8.6 9.4-10.6M12 2.8c2.7 3.8 3.9 9.4 2.6 15.2" stroke="#1B57B5" stroke-width="1.1"/>
+  <svg id="splash-bola" viewBox="0 0 200 200">
+    <defs>
+      <radialGradient id="gB" cx="35%" cy="30%" r="85%"><stop offset="0" stop-color="#3F7BFF"/><stop offset=".55" stop-color="#1B3FD0"/><stop offset="1" stop-color="#0A1F80"/></radialGradient>
+      <radialGradient id="gY" cx="40%" cy="30%" r="85%"><stop offset="0" stop-color="#FFE066"/><stop offset=".55" stop-color="#F7B900"/><stop offset="1" stop-color="#C98600"/></radialGradient>
+      <radialGradient id="gW" cx="40%" cy="30%" r="90%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".65" stop-color="#E6EAF5"/><stop offset="1" stop-color="#A9B2CF"/></radialGradient>
+      <radialGradient id="gS" cx="32%" cy="26%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gO" cx="50%" cy="50%" r="50%"><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#06124A" stop-opacity=".45"/></radialGradient>
+      <clipPath id="cBola"><circle cx="100" cy="100" r="96"/></clipPath>
+    </defs>
+    <g clip-path="url(#cBola)">
+      <rect width="200" height="200" fill="url(#gW)"/>
+      <path d="M8 74 C18 32 58 6 108 6 C90 40 86 78 100 110 C70 98 40 104 6 122 Z" fill="url(#gB)"/>
+      <path d="M44 24 C64 12 82 8 100 6 C82 38 80 74 93 108 C74 98 56 98 38 106 C32 74 34 44 44 24Z" fill="url(#gW)"/>
+      <path d="M104 54 C152 40 194 82 197 132 C198 162 180 186 150 197 C140 160 120 130 96 114 C108 94 110 74 104 54Z" fill="url(#gY)"/>
+      <path d="M104 54 C132 36 172 46 193 86 C197 100 198 114 197 126 C170 98 130 84 100 86 C98 74 100 64 104 54Z" fill="url(#gB)"/>
+      <path d="M110 8 C142 4 172 20 188 50 C160 36 128 38 106 52 C104 36 104 20 110 8Z" fill="url(#gY)"/>
+      <path d="M4 130 C40 108 82 106 112 120 C142 132 172 152 192 162 C172 192 122 204 90 202 C58 192 28 172 4 130Z" fill="url(#gW)"/>
+      <path d="M28 174 C70 150 122 150 164 180 C142 198 92 204 58 196Z" fill="url(#gY)"/>
+      <circle cx="100" cy="100" r="96" fill="url(#gS)"/>
+      <circle cx="100" cy="100" r="96" fill="url(#gO)"/>
+    </g>
+    <g fill="none" stroke="#0A1F80" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round">
+      <path d="M108 6 C90 40 86 78 100 110 C121 128 140 160 150 197"/><path d="M6 122 C40 104 70 98 100 110"/><path d="M100 110 C140 100 170 110 197 128"/>
+    </g>
+    <circle cx="100" cy="100" r="96" fill="none" stroke="#0A1F80" stroke-opacity=".3" stroke-width="2"/>
   </svg>
   <svg id="splash-grietas" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+  <div id="splash-velo"></div>
+  <div id="splash-bienvenida"><p>¡Bienvenidos a</p><h1 id="splash-titulo">LEVOLEMSS 2026</h1><span></span></div>
   <p id="splash-saltar">TOCA PARA ENTRAR</p>
 </div>
 
@@ -214,9 +261,9 @@ tailwind.config = {
 </header>
 
 <!-- ============ MENÚ LATERAL (escritorio) ============ -->
-<aside id="sidebar" class="fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col overflow-y-auto overscroll-contain border-r border-white/10 bg-deep px-3 py-5 text-white sm:flex">
+<aside id="sidebar" class="side-scroll fixed bottom-0 left-0 top-[72px] z-30 hidden w-60 flex-col overflow-y-auto overscroll-contain border-r border-white/10 bg-deep px-3 py-5 pb-8 text-white sm:flex">
   <p class="px-3 pb-3 font-score text-[13px] uppercase tracking-[.28em] text-white/45">Menú</p>
-  <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga" class="flex flex-col gap-1"></div>
+  <div id="tabs-desktop" role="tablist" aria-label="Secciones de la liga" class="flex shrink-0 flex-col gap-1"></div>
 </aside>
 
 <div id="contenido" class="sm:pl-60">
@@ -303,6 +350,81 @@ tailwind.config = {
     <div id="imprimir-rol" class="hidden"></div>
   </section>
 
+  <!-- ---------- ROL ALTERNATIVO (solo administrador) ---------- -->
+  <section id="panel-rolalt" class="panel" role="tabpanel" aria-labelledby="tab-d-rolalt" tabindex="-1" hidden>
+    <div class="flex items-start gap-3 rounded-2xl bg-[#FFF6DB] px-4 py-3 text-[13.5px] leading-relaxed text-court ring-1 ring-sun/70">
+      <svg viewBox="0 0 24 24" class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>
+      <p><strong>Plan B · solo tú lo ves.</strong> Aquí armas un rol de respaldo por si un equipo no llega. El público sigue viendo el rol oficial; este no se publica hasta que presiones <em>Publicar como oficial</em>. Se guarda solo en este navegador.</p>
+    </div>
+
+    <div class="sticky top-[72px] z-20 -mx-4 mt-4 bg-mist/90 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="font-score text-2xl tracking-wide">Rol alternativo</h2>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-alt-pdf" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
+            Descargar PDF
+          </button>
+          <button id="btn-alt-guardar" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            Guardar como rol
+          </button>
+          <button id="btn-alt-copiar" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            Copiar del rol oficial
+          </button>
+          <button id="btn-alt-agregar" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Agregar partido
+          </button>
+          <button id="btn-alt-publicar" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-sun px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card hover:brightness-95">
+            Publicar como oficial
+          </button>
+          <button id="btn-alt-vaciar" type="button"
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">
+            Vaciar
+          </button>
+          <label class="relative">
+            <span class="sr-only">Filtrar por categoría</span>
+            <select id="filtro-rolalt-select"
+                    class="appearance-none rounded-lg border border-hair bg-white py-2 pl-3.5 pr-9 font-score text-[16px] text-court shadow-card focus:outline-none focus:ring-2 focus:ring-blue">
+              <option value="Todas">Todas las categorías</option>
+              <option value="Femenil">Femenil</option>
+              <option value="Varonil">Varonil</option>
+            </select>
+            <svg viewBox="0 0 24 24" class="pointer-events-none absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="rolalt-lista" class="mt-5 space-y-7"></div>
+    <div id="imprimir-rolalt" class="hidden"></div>
+  </section>
+
+  <!-- ---------- TODOS LOS ROLES (solo administrador) ---------- -->
+  <section id="panel-roles" class="panel" role="tabpanel" aria-labelledby="tab-d-roles" tabindex="-1" hidden>
+    <div class="flex items-start gap-3 rounded-2xl bg-[#FFF6DB] px-4 py-3 text-[13.5px] leading-relaxed text-court ring-1 ring-sun/70">
+      <svg viewBox="0 0 24 24" class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9" rx="1.5"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>
+      <p><strong>Solo tú lo ves.</strong> Aquí están el rol oficial, tu Plan B y todos los roles que guardaste. Los guardados viven únicamente en este navegador.</p>
+    </div>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-score text-2xl tracking-wide">Todos los roles</h2>
+        <p class="mt-1 text-[14px] text-muted">Abre cualquiera para verlo, descargarlo, cargarlo al Plan B o publicarlo.</p>
+      </div>
+      <button id="btn-roles-guardar" type="button"
+              class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-court px-3 py-2 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
+        Guardar el Plan B como rol
+      </button>
+    </div>
+    <div id="roles-lista" class="mt-5 space-y-4"></div>
+    <div class="imprimir-tabla hidden"></div>
+  </section>
+
   <!-- ---------- RAMAS (se generan con JavaScript) ---------- -->
   <section id="panel-femenil" class="panel" role="tabpanel" aria-labelledby="tab-d-femenil" tabindex="-1" hidden></section>
   <section id="panel-varonil" class="panel" role="tabpanel" aria-labelledby="tab-d-varonil" tabindex="-1" hidden></section>
@@ -349,7 +471,8 @@ tailwind.config = {
       </div>
       <div id="filtro-cruces" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
     </div>
-    <div class="mt-4"><button id="btn-generar-cal" class="inline-flex items-center gap-2 rounded-xl bg-sun px-4 py-2.5 font-score text-[16px] tracking-wide text-court shadow-card hover:brightness-95">Generar calendario de los cruces pendientes</button></div>
+    <div class="mt-4 flex flex-wrap gap-2"><button id="btn-revisar-cruces" class="inline-flex items-center gap-2 rounded-xl bg-court px-4 py-2.5 font-score text-[16px] tracking-wide text-white shadow-card hover:bg-deep">Revisar encuentros repetidos</button><button id="btn-generar-cal" class="inline-flex items-center gap-2 rounded-xl bg-sun px-4 py-2.5 font-score text-[16px] tracking-wide text-court shadow-card hover:brightness-95">Generar calendario de los cruces pendientes</button></div>
+    <div id="cruces-revision" class="mt-4"></div>
     <div id="cruces-cont" class="mt-5 space-y-10"></div>
   </section>
 
@@ -700,6 +823,61 @@ tailwind.config = {
       <button id="partido-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">
         Guardar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: partido del rol alternativo (solo administrador, se guarda en este navegador) -->
+<div id="alt-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-court/70 p-4 py-8" role="dialog" aria-modal="true" aria-label="Partido alternativo">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-lift">
+    <h3 id="alt-modal-titulo" class="font-score text-[20px] tracking-wide text-court">Agregar partido alternativo</h3>
+    <input id="alt-id" type="hidden">
+
+    <div class="mt-3 flex gap-3">
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Categoría</span>
+        <select id="alt-cat" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+          <option value="Femenil">Femenil</option>
+          <option value="Varonil">Varonil</option>
+        </select>
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Grupo</span>
+        <input id="alt-grupo" type="text" list="alt-grupos-sugeridos" placeholder="Ej. Grupo A"
+               class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+        <datalist id="alt-grupos-sugeridos"></datalist>
+      </label>
+    </div>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Fecha y hora</span>
+      <input id="alt-fecha" type="datetime-local"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <label class="mt-3 block">
+      <span class="mb-1 block text-[13px] font-medium text-court">Cancha / sede</span>
+      <input id="alt-sede" type="text" placeholder="Ej. Auditorio — Cancha 1"
+             class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue">
+    </label>
+
+    <div class="mt-3 flex gap-3">
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Local</span>
+        <select id="alt-local" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue"></select>
+      </label>
+      <label class="block flex-1">
+        <span class="mb-1 block text-[13px] font-medium text-court">Visita</span>
+        <select id="alt-visita" class="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue"></select>
+      </label>
+    </div>
+
+    <div id="alt-modal-aviso" class="mt-3 hidden text-[13px]"></div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="alt-modal-eliminar" class="hidden rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-[#B3322E] ring-1 ring-hair hover:bg-mist">Eliminar</button>
+      <button id="alt-modal-cancelar" class="flex-1 rounded-xl bg-white px-4 py-2.5 font-score text-[15px] tracking-wide text-muted ring-1 ring-hair hover:bg-mist">Cancelar</button>
+      <button id="alt-modal-guardar" class="flex-1 rounded-xl bg-court px-4 py-2.5 font-score text-[15px] tracking-wide text-white shadow-card hover:bg-deep">Guardar</button>
     </div>
   </div>
 </div>
@@ -1117,9 +1295,12 @@ const ICONOS = {
   subir:        '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M4.5 15v3A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-3"/>',
   cerrar:       '<path d="M6 6l12 12M18 6L6 18"/>',
   buscar:       '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  roles:        '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 17l9 5 9-5"/>',
+  rolalt:       '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M9 13.5h6l-2-2M15 17H9l2 2"/>',
   cruces:       '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h6M4 17h6"/>',
   historial:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-  estadisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>'
+  estadisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+  basura:       '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1.5 1.5 0 001.5 1.4h7A1.5 1.5 0 0017 19l1-12M9 7V4.5A1.5 1.5 0 0110.5 3h3A1.5 1.5 0 0115 4.5V7"/>'
 };
 
 function icono(nombre, clase = '') {
@@ -1222,14 +1403,16 @@ $('#marca-modal-guardar').addEventListener('click', async () => {
 const TABS = [
   { id:'equipos',    icono:'equipos',    texto:'Equipos',       corto:'Equipos' },
   { id:'rol',        icono:'rol',        texto:'Rol de Juegos', corto:'Rol' },
+  { id:'rolalt',     icono:'rolalt',     texto:'Rol alternativo', corto:'Plan B', admin:true },
+  { id:'roles',      icono:'roles',      texto:'Todos los roles', corto:'Roles', admin:true },
+  { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true },
   { id:'femenil',    icono:'femenil',    texto:'Femenil',       corto:'Femenil' },
   { id:'varonil',    icono:'varonil',    texto:'Varonil',       corto:'Varonil' },
   { id:'liguilla',   icono:'liguilla',   texto:'Liguilla',      corto:'Liguilla' },
   { id:'estadisticas', icono:'estadisticas', texto:'Estadísticas', corto:'Stats' },
   { id:'historial',  icono:'historial',  texto:'Historial',     corto:'Historial' },
   { id:'documentos', icono:'documentos', texto:'Documentos',    corto:'Docs' },
-  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' },
-  { id:'cruces',     icono:'cruces',     texto:'Cruces',        corto:'Cruces', admin:true }
+  { id:'galeria',    icono:'galeria',    texto:'Galería',       corto:'Fotos' }
 ];
 
 const estado = {
@@ -1360,6 +1543,7 @@ function abreTab(id, suave = false) {
   });
 
   history.replaceState(null, '', '#' + id);
+  const dAct = $('#tab-d-' + id); if (dAct && dAct.scrollIntoView) dAct.scrollIntoView({ block: 'nearest' });
   if (!suave) window.scrollTo({ top: 0 });
 }
 
@@ -1644,7 +1828,11 @@ function tarjetaProximo(p, simultaneo) {
 
   return `
   <article class="net overflow-hidden rounded-[22px] bg-deep text-white shadow-lift">
-    <div class="h-full bg-gradient-to-br from-court/85 via-court/60 to-blue/45 p-5 ${simultaneo ? 'sm:p-6' : 'sm:p-7'}">
+    <div class="relative h-full bg-gradient-to-br from-court/85 via-court/60 to-blue/45 p-5 ${simultaneo ? 'sm:p-6' : 'sm:p-7'}">
+      ${esAdmin() ? `<div class="absolute right-3 top-3 flex gap-1.5">
+        <button data-editar-partido="${p.id}" title="Editar partido" class="grid h-8 w-8 place-items-center rounded-lg bg-white/15 text-white hover:bg-white/25">${icono('lapiz', 'h-3.5 w-3.5')}</button>
+        <button data-eliminar-partido="${p.id}" title="Eliminar partido" class="grid h-8 w-8 place-items-center rounded-lg bg-white/15 text-[#FFB4B0] hover:bg-white/25">${icono('basura', 'h-3.5 w-3.5')}</button>
+      </div>` : ''}
       <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="text-[13px] text-white/70">Próximo partido</p>
         ${simultaneo ? `<span class="rounded-md bg-sun px-2 py-0.5 font-score text-[14px] tracking-wide text-court">A la misma hora · ${esc(p.sede || 'Cancha por definir')}</span>` : ''}
@@ -1715,7 +1903,7 @@ function tarjetaPartido(p) {
       <p class="num font-score text-[26px] leading-none text-court">${p.fecha ? soloHora(p.fecha) : '—'}</p>
       <p class="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">${p.fecha ? meridiano(p.fecha) : ''}</p>
     </div>
-    <div class="min-w-0 flex-1 p-3.5 ${esAdmin() ? 'pr-12' : ''}">
+    <div class="min-w-0 flex-1 p-3.5 ${esAdmin() ? 'pr-24' : ''}">
       <div class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
         ${equipo(p.local, p.logoLocal)}
         <span class="self-start rounded-full bg-court px-2.5 py-0.5 font-score text-[12px] tracking-widest text-sun sm:self-center">VS</span>
@@ -1734,6 +1922,7 @@ function tarjetaPartido(p) {
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
     </button>` : ''}
+    ${esAdmin() ? btnBorrar(p.id) : ''}
   </article>`;
 }
 
@@ -1754,6 +1943,8 @@ function pintaRol() {
           <span style="font-size:9.5px;letter-spacing:.1em;margin-top:2px;opacity:.7;text-transform:uppercase">${d ? MESES[d.getMonth()].slice(0, 3) : ''}</span>
         </div>
         <span class="h-px flex-1 bg-hair"></span>
+        ${esAdmin() ? `<button type="button" data-eliminar-dia="${dia || ''}" title="Eliminar todos los partidos de este día"
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[14px] tracking-wide text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}Eliminar día</button>` : ''}
       </div>
       <div class="stagger space-y-3">${partidos.map(tarjetaPartido).join('')}</div>
     </section>`;
@@ -1802,16 +1993,25 @@ function montaRama(rama) {
         <div data-res class="mt-5 space-y-8"></div>
       </div>
       <div id="sub-${rama}-posiciones" class="subpanel" role="tabpanel" hidden>
-        <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-score text-2xl tracking-wide">Tabla de posiciones</h3>
+          <button type="button" data-pdf-tabla
+                  class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
+            Descargar PDF
+          </button>
+        </div>
         <p class="mt-1 max-w-[62ch] text-[14px] leading-relaxed text-muted">
           Solo cuenta la fase de grupos, y cada grupo tiene su propia tabla.
           Se ordena por partidos ganados; si hay empate, por puntos; después por cociente de sets (SF ÷ SC) y, al final, por cociente de puntos (PF ÷ PC).
         </p>
         <div data-tabla class="mt-4"></div>
       </div>
-    </div>`;
+    </div>
+    <div class="imprimir-tabla hidden"></div>`;
 
   $$('[data-sub]', panel).forEach(b => b.addEventListener('click', () => abreSub(rama, b.dataset.sub, true)));
+  $('[data-pdf-tabla]', panel).addEventListener('click', () => imprimeTabla(rama));
 
   const buscar = $('[data-buscar]', panel);
   buscar.value = estado.busqueda[rama] || '';
@@ -1865,7 +2065,8 @@ function tarjetaResultado(p) {
             class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">
       ${icono('lapiz', 'h-3.5 w-3.5')}
     </button>` : ''}
-    <div class="mb-3 flex flex-wrap items-center gap-2 pr-8 text-[12.5px]">
+    ${esAdmin() ? btnBorrar(p.id) : ''}
+    <div class="mb-3 flex flex-wrap items-center gap-2 ${esAdmin() ? 'pr-20' : 'pr-8'} text-[12.5px]">
       <span class="rounded-md ${p.fase === 'grupos' ? 'bg-sky text-blue' : 'bg-sun/25 text-court'} px-2 py-0.5 font-medium">
         ${etiquetaFase(p)}
       </span>
@@ -2094,6 +2295,48 @@ function htmlTabla(filas, descripcion, clave = '') {
     </table>
     </div>
   </div>`;
+}
+
+/* Descarga en PDF la tabla de posiciones tal cual se ve en pantalla: toma el
+   HTML ya dibujado y le pone un encabezado con el logo. El PDF se genera con
+   el diálogo de impresión del navegador ("Guardar como PDF"). */
+function imprimeTabla(rama) {
+  const panel = $('#panel-' + rama.toLowerCase());
+  const cont = $('.imprimir-tabla', panel);
+  const origen = $('[data-tabla]', panel);
+  if (!origen.querySelector('table')) { avisaFlotante('Todavía no hay tablas con resultados para descargar.', true); return; }
+
+  const logo = MARCA_LOCAL || MARCA_LOGO;
+  const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+  cont.innerHTML = `
+    <style>
+      .itp{box-sizing:border-box;width:100%;padding:10mm 10mm 8mm;background:#fff;color:#0E2647;font-family:'Public Sans',sans-serif}
+      .itp *{animation:none !important;transition:none !important}
+      .itp-top{position:relative;text-align:center;margin-bottom:7mm;font-family:'Barlow Condensed',sans-serif}
+      .itp-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
+      .itp-top h1{margin:0;font-size:44px;line-height:1;letter-spacing:2px;color:#000}
+      .itp-top .sub{margin-top:4px;font-size:28px;line-height:1;letter-spacing:1px;text-transform:uppercase;color:#000}
+      .itp-top .lg{margin-top:4px;font-size:19px;letter-spacing:1px;text-transform:uppercase;opacity:.9;color:#000}
+      .itp section{break-inside:avoid}
+      .itp-pie{margin-top:6mm;border-top:2px solid #000;padding-top:8px;text-align:center;font-weight:700;font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:#000}
+    </style>
+    <div class="itp">
+      <div class="itp-top">
+        ${logo ? `<img src="${logo}" alt="">` : ''}
+        <h1>TABLA DE POSICIONES</h1>
+        <div class="sub">Rama ${rama.toLowerCase()}</div>
+        <div class="lg">${esc(MARCA_NOMBRE)} · ${esc(MARCA_TEMPORADA)}</div>
+      </div>
+      ${origen.innerHTML}
+      <div class="itp-pie">${esc(MARCA_NOMBRE)} • Posiciones ${rama} • ${hoy}</div>
+    </div>`;
+
+  panel.classList.add('panel-imprime');
+  cont.classList.remove('hidden');
+  setTimeout(() => window.print(), 350);
+  window.addEventListener('afterprint', () => {
+    cont.classList.add('hidden'); cont.innerHTML = ''; panel.classList.remove('panel-imprime');
+  }, { once: true });
 }
 
 function pintaTabla(rama) {
@@ -2461,6 +2704,129 @@ function pintaCruces() {
 
   $$('[data-programa]', cont).forEach(b => b.addEventListener('click', () => abrePartidoCon(b.dataset.rama, b.dataset.grupo, b.dataset.a, b.dataset.b)));
 }
+
+
+/* ---------- Revisión de encuentros repetidos ---------- */
+/* Revisa el rol oficial y el Plan B: mismo cruce programado más de una vez,
+   Plan B que repite un partido ya jugado, y empalmes de cancha u horario. */
+function analizaEncuentros() {
+  const hall = [];
+  const oficial = PARTIDOS.filter(p => p.fase === 'grupos' && p.local && p.visita);
+  const porPar = (lista, origen) => {
+    const m = new Map();
+    lista.forEach(p => {
+      const k = p.cat + '|' + llavePar(p.local, p.visita);
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push({ o: origen, p });
+    });
+    return m;
+  };
+  const titulo = it => `${it[0].p.local} vs ${it[0].p.visita}`;
+  const grupoTxt = it => [...new Set(it.map(x => (x.p.grupo || '').trim() || 'Sin grupo'))].join(' / ');
+
+  const repetidos = (lista, origen) => porPar(lista, origen).forEach(items => {
+    if (items.length < 2) return;
+    const exacto = items.some((a, i) => items.some((b, j) => i < j && a.p.fecha && a.p.fecha === b.p.fecha));
+    hall.push({
+      nivel: 'rep', cat: items[0].p.cat, grupo: grupoTxt(items), titulo: titulo(items), items,
+      motivo: (exacto ? 'Duplicado exacto (misma fecha y hora)' : `Se enfrentan ${items.length} veces`) +
+        (origen === 'alt' ? ' en el Plan B' : ' en el rol oficial') +
+        (new Set(items.map(x => claveGrupo(x.p.grupo))).size > 1 ? ' · con grupos distintos' : '')
+    });
+  });
+  repetidos(oficial, 'oficial');
+  repetidos(ROL_ALT, 'alt');
+
+  /* Plan B que repite un partido que ya se jugó en el rol oficial */
+  const jugados = porPar(oficial.filter(jugado), 'oficial');
+  porPar(ROL_ALT, 'alt').forEach((arr, k) => {
+    if (jugados.has(k)) {
+      const items = [...jugados.get(k), ...arr];
+      hall.push({ nivel: 'rep', cat: items[0].p.cat, grupo: grupoTxt(items), titulo: titulo(items), items, motivo: 'El Plan B repite un partido que ya se jugó' });
+    }
+  });
+
+  /* Empalmes de horario (mismo criterio de 90 min que usa el resto de la página) */
+  const empalmes = (lista, origen) => {
+    const l = lista.filter(p => p.fecha && p.local && p.visita);
+    for (let i = 0; i < l.length; i++) for (let j = i + 1; j < l.length; j++) {
+      const a = l[i], b = l[j];
+      if (Math.abs(fecha(a.fecha).getTime() - fecha(b.fecha).getTime()) >= 90 * 60000) continue;
+      const msgs = [];
+      if (a.sede && b.sede && a.sede.trim().toLowerCase() === b.sede.trim().toLowerCase()) msgs.push(`Misma cancha (${a.sede})`);
+      [a.local, a.visita].forEach(e => { if (e === b.local || e === b.visita) msgs.push(`${e} juega en los dos`); });
+      if (msgs.length) hall.push({
+        nivel: 'emp', cat: a.cat === b.cat ? a.cat : 'Varias', grupo: '', titulo: `${a.local} vs ${a.visita}  ·  ${b.local} vs ${b.visita}`,
+        items: [{ o: origen, p: a }, { o: origen, p: b }],
+        motivo: 'Empalme de horario: ' + msgs.join(' · ') + (origen === 'alt' ? ' (Plan B)' : '')
+      });
+    }
+  };
+  empalmes(PARTIDOS.filter(p => !jugado(p) && llaveActiva(p)), 'oficial');
+  empalmes(ROL_ALT, 'alt');
+
+  return { hall, nOficial: oficial.length, nAlt: ROL_ALT.length };
+}
+
+function pintaRevision() {
+  const cont = $('#cruces-revision');
+  if (!cont) return;
+  if (!esAdmin()) { cont.innerHTML = ''; delete cont.dataset.activo; return; }
+  cont.dataset.activo = '1';
+  const { hall, nOficial, nAlt } = analizaEncuentros();
+  const nRep = hall.filter(h => h.nivel === 'rep').length, nEmp = hall.length - nRep;
+  const alcance = `${nOficial} encuentro(s) del rol oficial${nAlt ? ` y ${nAlt} del Plan B` : ''}`;
+
+  if (!hall.length) {
+    cont.innerHTML = `<div class="flex items-center gap-2 rounded-2xl bg-[#E6F4EC] px-4 py-3 text-[14px] text-[#1F7A4C] ring-1 ring-[#1F7A4C]/30">${icono('correcto', 'h-5 w-5 shrink-0')}<span>Todo en orden: revisé ${alcance} y no hay repetidos ni empalmes.</span></div>`;
+    return;
+  }
+
+  const fila = x => {
+    const p = x.p;
+    const est = jugado(p) ? (() => { const [gl, gv] = setsGanados(p); return `Jugado ${gl}-${gv}`; })() : 'Pendiente';
+    return `
+      <div class="flex flex-wrap items-center gap-2 rounded-xl bg-mist px-3 py-2 text-[13px]">
+        <span class="rounded-full ${x.o === 'alt' ? 'bg-[#FFF6DB] text-[#8A6500]' : 'bg-sky text-blue'} px-2.5 py-0.5 text-[12px] font-medium">${x.o === 'alt' ? 'Plan B' : 'Oficial'}</span>
+        <span class="num font-medium text-court">${p.fecha ? `${esc(tituloDia(p.fecha))} · ${soloHora(p.fecha)} ${meridiano(p.fecha)}` : 'Sin fecha'}</span>
+        <span class="text-muted">${esc(p.sede || 'Sin cancha')}</span>
+        <span class="ml-auto rounded-full ${jugado(p) ? 'bg-[#E6F4EC] text-[#1F7A4C]' : 'bg-sun/30 text-[#8A6100]'} px-2.5 py-0.5 text-[12px] font-medium">${est}</span>
+        <button type="button" data-rev-ed="${x.o}:${p.id}" class="inline-flex items-center gap-1 rounded-lg bg-court px-2.5 py-1 text-[12px] font-medium text-white hover:bg-deep">${icono('lapiz', 'h-3 w-3')}Editar</button>
+      </div>`;
+  };
+
+  cont.innerHTML = `
+    <div class="flex items-center gap-2 rounded-2xl bg-[#FDEAEA] px-4 py-3 text-[14px] text-[#B3322E] ring-1 ring-[#B3322E]/30">
+      ${icono('alerta', 'h-5 w-5 shrink-0')}
+      <span>Revisé ${alcance}: encontré <strong>${nRep}</strong> repetido(s) y <strong>${nEmp}</strong> empalme(s).</span>
+    </div>
+    <div class="mt-3 space-y-3">
+      ${hall.map(h => `
+      <article class="rounded-2xl bg-white p-4 shadow-card ring-1 ring-[#B3322E]/25">
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="min-w-0 flex-1 font-score text-[19px] leading-tight text-court">${esc(h.titulo)}</p>
+          ${h.cat !== 'Varias' ? `<span class="rounded-full ${h.cat === 'Femenil' ? 'bg-[#FCE8F3] text-rose' : 'bg-sky text-blue'} px-2.5 py-1 text-[12px] font-medium">${h.cat}</span>` : ''}
+          ${h.grupo ? `<span class="rounded-full bg-mist px-2.5 py-1 text-[12px] text-muted">${esc(h.grupo)}</span>` : ''}
+        </div>
+        <p class="mt-1 text-[13px] font-medium text-[#B3322E]">${esc(h.motivo)}</p>
+        <div class="mt-3 space-y-1.5">${h.items.map(fila).join('')}</div>
+      </article>`).join('')}
+    </div>`;
+}
+function refrescaRevision() {
+  const c = $('#cruces-revision');
+  if (c && c.dataset.activo) pintaRevision();
+}
+$('#btn-revisar-cruces').addEventListener('click', () => {
+  pintaRevision();
+  const c = $('#cruces-revision'); if (c.scrollIntoView) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+$('#cruces-revision').addEventListener('click', e => {
+  const b = e.target.closest('[data-rev-ed]');
+  if (!b) return;
+  const [origen, id] = b.dataset.revEd.split(':');
+  if (origen === 'alt') abreAltModal(id); else abrePartidoModal(id);
+});
 
 /* ==========================================================================
    Historial de temporadas, respaldo y registro de cambios
@@ -2834,6 +3200,70 @@ function pintaEstadisticas() {
       ${caja('Sets más disputados', todosSets.sort((a, b) => (b.x + b.y) - (a.x + a.y)).slice(0, 5).map(({ p, i, x, y }) => ({ t: `${esc(p.local)} vs ${esc(p.visita)}`, s: `Set ${i + 1}`, v: `${x}-${y}` })))}
     </div>`;
 }
+
+/* ==========================================================================
+   Eliminar partidos (botón de basura en el Próximo partido, el Rol y los Resultados)
+   ========================================================================== */
+const btnBorrar = id => `<button data-eliminar-partido="${id}" title="Eliminar partido"
+  class="absolute right-[46px] top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}</button>`;
+
+async function eliminaPartido(id) {
+  const idx = PARTIDOS.findIndex(p => p.id === id);
+  if (idx === -1) { avisaFlotante('Ese partido ya no existe.', true); return; }
+  const p = PARTIDOS[idx], esLiguilla = p.fase !== 'grupos';
+  const nombre = `${p.local || 'Por definir'} vs ${p.visita || 'Por definir'}`;
+  if (!confirm(esLiguilla
+    ? `¿Vaciar el partido de liguilla ${nombre}? Se le quitan equipos y resultado (queda "Por definir"); la llave se conserva.`
+    : `¿Eliminar el partido ${nombre}? No se puede deshacer.`)) return;
+
+  const copia = [...PARTIDOS];
+  if (esLiguilla) {
+    const { fase, llave, avanzaA, ranura, cat, liga } = p;
+    PARTIDOS[idx] = { id, fase, llave, avanzaA, ranura, cat, liga, fecha: p.fecha, sede: p.sede, local: '', visita: '' };
+  } else PARTIDOS.splice(idx, 1);
+
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, esLiguilla ? `Vacía partido de liguilla: ${nombre}` : `Elimina partido: ${nombre}`);
+    repintaTodo();
+    avisaFlotante(esLiguilla ? 'Partido vaciado.' : 'Partido eliminado.');
+  } catch (e) {
+    PARTIDOS = copia;
+    repintaTodo();
+    avisaFlotante('No se pudo eliminar: ' + e.message, true);
+  }
+}
+async function eliminaDia(dia) {
+  const delDia = filtraRama(porJugar()).filter(p => (claveDia(p.fecha) || '') === dia);
+  const grupos = delDia.filter(p => p.fase === 'grupos');
+  const liguilla = delDia.length - grupos.length;
+  if (!grupos.length) { avisaFlotante(liguilla ? 'Ese día solo tiene partidos de liguilla; bórralos uno por uno.' : 'No hay partidos que eliminar en ese día.', true); return; }
+  let etiqueta = 'sin fecha';
+  if (dia) { const d = fecha(dia + 'T00:00'); etiqueta = `${DIA_CORTO[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`; }
+  if (!confirm(`¿Eliminar los ${grupos.length} partido(s) pendientes del ${etiqueta}? No se puede deshacer.` + (liguilla ? ` (${liguilla} de liguilla no se tocan.)` : ''))) return;
+
+  const ids = new Set(grupos.map(p => p.id));
+  const copia = [...PARTIDOS];
+  PARTIDOS = PARTIDOS.filter(p => !ids.has(p.id));
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, `Elimina ${grupos.length} partido(s) del día ${etiqueta}`);
+    repintaTodo();
+    avisaFlotante('Día eliminado del rol.');
+  } catch (e) {
+    PARTIDOS = copia;
+    repintaTodo();
+    avisaFlotante('No se pudo eliminar: ' + e.message, true);
+  }
+}
+document.addEventListener('click', e => {
+  const bd = e.target.closest('[data-eliminar-dia]');
+  if (bd) { eliminaDia(bd.dataset.eliminarDia); return; }
+  const b = e.target.closest('[data-eliminar-partido]');
+  if (b) { eliminaPartido(b.dataset.eliminarPartido); return; }
+  const ed = e.target.closest('#proximo [data-editar-partido]');
+  if (ed) abrePartidoModal(ed.dataset.editarPartido);
+});
 
 /* ==========================================================================
    8. DOCUMENTOS
@@ -3453,22 +3883,21 @@ function abrePartidoModal(id = null) {
   $('#partido-modal').classList.replace('hidden', 'flex');
 }
 
-$('#btn-descargar-rol').addEventListener('click', () => {
-  const pendientes = porJugar();
-  const ramas = estado.ramaRol === 'Todas' ? ['Femenil', 'Varonil'] : [estado.ramaRol];
+function imprimeRol(pendientes, ramas, destinoSel, tituloDoc, etiquetaPie) {
+  const destino = $(destinoSel);
   const hoy = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
   const logo = MARCA_LOCAL || MARCA_LOGO;
 
   const estilos = `<style>
-    .hoja{width:210mm;height:295mm;box-sizing:border-box;padding:9mm;background:#fff;color:#000;display:flex;flex-direction:column;break-after:page;font-family:'Public Sans',sans-serif}
+    .hoja{box-sizing:border-box;width:100%;padding:9mm 9mm 6mm;background:#fff;color:#000;break-after:page;font-family:'Public Sans',sans-serif}
     .hoja:last-child{break-after:auto}
     .pr-top{position:relative;text-align:center;margin-bottom:5mm;font-family:'Barlow Condensed',sans-serif}
     .pr-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
     .pr-top h1{margin:0;font-size:46px;line-height:1;letter-spacing:2px}
     .pr-top .sub{margin-top:4px;font-size:30px;line-height:1;color:#000;letter-spacing:1px;text-transform:uppercase}
     .pr-top .lg{margin-top:4px;font-size:20px;letter-spacing:1px;opacity:.92;text-transform:uppercase}
-    .pr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5mm;align-content:start;flex:1}
-    .card{border:2px solid #000;border-radius:3mm;overflow:hidden;background:#fff;align-self:start}
+    .pr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5mm;align-content:start}
+    .card{border:2px solid #000;border-radius:3mm;overflow:hidden;background:#fff;align-self:start;break-inside:avoid}
     .ch{background:#E8E8E8;color:#000;border-bottom:2px solid #000;text-align:center;padding:3px 4px;font:700 26px 'Barlow Condensed',sans-serif;letter-spacing:1px}
     .ch small{font-size:15px;margin-left:5px;opacity:.7}
     .fila{display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #ccc}
@@ -3487,13 +3916,13 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     .tp td:nth-child(2),.tp th:nth-child(2){text-align:left}
     .tp tr.l td{background:#E0E0E0;font-weight:700}
     .tp td:last-child{font-weight:700;font-size:17px}
-    .pf{margin-top:auto;background:#fff;color:#000;border-top:2px solid #000;border-radius:0;text-align:center;padding:8px 12px;font-weight:700;font-size:15px;letter-spacing:.6px;text-transform:uppercase}
+    .pf{margin-top:7mm;background:#fff;color:#000;border-top:2px solid #000;border-radius:0;text-align:center;padding:8px 12px;font-weight:700;font-size:15px;letter-spacing:.6px;text-transform:uppercase}
   </style>`;
 
   const cabeza = (rama, col, titulo) => `
     <div class="pr-top">
       ${logo ? `<img src="${logo}" alt="">` : ''}
-      <h1>CALENDARIO</h1>
+      <h1>${tituloDoc}</h1>
       <div class="sub">${rama} · ${esc(titulo)}</div>
       <div class="lg">${esc(MARCA_NOMBRE)} · ${esc(MARCA_TEMPORADA)}</div>
     </div>`;
@@ -3526,7 +3955,12 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     const col = rama === 'Femenil' ? '#B3327A' : '#1B57B5';
     const deRama = pendientes.filter(p => p.cat === rama);
     const lista = [];
-    gruposDeRama(rama).forEach(g => lista.push({
+    const gs = gruposDeRama(rama);
+    deRama.filter(p => p.fase === 'grupos').forEach(p => {
+      const k = claveGrupo(p.grupo);
+      if (!gs.some(g => g.clave === k)) gs.push({ clave: k, etiqueta: (p.grupo || '').trim() || 'Sin grupo', valor: k || '__sin' });
+    });
+    gs.forEach(g => lista.push({
       titulo: g.etiqueta,
       filas: filasDeGrupo(rama, g),
       ps: deRama.filter(p => p.fase === 'grupos' && claveGrupo(p.grupo) === g.clave)
@@ -3542,21 +3976,33 @@ $('#btn-descargar-rol').addEventListener('click', () => {
     const cartas = [];
     if (b.filas.length) cartas.push(cardPos(b.filas));
     agrupaPorDia(ps).forEach(([dia, arr]) => {
-      for (let k = 0; k < arr.length; k += 5) cartas.push(cardDia(dia, arr.slice(k, k + 5), k > 0));
+      for (let k = 0; k < arr.length; k += 4) cartas.push(cardDia(dia, arr.slice(k, k + 4), k > 0));
     });
     if (!cartas.length) return;
     for (let i = 0; i < cartas.length; i += 4) {
       hojas.push(`<div class="hoja">${cabeza(b.rama, b.col, b.titulo)}<div class="pr-grid">${cartas.slice(i, i + 4).join('')}</div>
-        <div class="pf">${esc(MARCA_NOMBRE)} • Rol de juegos • ${hoy}</div></div>`);
+        <div class="pf">${esc(MARCA_NOMBRE)} • ${etiquetaPie} • ${hoy}</div></div>`);
     }
   });
 
-  $('#imprimir-rol').innerHTML = estilos + (hojas.length ? hojas.join('')
+  destino.innerHTML = estilos + (hojas.length ? hojas.join('')
     : `<div class="hoja">${cabeza('', '', 'Sin partidos')}<p style="text-align:center">No hay partidos pendientes con este filtro para imprimir.</p></div>`);
 
-  $('#imprimir-rol').classList.remove('hidden');
+  destino.classList.remove('hidden');
   setTimeout(() => window.print(), 350);
-  window.addEventListener('afterprint', () => { $('#imprimir-rol').classList.add('hidden'); $('#imprimir-rol').innerHTML = ''; }, { once: true });
+  window.addEventListener('afterprint', () => { destino.classList.add('hidden'); destino.innerHTML = ''; }, { once: true });
+}
+
+$('#btn-descargar-rol').addEventListener('click', () => {
+  const ramas = estado.ramaRol === 'Todas' ? ['Femenil', 'Varonil'] : [estado.ramaRol];
+  imprimeRol(porJugar(), ramas, '#imprimir-rol', 'CALENDARIO', 'Rol de juegos');
+});
+
+/* PDF del rol alternativo (mismo diseño que el oficial) */
+$('#btn-alt-pdf').addEventListener('click', () => {
+  if (!ROL_ALT.length) { avisaFlotante('El rol alternativo está vacío.', true); return; }
+  const ramas = altRama === 'Todas' ? ['Femenil', 'Varonil'] : [altRama];
+  imprimeRol(altFiltrado(), ramas, '#imprimir-rolalt', 'CALENDARIO ALTERNATIVO', 'Rol alternativo');
 });
 
 $('#btn-agregar-partido').addEventListener('click', () => abrePartidoModal());
@@ -3653,6 +4099,384 @@ $('#partido-modal-eliminar').addEventListener('click', async () => {
 });
 
 /* ==========================================================================
+   10b. ROL ALTERNATIVO (Plan B) — solo administrador
+   ========================================================================== */
+/* Un rol de respaldo con el mismo diseño del rol oficial, por si un equipo no
+   llega. Solo aparece en modo administrador y se guarda ÚNICAMENTE en el
+   localStorage de este navegador: no se sube a GitHub, así que el público no
+   puede verlo ni siquiera adivinando la URL de un archivo. "Publicar como
+   oficial" lo manda a data/partidos.json cuando tú lo decidas. */
+const ALT_KEY = 'lv_rol_alt';
+let ROL_ALT = (() => {
+  try { const a = JSON.parse(localStorage.getItem(ALT_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+})();
+let altRama = 'Todas';
+
+function guardaAlt() {
+  try { localStorage.setItem(ALT_KEY, JSON.stringify(ROL_ALT)); return true; }
+  catch (e) { avisaFlotante('No se pudo guardar el rol alternativo en este navegador.', true); return false; }
+}
+const altFiltrado = () => (altRama === 'Todas' ? ROL_ALT : ROL_ALT.filter(p => p.cat === altRama))
+  .slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+
+/* Avisa si en el rol alternativo hay choques: misma hora y misma cancha, o un equipo en dos partidos a la vez */
+function altChoques(p, lista = ROL_ALT) {
+  if (!p.fecha) return [];
+  const res = [];
+  lista.forEach(o => {
+    if (o.id === p.id || o.fecha !== p.fecha) return;
+    if (p.sede && o.sede && p.sede.trim().toLowerCase() === o.sede.trim().toLowerCase()) res.push('Misma cancha y hora');
+    [p.local, p.visita].forEach(e => { if (e && (o.local === e || o.visita === e)) res.push(e + ' juega 2 a la vez'); });
+  });
+  return [...new Set(res)];
+}
+
+function tarjetaPartidoAlt(p, o = {}) {
+  const fem = p.cat === 'Femenil';
+  const color = fem ? 'bg-rose' : 'bg-blue';
+  const chipCat = fem ? 'bg-[#FCE8F3] text-rose' : 'bg-sky text-blue';
+  const choques = altChoques(p, o.lista || ROL_ALT);
+  const equipo = (nombre, der, logo) => `
+    <div class="flex min-w-0 flex-1 items-center gap-2.5 ${der ? 'sm:flex-row-reverse sm:text-right' : ''}">
+      ${escudo(nombre, 40, logo)}
+      <p class="min-w-0 truncate font-score text-[20px] leading-tight text-court">${esc(nombre)}</p>
+    </div>`;
+  return `
+  <article class="relative flex overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-hair/70">
+    <span class="w-1.5 shrink-0 ${color}"></span>
+    <div class="flex w-[76px] shrink-0 flex-col items-center justify-center bg-mist px-2 py-3 text-center">
+      <p class="num font-score text-[26px] leading-none text-court">${p.fecha ? soloHora(p.fecha) : '—'}</p>
+      <p class="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">${p.fecha ? meridiano(p.fecha) : ''}</p>
+    </div>
+    <div class="min-w-0 flex-1 p-3.5 ${o.leer ? '' : 'pr-24'}">
+      <div class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+        ${equipo(p.local, false, p.logoLocal)}
+        <span class="self-start rounded-full bg-court px-2.5 py-0.5 font-score text-[12px] tracking-widest text-sun sm:self-center">VS</span>
+        ${equipo(p.visita, true, p.logoVisita)}
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-1.5 border-t border-dashed border-hair pt-2.5 text-[12px]">
+        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${chipCat}">${icono(fem ? 'femenil' : 'varonil', 'h-3 w-3')}${p.cat}</span>
+        <span class="rounded-full bg-mist px-2.5 py-1 text-muted">${esc(p.fase && p.fase !== 'grupos' ? etiquetaFase(p) : (p.grupo || 'Sin grupo'))}</span>
+        ${o.leer ? '' : '<span class="rounded-full bg-[#FFF6DB] px-2.5 py-1 font-medium text-[#8A6500]">Plan B</span>'}
+        ${choques.map(c => `<span class="rounded-full bg-[#FDEAEA] px-2.5 py-1 font-medium text-[#B3322E]">⚠ ${esc(c)}</span>`).join('')}
+        ${sedeLink(p.sede, 'sm:ml-auto')}
+      </div>
+    </div>
+    ${o.leer ? '' : `<button data-alt-editar="${p.id}" title="Editar partido"
+            class="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-court text-white shadow-card hover:bg-deep">${icono('lapiz', 'h-3.5 w-3.5')}</button>
+    <button data-alt-eliminar="${p.id}" title="Eliminar partido"
+            class="absolute right-[46px] top-2.5 grid h-8 w-8 place-items-center rounded-lg bg-white text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}</button>`}
+  </article>`;
+}
+
+/* Al repintar el Plan B también se refrescan la revisión de cruces y "Todos los roles" */
+function pintaRolAlt() {
+  pintaRolAltLista();
+  [refrescaRevision, pintaRoles].forEach(f => { try { f(); } catch (e) { console.error(e); } });
+}
+
+function pintaRolAltLista() {
+  const cont = $('#rolalt-lista');
+  if (!cont) return;
+  if (!esAdmin()) { cont.innerHTML = ''; return; }   // el público nunca recibe este contenido
+
+  const lista = altFiltrado();
+  if (!lista.length) {
+    cont.innerHTML = vacio(ROL_ALT.length
+      ? 'No hay partidos alternativos con este filtro.'
+      : 'Todavía no hay rol alternativo. Usa <strong>Copiar del rol oficial</strong> para partir de lo que ya está programado, o <strong>Agregar partido</strong> para armarlo desde cero.');
+    return;
+  }
+
+  cont.innerHTML = agrupaPorDia(lista).map(([dia, partidos]) => {
+    const d = dia ? fecha(dia + 'T00:00') : null;
+    return `
+    <section>
+      <div class="mb-3 flex items-center gap-3">
+        <div style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;padding:7px 14px;border-radius:14px;background:#0E2647;color:#fff;line-height:1">
+          <span style="font-size:10px;letter-spacing:.14em;color:#FFC93C;font-weight:600">${d ? DIA_CORTO[d.getDay()] : '—'}</span>
+          <span class="num font-score" style="font-size:28px;margin-top:3px">${d ? d.getDate() : '?'}</span>
+          <span style="font-size:9.5px;letter-spacing:.1em;margin-top:2px;opacity:.7;text-transform:uppercase">${d ? MESES[d.getMonth()].slice(0, 3) : ''}</span>
+        </div>
+        <span class="h-px flex-1 bg-hair"></span>
+        <button type="button" data-alt-eliminar-dia="${dia || ''}" title="Eliminar todos los partidos alternativos de este día"
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[14px] tracking-wide text-[#B3322E] shadow-card ring-1 ring-hair hover:bg-[#FDEAEA]">${icono('basura', 'h-3.5 w-3.5')}Eliminar día</button>
+      </div>
+      <div class="stagger space-y-3">${partidos.map(tarjetaPartidoAlt).join('')}</div>
+    </section>`;
+  }).join('');
+}
+
+/* ---------- Modal agregar / editar ---------- */
+function abreAltModal(id = null) {
+  const p = id ? ROL_ALT.find(x => x.id === id) : null;
+  if (id && !p) { avisaFlotante('Ese partido ya no existe.', true); return; }
+  $('#alt-modal-titulo').textContent = p ? 'Editar partido alternativo' : 'Agregar partido alternativo';
+  $('#alt-id').value = p ? p.id : '';
+  $('#alt-cat').value = p ? p.cat : (altRama !== 'Todas' ? altRama : 'Femenil');
+  $('#alt-grupo').value = p ? (p.grupo || '') : '';
+  const sug = new Set(['Grupo A', 'Grupo B']);
+  [...PARTIDOS, ...ROL_ALT].forEach(x => { if (x.grupo && x.grupo.trim()) sug.add(x.grupo.trim()); });
+  $('#alt-grupos-sugeridos').innerHTML = [...sug].map(g => `<option value="${esc(g)}"></option>`).join('');
+  $('#alt-fecha').value = p ? p.fecha : '';
+  $('#alt-sede').value = p ? p.sede : '';
+  $('#alt-local').innerHTML = opcionesEquipos(p ? p.local : '');
+  $('#alt-visita').innerHTML = opcionesEquipos(p ? p.visita : '');
+  $('#alt-modal-eliminar').classList.toggle('hidden', !p);
+  $('#alt-modal-aviso').classList.add('hidden');
+  $('#alt-modal').classList.replace('hidden', 'flex');
+}
+const cierraAltModal = () => $('#alt-modal').classList.replace('flex', 'hidden');
+
+$('#btn-alt-agregar').addEventListener('click', () => abreAltModal());
+$('#alt-modal-cancelar').addEventListener('click', cierraAltModal);
+
+$('#alt-modal-guardar').addEventListener('click', () => {
+  const idActual = $('#alt-id').value || null;
+  const cat = $('#alt-cat').value, grupo = $('#alt-grupo').value.trim();
+  const fechaVal = $('#alt-fecha').value, sede = $('#alt-sede').value.trim();
+  const local = $('#alt-local').value, visita = $('#alt-visita').value;
+
+  if (!cat || !fechaVal || !sede || !local || !visita) { avisaEn('#alt-modal-aviso', false, 'Completa categoría, fecha, cancha y ambos equipos.'); return; }
+  if (local === visita) { avisaEn('#alt-modal-aviso', false, 'El equipo local y el visitante no pueden ser el mismo.'); return; }
+
+  if (idActual) {
+    const i = ROL_ALT.findIndex(x => x.id === idActual);
+    if (i === -1) { avisaEn('#alt-modal-aviso', false, 'Ese partido ya no existe.'); return; }
+    ROL_ALT[i] = { ...ROL_ALT[i], cat, grupo, fecha: fechaVal, sede, local, visita };
+  } else {
+    ROL_ALT.push({ id: 'a' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat, grupo, fecha: fechaVal, sede, local, visita });
+  }
+  if (!guardaAlt()) return;
+  cierraAltModal();
+  pintaRolAlt();
+  avisaFlotante(idActual ? 'Partido alternativo actualizado.' : 'Partido alternativo agregado.');
+});
+
+$('#alt-modal-eliminar').addEventListener('click', () => {
+  const id = $('#alt-id').value;
+  if (!id || !confirm('¿Eliminar este partido del rol alternativo?')) return;
+  ROL_ALT = ROL_ALT.filter(x => x.id !== id);
+  guardaAlt(); cierraAltModal(); pintaRolAlt();
+  avisaFlotante('Partido alternativo eliminado.');
+});
+
+/* ---------- Acciones de las tarjetas ---------- */
+$('#rolalt-lista').addEventListener('click', e => {
+  const ed = e.target.closest('[data-alt-editar]');
+  if (ed) { abreAltModal(ed.dataset.altEditar); return; }
+  const del = e.target.closest('[data-alt-eliminar]');
+  if (del) {
+    const p = ROL_ALT.find(x => x.id === del.dataset.altEliminar);
+    if (!p || !confirm(`¿Eliminar ${p.local} vs ${p.visita} del rol alternativo?`)) return;
+    ROL_ALT = ROL_ALT.filter(x => x.id !== p.id);
+    guardaAlt(); pintaRolAlt(); return;
+  }
+  const dia = e.target.closest('[data-alt-eliminar-dia]');
+  if (dia) {
+    const k = dia.dataset.altEliminarDia;
+    const n = ROL_ALT.filter(x => (claveDia(x.fecha) || '') === k).length;
+    if (!n || !confirm(`¿Eliminar los ${n} partido(s) alternativos de ese día?`)) return;
+    ROL_ALT = ROL_ALT.filter(x => (claveDia(x.fecha) || '') !== k);
+    guardaAlt(); pintaRolAlt();
+  }
+});
+
+$('#filtro-rolalt-select').addEventListener('change', e => { altRama = e.target.value; pintaRolAlt(); });
+
+/* ---------- Copiar el rol oficial pendiente como punto de partida ---------- */
+$('#btn-alt-copiar').addEventListener('click', () => {
+  const base = PARTIDOS.filter(p => p.fase === 'grupos' && !jugado(p) && p.local && p.visita && p.fecha);
+  if (!base.length) { avisaFlotante('No hay partidos pendientes en el rol oficial para copiar.', true); return; }
+  if (ROL_ALT.length && !confirm(`Ya tienes ${ROL_ALT.length} partido(s) en el rol alternativo. Copiar el rol oficial los reemplaza. ¿Continuar?`)) return;
+  ROL_ALT = base.map(p => ({
+    id: 'a' + Math.random().toString(36).slice(2, 9), fase: 'grupos',
+    cat: p.cat, grupo: p.grupo || '', fecha: p.fecha, sede: p.sede || '', local: p.local, visita: p.visita
+  }));
+  guardaAlt(); pintaRolAlt();
+  avisaFlotante(`Se copiaron ${ROL_ALT.length} partidos pendientes. Ya puedes editarlos.`);
+});
+
+$('#btn-alt-vaciar').addEventListener('click', () => {
+  if (!ROL_ALT.length) return;
+  if (!confirm(`¿Vaciar todo el rol alternativo (${ROL_ALT.length} partidos)? El rol oficial no se toca.`)) return;
+  ROL_ALT = []; guardaAlt(); pintaRolAlt();
+  avisaFlotante('Rol alternativo vaciado.');
+});
+
+/* ---------- Publicar el Plan B como rol oficial ---------- */
+/* Solo toca los partidos pendientes de fase de grupos de los DÍAS que cubre el
+   rol alternativo. Los partidos ya jugados y la liguilla nunca se modifican. */
+async function publicaRolComoOficial(lista) {
+  if (!lista.length) { avisaFlotante('Ese rol está vacío.', true); return; }
+  const dias = new Set(lista.map(p => claveDia(p.fecha || '')));
+  const quitar = PARTIDOS.filter(p => p.fase === 'grupos' && !jugado(p) && dias.has(claveDia(p.fecha || '')));
+  if (!confirm(`Vas a PUBLICAR este rol como oficial.\n\n• Se quitan ${quitar.length} partido(s) pendientes del rol oficial en ${dias.size} día(s).\n• Se publican ${lista.length} partido(s) de este rol.\n• Los partidos ya jugados y la liguilla no se tocan.\n\nTodo el público lo verá. ¿Continuar?`)) return;
+
+  const copia = [...PARTIDOS];
+  const ids = new Set(quitar.map(p => p.id));
+  const nuevos = lista.map(p => ({ id: 'p' + Math.random().toString(36).slice(2, 9), fase: 'grupos', cat: p.cat, grupo: p.grupo, fecha: p.fecha, sede: p.sede, local: p.local, visita: p.visita }));
+  PARTIDOS = [...PARTIDOS.filter(p => !ids.has(p.id)), ...nuevos];
+  try {
+    const x = await ghLeeJSON('data/partidos.json', []);
+    await ghEscribeJSON('data/partidos.json', PARTIDOS, x.sha, `Publica rol alternativo: ${nuevos.length} partidos`);
+    repintaTodo();
+    avisaFlotante('Rol alternativo publicado como oficial.');
+  } catch (err) {
+    PARTIDOS = copia;
+    repintaTodo();
+    avisaFlotante('No se pudo publicar: ' + err.message, true);
+  }
+}
+$('#btn-alt-publicar').addEventListener('click', () => publicaRolComoOficial(ROL_ALT));
+$('#btn-alt-guardar').addEventListener('click', () => guardaRolActual());
+
+/* ==========================================================================
+   10c. TODOS LOS ROLES — solo administrador
+   ========================================================================== */
+/* Reúne el rol oficial, el Plan B y los roles que guardes. Los guardados se
+   quedan en el localStorage de este navegador (no se suben a GitHub). */
+const ROLES_KEY = 'lv_roles_guardados';
+let ROLES_GUARDADOS = (() => {
+  try { const a = JSON.parse(localStorage.getItem(ROLES_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+})();
+const ROLES_ABIERTOS = new Set(['oficial', 'alt']);
+function guardaRoles() {
+  try { localStorage.setItem(ROLES_KEY, JSON.stringify(ROLES_GUARDADOS)); return true; }
+  catch (e) { avisaFlotante('No se pudo guardar en este navegador.', true); return false; }
+}
+const nuevoId = pre => pre + Math.random().toString(36).slice(2, 9);
+const clonaParaAlt = lista => lista.filter(p => p.fase === 'grupos' && p.local && p.visita).map(p => ({
+  id: nuevoId('a'), fase: 'grupos', cat: p.cat, grupo: p.grupo || '', fecha: p.fecha || '', sede: p.sede || '', local: p.local, visita: p.visita
+}));
+
+function rolesTodos() {
+  const jug = PARTIDOS.filter(p => jugado(p) && llaveActiva(p)).length;
+  return [
+    { id: 'oficial', nombre: 'Rol oficial', badge: 'Público', lista: porJugar(), nota: `${jug} ya jugados`, tipo: 'oficial' },
+    { id: 'alt', nombre: 'Plan B (rol alternativo)', badge: 'Solo tú', lista: ROL_ALT, nota: 'en edición', tipo: 'alt' },
+    ...ROLES_GUARDADOS.map(r => ({
+      id: r.id, nombre: r.nombre, badge: 'Guardado', lista: r.partidos || [], tipo: 'guardado',
+      nota: 'guardado el ' + new Date(r.creado).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+    }))
+  ];
+}
+
+function diasHtmlSoloLectura(lista) {
+  return agrupaPorDia(lista).map(([dia, partidos]) => {
+    const d = dia ? fecha(dia + 'T00:00') : null;
+    return `
+    <section>
+      <div class="mb-3 flex items-center gap-3">
+        <div style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;padding:7px 14px;border-radius:14px;background:#0E2647;color:#fff;line-height:1">
+          <span style="font-size:10px;letter-spacing:.14em;color:#FFC93C;font-weight:600">${d ? DIA_CORTO[d.getDay()] : '—'}</span>
+          <span class="num font-score" style="font-size:28px;margin-top:3px">${d ? d.getDate() : '?'}</span>
+          <span style="font-size:9.5px;letter-spacing:.1em;margin-top:2px;opacity:.7;text-transform:uppercase">${d ? MESES[d.getMonth()].slice(0, 3) : ''}</span>
+        </div>
+        <span class="h-px flex-1 bg-hair"></span>
+      </div>
+      <div class="space-y-3">${partidos.map(p => tarjetaPartidoAlt(p, { leer: true, lista })).join('')}</div>
+    </section>`;
+  }).join('');
+}
+
+function pintaRoles() {
+  const cont = $('#roles-lista');
+  if (!cont) return;
+  if (!esAdmin()) { cont.innerHTML = ''; return; }
+
+  const bt = (accion, id, txt, tono = 'base') => `<button type="button" data-rol-accion="${accion}" data-rol-id="${id}"
+    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 font-score text-[15px] tracking-wide shadow-card ${
+      tono === 'sun' ? 'bg-sun text-court hover:brightness-95' : tono === 'rojo' ? 'bg-white text-[#B3322E] ring-1 ring-hair hover:bg-[#FDEAEA]' : 'bg-white text-court ring-1 ring-hair hover:bg-mist'}">${txt}</button>`;
+  const chip = { 'Público': 'bg-sky text-blue', 'Solo tú': 'bg-[#FFF6DB] text-[#8A6500]', 'Guardado': 'bg-mist text-muted ring-1 ring-hair' };
+
+  cont.innerHTML = rolesTodos().map(r => {
+    const lista = r.lista.slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    const dias = new Set(lista.map(p => claveDia(p.fecha || ''))).size;
+    const botones = [
+      bt('pdf', r.id, 'Descargar PDF'),
+      r.tipo === 'alt' ? bt('editar', r.id, 'Editar') : '',
+      r.tipo === 'alt' ? bt('guardar', r.id, 'Guardar como rol') : '',
+      r.tipo !== 'alt' ? bt('cargar', r.id, 'Cargar al Plan B') : '',
+      r.tipo !== 'oficial' ? bt('publicar', r.id, 'Publicar como oficial', 'sun') : '',
+      r.tipo === 'guardado' ? bt('eliminar', r.id, 'Eliminar', 'rojo') : ''
+    ].join('');
+    return `
+    <details data-rol="${esc(r.id)}" class="rounded-2xl bg-white shadow-card ring-1 ring-hair/70" ${ROLES_ABIERTOS.has(r.id) ? 'open' : ''}>
+      <summary class="flex cursor-pointer list-none flex-wrap items-center gap-3 p-4">
+        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky text-blue">${icono('rol', 'h-5 w-5')}</span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate font-score text-[20px] leading-tight text-court">${esc(r.nombre)}</p>
+          <p class="text-[12.5px] text-muted">${lista.length} partido(s) · ${dias} día(s) · ${esc(r.nota)}</p>
+        </div>
+        <span class="rounded-full ${chip[r.badge]} px-2.5 py-1 text-[12px] font-medium">${r.badge}</span>
+        <svg viewBox="0 0 24 24" class="chev h-4 w-4 shrink-0 text-muted transition-transform" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="border-t border-hair p-4">
+        <div class="flex flex-wrap gap-2">${botones}</div>
+        <div class="mt-5 space-y-7">${lista.length ? diasHtmlSoloLectura(lista) : vacio('Este rol no tiene partidos.')}</div>
+      </div>
+    </details>`;
+  }).join('') + (ROLES_GUARDADOS.length ? '' : vacio('Todavía no guardas ningún rol. Arma tu Plan B y usa <strong>Guardar como rol</strong> para conservar una versión aquí.'));
+}
+
+function guardaRolActual() {
+  if (!ROL_ALT.length) { avisaFlotante('El Plan B está vacío; no hay nada que guardar.', true); return; }
+  const sug = 'Plan B ' + new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  const nombre = (prompt('Ponle un nombre a este rol:', sug) || '').trim();
+  if (!nombre) return;
+  ROLES_GUARDADOS.unshift({ id: nuevoId('r'), nombre, creado: new Date().toISOString(), partidos: JSON.parse(JSON.stringify(ROL_ALT)) });
+  if (!guardaRoles()) { ROLES_GUARDADOS.shift(); return; }
+  ROLES_ABIERTOS.add(ROLES_GUARDADOS[0].id);
+  pintaRoles();
+  avisaFlotante(`Rol "${nombre}" guardado en Todos los roles.`);
+}
+$('#btn-roles-guardar').addEventListener('click', guardaRolActual);
+
+function pdfDeRol(r) {
+  if (!r.lista.length) { avisaFlotante('Ese rol no tiene partidos para descargar.', true); return; }
+  const panel = $('#panel-roles');
+  panel.classList.add('panel-imprime');
+  window.addEventListener('afterprint', () => panel.classList.remove('panel-imprime'), { once: true });
+  const oficial = r.tipo === 'oficial';
+  imprimeRol(r.lista.slice(), ['Femenil', 'Varonil'], '#panel-roles .imprimir-tabla',
+    oficial ? 'CALENDARIO' : 'CALENDARIO ALTERNATIVO', oficial ? 'Rol de juegos' : esc(r.nombre));
+}
+
+$('#roles-lista').addEventListener('toggle', e => {
+  const d = e.target;
+  if (d && d.dataset && d.dataset.rol) { d.open ? ROLES_ABIERTOS.add(d.dataset.rol) : ROLES_ABIERTOS.delete(d.dataset.rol); }
+}, true);
+
+$('#roles-lista').addEventListener('click', e => {
+  const b = e.target.closest('[data-rol-accion]');
+  if (!b) return;
+  const r = rolesTodos().find(x => x.id === b.dataset.rolId);
+  if (!r) return;
+  const acc = b.dataset.rolAccion;
+
+  if (acc === 'pdf') pdfDeRol(r);
+  else if (acc === 'editar') abreTab('rolalt');
+  else if (acc === 'guardar') guardaRolActual();
+  else if (acc === 'publicar') publicaRolComoOficial(r.lista);
+  else if (acc === 'cargar') {
+    const nuevos = clonaParaAlt(r.lista);
+    if (!nuevos.length) { avisaFlotante('Ese rol no tiene partidos de fase de grupos para cargar.', true); return; }
+    if (ROL_ALT.length && !confirm(`El Plan B actual tiene ${ROL_ALT.length} partido(s) y se va a reemplazar. Si quieres conservarlo, guárdalo primero como rol. ¿Continuar?`)) return;
+    ROL_ALT = nuevos; guardaAlt(); pintaRolAlt();
+    avisaFlotante(`"${r.nombre}" cargado al Plan B. Ya puedes editarlo.`);
+  }
+  else if (acc === 'eliminar') {
+    if (!confirm(`¿Eliminar el rol guardado "${r.nombre}"? No se puede deshacer.`)) return;
+    ROLES_GUARDADOS = ROLES_GUARDADOS.filter(x => x.id !== r.id);
+    ROLES_ABIERTOS.delete(r.id); guardaRoles(); pintaRoles();
+    avisaFlotante('Rol eliminado.');
+  }
+});
+
+/* ==========================================================================
    11. ARRANQUE
    ========================================================================== */
 
@@ -3677,6 +4501,7 @@ function repintaTodo() {
     ['hoy', pintaHoy],
     ['mi equipo', pintaMiEquipo],
     ['rol de juegos', pintaRol],
+    ['rol alternativo', pintaRolAlt],
     ['rama femenil', () => montaRama('Femenil')],
     ['rama varonil', () => montaRama('Varonil')],
     ['tamaño de la liguilla', pintaTamanoLiguilla],
@@ -3891,7 +4716,19 @@ function introSplash() {
       });
     }
     $('#splash-grietas').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, fill: 'forwards' });
-    espera(terminar, 1450);
+    espera(muestraBienvenida, 650);
+  }
+
+  function muestraBienvenida() {
+    $('#splash-titulo').textContent = MARCA_NOMBRE;
+    const velo = $('#splash-velo'), msg = $('#splash-bienvenida');
+    velo.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'forwards' });
+    msg.animate([{ opacity: 0, transform: 'scale(.85) translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 750, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+    espera(() => {
+      velo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, fill: 'forwards' });
+      msg.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 600, fill: 'forwards' });
+      espera(terminar, 650);
+    }, 1900);
   }
 }
 try { introSplash(); } catch (e) { const sp = $('#splash'); if (sp) sp.remove(); document.documentElement.style.overflow = ''; document.body.classList.remove('intro'); }
