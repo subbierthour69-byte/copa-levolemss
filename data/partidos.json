@@ -1598,7 +1598,17 @@
     "fecha": "2026-11-09T16:00",
     "sede": "CCDU",
     "local": "TIGRILLAS SUPERIOR B",
-    "visita": "TIGRILLAS PREPA B"
+    "visita": "TIGRILLAS PREPA B",
+    "sets": [
+      [
+        25,
+        7
+      ],
+      [
+        25,
+        14
+      ]
+    ]
   },
   {
     "id": "p4mzzqc8",
