@@ -449,6 +449,7 @@ tailwind.config = {
     </div>
     <div id="liguilla-tamano" class="mt-3 hidden"></div>
     <div id="bracket" class="mt-6"></div>
+    <div id="podio" class="mt-8"></div>
   </section>
 
   <!-- ---------- ESTADÍSTICAS ---------- -->
@@ -927,6 +928,7 @@ tailwind.config = {
 <!-- Selectores de archivo ocultos, usados por los botones de subida -->
 <input id="input-foto" type="file" accept="image/*" class="hidden">
 <input id="input-logo" type="file" accept="image/*" class="hidden">
+<input id="input-podio" type="file" accept="image/*" class="hidden">
 <input id="input-marca" type="file" accept="image/*" class="hidden">
 <input id="input-respaldo" type="file" accept="application/json,.json" class="hidden">
 
@@ -1199,6 +1201,8 @@ let MARCA_TEMPORADA = 'Temporada 2026';
 const LOGOS_LOCALES = {};
 const FOTOS_LOCALES = {};
 let MARCA_LOCAL = '';
+let PODIO = {};            // { 'Varonil': { tercero:'Equipo', fotos:{ 1:{url,equipo}, 2:{...}, 3:{...} } } }
+const PODIO_LOCALES = {};  // vista previa local de las fotos recién subidas
 
 /* ==========================================================================
    2. UTILIDADES
@@ -2413,16 +2417,23 @@ function bloqueLlave(p, ancho = 'w-full') {
   const listo = jugado(p) && p.local && p.visita;
   const [gl, gv] = listo ? setsGanados(p) : [null, null];
 
-  const lado = (nombre, logo, marcador, gana) => `
+  const lado = (nombre, logo, gana) => `
     <div class="flex items-center gap-2.5 px-3 py-2 ${gana ? 'bg-sun/15' : ''}">
       ${escudo(nombre, 26, logo)}
       <span class="min-w-0 flex-1 truncate font-score text-[17px] leading-none ${nombre ? (gana ? 'text-court' : 'text-muted') : 'text-muted/70 italic'}">
         ${nombre || 'Por definir'}
       </span>
-      <span class="num w-4 shrink-0 text-right font-score text-[18px] ${gana ? 'text-court' : 'text-muted'}">
-        ${marcador === null ? '' : marcador}
-      </span>
     </div>`;
+
+  /* Cómo quedó cada set (el primer número es del equipo de arriba). */
+  const parciales = listo ? `
+      <div class="flex flex-wrap items-center gap-1 border-t border-hair bg-mist/60 px-3 py-1.5" title="Puntos de cada set: primero ${esc(p.local)}, luego ${esc(p.visita)}">
+        <span class="mr-0.5 text-[10.5px] uppercase tracking-wide text-muted">Sets</span>
+        ${p.sets.map(t => `
+        <span class="num inline-flex items-center gap-0.5 rounded-md bg-white px-1.5 py-0.5 text-[12px] ring-1 ring-hair">
+          <b class="${t[0] > t[1] ? 'font-semibold text-court' : 'font-normal text-muted/80'}">${t[0]}</b><span class="text-muted/50">-</span><b class="${t[1] > t[0] ? 'font-semibold text-court' : 'font-normal text-muted/80'}">${t[1]}</b>
+        </span>`).join('')}
+      </div>` : '';
 
   return `
   <div class="llave ${ancho}">
@@ -2435,14 +2446,15 @@ function bloqueLlave(p, ancho = 'w-full') {
           ${icono('lapiz', 'h-3 w-3')}
         </button>` : ''}
       </div>
-      ${lado(p.local,  p.logoLocal,  gl, listo && gl > gv)}
+      ${lado(p.local,  p.logoLocal,  listo && gl > gv)}
       <div class="h-px bg-hair"></div>
-      ${lado(p.visita, p.logoVisita, gv, listo && gv > gl)}
+      ${lado(p.visita, p.logoVisita, listo && gv > gl)}
+      ${parciales}
     </div>
   </div>`;
 }
 
-function trofeo(campeon, nombreLiga) {
+function trofeo(campeon, nombreLiga, final) {
   if (!campeon) return `
   <div class="flex flex-col items-center gap-2 py-4">
     <span class="text-sun">${icono('liguilla', 'h-12 w-12')}</span>
@@ -2456,6 +2468,10 @@ function trofeo(campeon, nombreLiga) {
     return `<i class="confeti-pieza" style="left:${izq}%;background:${colores[n % colores.length]};animation-delay:${dem}s;animation-duration:${dur}s"></i>`;
   }).join('');
 
+  const detalle = final && jugado(final) && final.local && final.visita
+    ? (([a, b]) => `Final: ${esc(final.local)} ${a}-${b} ${esc(final.visita)} · Sets: ${final.sets.map(t => t[0] + '-' + t[1]).join(', ')}`)(setsGanados(final))
+    : '';
+
   return `
   <div class="campeon-caja aparece px-4 py-6 text-center text-white" role="status" aria-live="polite">
     <div class="pointer-events-none absolute inset-0" aria-hidden="true">${confeti}</div>
@@ -2465,6 +2481,7 @@ function trofeo(campeon, nombreLiga) {
       ${escudo(campeon, 72)}
       <p class="font-score text-[28px] leading-tight text-white">${esc(campeon)}</p>
       <p class="text-[12.5px] text-white/80">Campeón de la liguilla${nombreLiga ? ' ' + esc(nombreLiga) : ''}</p>
+      ${detalle ? `<p class="num text-[12.5px] text-white/70">${detalle}</p>` : ''}
     </div>
   </div>`;
 }
@@ -2495,7 +2512,7 @@ function pintaBracket() {
 
   const cajaFinal = `
     <div class="rounded-2xl bg-white p-4 shadow-lift ring-1 ring-hair/70">
-      ${trofeo(campeon, liga.nombre)}
+      ${trofeo(campeon, liga.nombre, final)}
       ${bloqueLlave(final)}
     </div>`;
 
@@ -2549,6 +2566,105 @@ function pintaBracket() {
 
   destino.innerHTML = bannerCampeon + nota + escritorio + movil;
   $$('[data-editar-partido]', destino).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
+}
+
+/* ---------- Podio: 1°, 2° y 3° lugar de la liguilla que se está viendo ---------- */
+const MEDALLA = {
+  1: { fondo:'linear-gradient(180deg,#FFE08A,#FFC93C)', aro:'#FFC93C', alto:'h-28 sm:h-36', texto:'1er lugar' },
+  2: { fondo:'linear-gradient(180deg,#F4F7FB,#BFCADA)', aro:'#C9D3E0', alto:'h-20 sm:h-24', texto:'2do lugar' },
+  3: { fondo:'linear-gradient(180deg,#F3C196,#C98348)', aro:'#D9915A', alto:'h-14 sm:h-16', texto:'3er lugar' }
+};
+
+/* Quién ocupa cada lugar. El 1° y el 2° salen solos de la final; el 3° se
+   elige entre los perdedores de semifinales (no hay partido de tercer lugar). */
+function lugaresDePodio(liga) {
+  const equipos = equiposDe(liga.id);
+  const m = bracketResuelto(liga.id);
+  const final = m.F1;
+  const cerrada = final && jugado(final) && final.local && final.visita;
+  const primero = cerrada ? ganador(final) : '';
+  const segundo = cerrada ? (primero === final.local ? final.visita : final.local) : '';
+
+  const candidatos = [];
+  if (equipos >= 4) ['S1', 'S2'].forEach(k => {
+    const q = m[k];
+    if (q && jugado(q) && q.local && q.visita) candidatos.push(ganador(q) === q.local ? q.visita : q.local);
+  });
+  const guardado = (PODIO[liga.id] || {}).tercero || '';
+  const tercero = candidatos.includes(guardado) ? guardado : '';
+  return { equipos, primero, segundo, tercero, candidatos };
+}
+
+function pintaPodio() {
+  const destino = $('#podio');
+  if (!destino) return;
+  const liga = LIGUILLAS.find(l => l.id === estado.liga) || LIGUILLAS[0];
+  const { equipos, primero, segundo, tercero, candidatos } = lugaresDePodio(liga);
+  const equipoDe = { 1: primero, 2: segundo, 3: tercero };
+  const orden = equipos >= 4 ? [2, 1, 3] : [2, 1];
+  const datos = PODIO[liga.id] || {};
+  const admin = esAdmin();
+
+  const columna = lugar => {
+    const med = MEDALLA[lugar], equipo = equipoDe[lugar];
+    const foto = (datos.fotos || {})[lugar];
+    const url = foto && foto.equipo === equipo && equipo ? (PODIO_LOCALES[liga.id + '|' + lugar] || foto.url) : '';
+    return `
+    <div class="flex min-w-0 flex-col items-center ${lugar === 1 ? 'aparece' : ''}">
+      <div class="relative aspect-square w-full overflow-hidden rounded-2xl bg-white/10" style="box-shadow:0 0 0 3px ${med.aro}">
+        <div class="absolute inset-0 grid place-items-center">
+          ${equipo ? escudo(equipo, 64) : `<span class="text-white/25">${icono('liguilla', 'h-12 w-12')}</span>`}
+        </div>
+        ${url ? `<img src="${url}" alt="Foto de ${esc(equipo)}, ${med.texto}" class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()">` : ''}
+        ${admin && equipo ? `
+        <button data-podio-foto="${lugar}" class="absolute bottom-1.5 right-1.5 inline-flex items-center gap-1 rounded-lg bg-court/90 px-2 py-1 text-[11.5px] text-white shadow-card hover:bg-deep">
+          ${icono('subir', 'h-3.5 w-3.5')}${url ? 'Cambiar' : 'Subir foto'}
+        </button>` : ''}
+      </div>
+      <span class="relative z-10 -mt-4 grid h-9 w-9 place-items-center rounded-full font-score text-[19px] text-court ring-2 ring-court" style="background:${med.fondo}">${lugar}</span>
+      <p class="mt-1 flex min-h-[2.6rem] items-center px-0.5 text-center font-score text-[15px] leading-tight sm:text-[19px] ${equipo ? 'text-white' : 'text-white/40'}">
+        ${equipo ? esc(equipo) : 'Por definir'}
+      </p>
+      <div class="${med.alto} mt-1 grid w-full place-items-start justify-items-center rounded-t-xl pt-2 shadow-card" style="background:${med.fondo}">
+        <span class="font-score text-[30px] leading-none text-court/80 sm:text-[40px]">${lugar}°</span>
+      </div>
+    </div>`;
+  };
+
+  const eleccion = admin && equipos >= 4 ? `
+    <div class="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-[13px] text-white/90">
+      <span>3er lugar:</span>
+      ${candidatos.length ? `
+      <select data-podio-tercero class="rounded-lg bg-white px-3 py-1.5 text-[14px] text-court ring-1 ring-hair">
+        <option value="">— elegir —</option>
+        ${candidatos.map(c => `<option value="${esc(c)}" ${c === tercero ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+      </select>
+      <span class="text-white/60">(entre los que perdieron en semifinales)</span>` : `
+      <span class="text-white/60">podrás elegirlo cuando se jueguen las semifinales.</span>`}
+    </div>` : '';
+
+  const aviso3 = !admin && equipos >= 4 && !tercero && primero
+    ? '<p class="mt-3 text-center text-[12.5px] text-white/60">El 3er lugar se anunciará en cuanto se defina.</p>' : '';
+
+  destino.innerHTML = `
+  <section class="rounded-2xl bg-court p-4 shadow-lift sm:p-6" aria-label="Podio ${esc(liga.nombre)}">
+    <div class="mb-5 flex items-center justify-center gap-2 text-center">
+      <span class="text-sun">${icono('liguilla', 'h-6 w-6')}</span>
+      <h3 class="font-score text-[22px] tracking-wide text-white sm:text-[26px]">Podio · ${esc(liga.nombre)}</h3>
+    </div>
+    <div class="mx-auto grid max-w-2xl items-end gap-2 sm:gap-4 ${orden.length === 3 ? 'grid-cols-3' : 'max-w-md grid-cols-2'}">
+      ${orden.map(columna).join('')}
+    </div>
+    ${aviso3}
+    ${eleccion}
+  </section>`;
+
+  $$('[data-podio-foto]', destino).forEach(b => b.addEventListener('click', () => {
+    podioEnEdicion = { liga: liga.id, lugar: +b.dataset.podioFoto, equipo: equipoDe[+b.dataset.podioFoto] };
+    $('#input-podio').click();
+  }));
+  const sel = $('[data-podio-tercero]', destino);
+  if (sel) sel.addEventListener('change', () => accionAdmin(() => guardaTercero(liga.id, sel.value)));
 }
 
 /* Control (solo en modo administrador) para elegir cuántos equipos pasan a la
@@ -2876,7 +2992,7 @@ async function archivaTemporada(nombre) {
     }
     return { liga: l.nombre, cat: l.cat, campeon: '', finalista: '', marcador: '' };
   });
-  const snap = { version: 1, nombre, fecha: new Date().toISOString(), equipos: EQUIPOS, partidos: PARTIDOS, liguillas: LIGUILLA_EQUIPOS,
+  const snap = { version: 1, nombre, fecha: new Date().toISOString(), equipos: EQUIPOS, partidos: PARTIDOS, liguillas: LIGUILLA_EQUIPOS, podio: PODIO,
                  marca: { nombre: MARCA_NOMBRE, subtitulo: MARCA_SUBTITULO, temporada: MARCA_TEMPORADA } };
   const copia = await ghLeeJSON(`data/temporadas/${id}.json`, null);
   await ghEscribeJSON(`data/temporadas/${id}.json`, snap, copia.sha, `Archiva temporada: ${nombre}`);
@@ -2902,6 +3018,9 @@ async function nuevaTemporada() {
   PARTIDOS = normalizaPartidos([]);
   const p = await ghLeeJSON('data/partidos.json', []);
   await ghEscribeJSON('data/partidos.json', PARTIDOS, p.sha, `Nueva temporada: ${nueva.trim()}`);
+  const pod = await ghLeeJSON('data/podio.json', {});
+  await ghEscribeJSON('data/podio.json', {}, pod.sha, `Nueva temporada: ${nueva.trim()}`);
+  PODIO = {};
   const m = await ghLeeJSON('data/marca.json', {});
   m.valor.temporada = nueva.trim(); m.valor.nombre = nombre;
   await ghEscribeJSON('data/marca.json', m.valor, m.sha, `Nueva temporada: ${nueva.trim()}`);
@@ -2911,7 +3030,7 @@ async function nuevaTemporada() {
 }
 
 function descargaRespaldo() {
-  const r = { version: 1, creado: new Date().toISOString(), equipos: EQUIPOS, partidos: PARTIDOS, liguillas: LIGUILLA_EQUIPOS, galeria: FOTOS, temporadas: TEMPORADAS,
+  const r = { version: 1, creado: new Date().toISOString(), equipos: EQUIPOS, partidos: PARTIDOS, liguillas: LIGUILLA_EQUIPOS, podio: PODIO, galeria: FOTOS, temporadas: TEMPORADAS,
               marca: { nombre: MARCA_NOMBRE, subtitulo: MARCA_SUBTITULO, temporada: MARCA_TEMPORADA } };
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' }));
@@ -2928,6 +3047,7 @@ async function aplicaRespaldo(r) {
   await guarda('data/partidos.json', r.partidos, 'Restaura partidos', []);
   await guarda('data/liguillas.json', r.liguillas || {}, 'Restaura liguillas', {});
   if (r.marca) { const m = await ghLeeJSON('data/marca.json', {}); await ghEscribeJSON('data/marca.json', { ...m.valor, ...r.marca }, m.sha, 'Restaura datos de la liga'); }
+  { const pod = (r.podio && typeof r.podio === 'object' && !Array.isArray(r.podio)) ? r.podio : {}; await guarda('data/podio.json', pod, 'Restaura podio', {}); PODIO = pod; }
   if (Array.isArray(r.galeria)) { await guarda('data/galeria.json', r.galeria, 'Restaura galería', []); FOTOS = r.galeria; }
   if (Array.isArray(r.temporadas)) { await guarda('data/temporadas.json', r.temporadas, 'Restaura historial', []); TEMPORADAS = r.temporadas; }
   EQUIPOS = r.equipos; LIGUILLA_EQUIPOS = r.liguillas || {}; PARTIDOS = normalizaPartidos(r.partidos);
@@ -3559,6 +3679,53 @@ $('#input-logo').addEventListener('change', async e => {
     alert('No se pudo subir el logo: ' + err.message);
   }
 });
+
+/* ---------- Podio: foto del 1°, 2° y 3° lugar, y elección del 3° ---------- */
+let podioEnEdicion = null;
+
+$('#input-podio').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file || !podioEnEdicion) return;
+
+  if (file.size > LIMITE_IMAGEN) {
+    alert(`Esa imagen pesa demasiado (máximo ${Math.round(LIMITE_IMAGEN / 1024)} KB). Comprímela, por ejemplo en squoosh.app, e inténtalo de nuevo.`);
+    return;
+  }
+
+  const { liga, lugar, equipo } = podioEnEdicion;
+  try {
+    const base64 = await archivoABase64(file);
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const archivo = `podio/${slug(liga)}-${lugar}.${ext}`;
+    const ruta = `${archivo}?v=${Date.now()}`;
+
+    await ghSubeArchivo(archivo, base64, `Foto del podio (${lugar}° lugar) — ${liga}`);
+
+    const { valor, sha } = await ghLeeJSON('data/podio.json', {});
+    const d = (valor[liga] ||= {});
+    d.fotos ||= {};
+    d.fotos[lugar] = { url: ruta, equipo };
+    await ghEscribeJSON('data/podio.json', valor, sha, `Foto del podio (${lugar}° lugar) — ${liga}`);
+
+    PODIO = valor;
+    PODIO_LOCALES[liga + '|' + lugar] = `data:${file.type || 'image/jpeg'};base64,${base64}`;
+    pintaPodio();
+    avisaFlotante('Foto guardada. Los demás la verán en 1 o 2 minutos.');
+  } catch (err) {
+    alert('No se pudo subir la foto: ' + err.message);
+  }
+});
+
+async function guardaTercero(ligaId, equipo) {
+  const { valor, sha } = await ghLeeJSON('data/podio.json', {});
+  const d = (valor[ligaId] ||= {});
+  if (equipo) d.tercero = equipo; else delete d.tercero;
+  await ghEscribeJSON('data/podio.json', valor, sha, `3er lugar de ${ligaId}: ${equipo || 'sin elegir'}`);
+  PODIO = valor;
+  pintaPodio();
+  avisaFlotante('3er lugar guardado.');
+}
 
 /* ---------- Subir/reemplazar el logo de la liga (ícono de la barra superior) ---------- */
 
@@ -4537,6 +4704,7 @@ function repintaTodo() {
     ['rama varonil', () => montaRama('Varonil')],
     ['tamaño de la liguilla', pintaTamanoLiguilla],
     ['liguilla', pintaBracket],
+    ['podio', pintaPodio],
     ['galería', pintaGaleria],
     ['cruces', pintaCruces],
     ['historial', pintaHistorial],
@@ -4570,6 +4738,7 @@ grupoBotones($('#filtro-liguilla'), LIGUILLAS.map(l => ({ valor: l.id, texto: l.
   marcaGrupo($('#filtro-liguilla'), valor);
   pintaTamanoLiguilla();
   pintaBracket();
+  pintaPodio();
   animaEntrada($('#bracket'));
 });
 
@@ -4596,14 +4765,14 @@ const parseaSeguro = t => { try { return t ? JSON.parse(t) : null; } catch (e) {
    última vez, para no redibujar la página en balde. */
 let HUELLA_DATOS = '';
 async function cargaDatos() {
-  const nombres = ['liguillas', 'equipos', 'partidos', 'logos', 'galeria', 'marca', 'temporadas'];
+  const nombres = ['liguillas', 'equipos', 'partidos', 'logos', 'galeria', 'marca', 'temporadas', 'podio'];
   const textos = await Promise.all(nombres.map(leeTextoPublicado));
 
   const huella = textos.map(t => t || '').join('\u0001');
   if (huella === HUELLA_DATOS) return false;
   HUELLA_DATOS = huella;
 
-  const [cfg, mapaEquipos, listaPartidos, mapaLogos, fotos, datosMarca, temps] = textos.map(parseaSeguro);
+  const [cfg, mapaEquipos, listaPartidos, mapaLogos, fotos, datosMarca, temps, datosPodio] = textos.map(parseaSeguro);
 
   if (cfg && typeof cfg === 'object') {
     Object.entries(cfg).forEach(([id, n]) => { if (TAMANOS_LIGUILLA.includes(+n)) LIGUILLA_EQUIPOS[id] = +n; });
@@ -4616,6 +4785,7 @@ async function cargaDatos() {
   }
   if (Array.isArray(fotos)) FOTOS = fotos;
   if (Array.isArray(temps)) TEMPORADAS = temps;
+  if (datosPodio && typeof datosPodio === 'object' && !Array.isArray(datosPodio)) PODIO = datosPodio;
   if (datosMarca && typeof datosMarca === 'object') {
     if (datosMarca.logo) MARCA_LOGO = datosMarca.logo;
     if (datosMarca.nombre) MARCA_NOMBRE = datosMarca.nombre;
