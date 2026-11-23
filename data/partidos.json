@@ -459,7 +459,17 @@
     "fecha": "2026-11-21T09:30",
     "sede": "POR DEFINIR",
     "local": "TIGRILLAS PREPA B",
-    "visita": "CENTINELAS"
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        27,
+        29
+      ],
+      [
+        10,
+        25
+      ]
+    ]
   },
   {
     "id": "lg-femenil-b-F1",
