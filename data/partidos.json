@@ -479,8 +479,18 @@
     "llave": "F1",
     "fecha": "2026-11-21T12:30",
     "sede": "INSTITUTO CAMPECHANO",
-    "local": "",
-    "visita": ""
+    "local": "TIGRILLAS SUPERIOR B",
+    "visita": "CENTINELAS",
+    "sets": [
+      [
+        25,
+        17
+      ],
+      [
+        25,
+        22
+      ]
+    ]
   },
   {
     "id": "psela53a",
