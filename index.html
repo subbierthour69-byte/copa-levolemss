@@ -115,6 +115,15 @@ tailwind.config = {
   @keyframes trofeo { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.07); } }
   .trofeo-anim { display: inline-block; animation: trofeo 2.4s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(255,201,60,.55)); }
 
+  /* Anuncio del campeón */
+  @keyframes confeti { 0% { transform: translateY(-20px) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(230px) rotate(720deg); opacity: 0; } }
+  .confeti-pieza { position: absolute; top: 0; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: confeti 3.6s linear infinite; }
+  @keyframes brilloCampeon { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,201,60,.0), 0 10px 30px rgba(14,38,71,.25); } 50% { box-shadow: 0 0 0 6px rgba(255,201,60,.35), 0 10px 30px rgba(14,38,71,.25); } }
+  .campeon-caja { position: relative; overflow: hidden; border-radius: 1rem; background: linear-gradient(160deg, #0E2647 0%, #163A69 60%, #1B57B5 100%); animation: brilloCampeon 2.6s ease-in-out infinite; }
+  .campeon-banner { background: linear-gradient(90deg, #FFC93C, #FFE08A, #FFC93C); }
+  @keyframes aparece { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+  .aparece { animation: aparece .6s ease both; }
+
   @keyframes bota { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(180deg); } }
   .balon-anim { animation: bota 1.8s ease-in-out infinite; }
 
@@ -1092,7 +1101,7 @@ function plantillaLiguilla(equipos) {
   if (!TAMANOS_LIGUILLA.includes(equipos)) equipos = 8;
 
   /* 6 equipos: el 1° y el 2° pasan directo a semifinales (esos lugares los
-     pones tú como "Local" de S1 y S2). Cuartos: C1 = 4° vs 5° y C2 = 3° vs 6°;
+     pones tú como "Local" de S1 y S2). Cuartos: C1 = 6° vs 5° y C2 = 3° vs 4°;
      el ganador de C1 enfrenta al 1° y el de C2 al 2°. */
   if (equipos === 6) return [
     { llave:'C1', fase:'cuartos', avanzaA:'S1', ranura:'visita' },
@@ -2433,14 +2442,30 @@ function bloqueLlave(p, ancho = 'w-full') {
   </div>`;
 }
 
-function trofeo(campeon) {
-  return `
+function trofeo(campeon, nombreLiga) {
+  if (!campeon) return `
   <div class="flex flex-col items-center gap-2 py-4">
-    <span class="text-sun ${campeon ? 'trofeo-anim' : ''}">${icono('liguilla', 'h-12 w-12')}</span>
+    <span class="text-sun">${icono('liguilla', 'h-12 w-12')}</span>
     <p class="text-[12px] text-muted">Campeón</p>
-    <p class="text-center font-score text-[22px] leading-tight ${campeon ? 'text-court' : 'text-muted/70'}">
-      ${campeon || 'Por definir'}
-    </p>
+    <p class="text-center font-score text-[22px] leading-tight text-muted/70">Por definir</p>
+  </div>`;
+
+  const colores = ['#FFC93C', '#FFFFFF', '#E9F0FB', '#B3327A', '#1B57B5', '#FFE08A'];
+  const confeti = reducirMovimiento() ? '' : Array.from({ length: 28 }, (_, n) => {
+    const izq = (n * 37 + 5) % 100, dem = ((n * 53) % 30) / 10, dur = 2.8 + ((n * 17) % 20) / 10;
+    return `<i class="confeti-pieza" style="left:${izq}%;background:${colores[n % colores.length]};animation-delay:${dem}s;animation-duration:${dur}s"></i>`;
+  }).join('');
+
+  return `
+  <div class="campeon-caja aparece px-4 py-6 text-center text-white" role="status" aria-live="polite">
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">${confeti}</div>
+    <div class="relative flex flex-col items-center gap-2">
+      <span class="text-sun trofeo-anim">${icono('liguilla', 'h-14 w-14')}</span>
+      <p class="font-score text-[13px] uppercase tracking-[.25em] text-sun">¡Tenemos campeón!</p>
+      ${escudo(campeon, 72)}
+      <p class="font-score text-[28px] leading-tight text-white">${esc(campeon)}</p>
+      <p class="text-[12.5px] text-white/80">Campeón de la liguilla${nombreLiga ? ' ' + esc(nombreLiga) : ''}</p>
+    </div>
   </div>`;
 }
 
@@ -2470,7 +2495,7 @@ function pintaBracket() {
 
   const cajaFinal = `
     <div class="rounded-2xl bg-white p-4 shadow-lift ring-1 ring-hair/70">
-      ${trofeo(campeon)}
+      ${trofeo(campeon, liga.nombre)}
       ${bloqueLlave(final)}
     </div>`;
 
@@ -2512,11 +2537,17 @@ function pintaBracket() {
 
   const nota = equipos === 6 ? `
   <p class="mb-4 rounded-xl bg-white px-4 py-3 text-[13.5px] leading-relaxed text-muted shadow-card ring-1 ring-hair/70">
-    Pasan 6 equipos. El 1° y el 2° avanzan directo a semifinales. Cuartos: 4° vs 5° y 3° vs 6°;
-    el ganador del primero enfrenta al 1° y el del segundo al 2°.
+    Pasan 6 equipos. El 1° y el 2° avanzan directo a semifinales. Cuartos: 6° vs 5° y 3° vs 4°;
+    el ganador del primer juego enfrenta al 1° de la tabla y el ganador del segundo juego enfrenta al 2° de la tabla.
   </p>` : '';
 
-  destino.innerHTML = nota + escritorio + movil;
+  const bannerCampeon = campeon ? `
+  <div class="campeon-banner aparece mb-4 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-center shadow-card">
+    <span class="text-court">${icono('liguilla', 'h-6 w-6')}</span>
+    <p class="font-score text-[17px] leading-tight text-court">¡${esc(campeon)} es el campeón de la liguilla ${esc(liga.nombre)}!</p>
+  </div>` : '';
+
+  destino.innerHTML = bannerCampeon + nota + escritorio + movil;
   $$('[data-editar-partido]', destino).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
 }
 
