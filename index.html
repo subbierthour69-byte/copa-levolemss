@@ -445,11 +445,19 @@ tailwind.config = {
         <h2 class="font-score text-2xl tracking-wide">Liguilla</h2>
         <p class="mt-1 text-[14px] text-muted">Eliminación directa. El ganador avanza en cuanto se captura el marcador.</p>
       </div>
-      <div id="filtro-liguilla" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="filtro-liguilla" class="noscroll flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-card ring-1 ring-hair/70"></div>
+        <button type="button" id="pdf-liguilla"
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-score text-[15px] tracking-wide text-court shadow-card ring-1 ring-hair hover:bg-mist">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
+          Descargar PDF
+        </button>
+      </div>
     </div>
     <div id="liguilla-tamano" class="mt-3 hidden"></div>
     <div id="bracket" class="mt-6"></div>
     <div id="podio" class="mt-8"></div>
+    <div class="imprimir-tabla hidden"></div>
   </section>
 
   <!-- ---------- ESTADÍSTICAS ---------- -->
@@ -2569,6 +2577,75 @@ function pintaBracket() {
 
   destino.innerHTML = bannerCampeon + nota + escritorio + movil;
   $$('[data-editar-partido]', destino).forEach(b => b.addEventListener('click', () => abrePartidoModal(b.dataset.editarPartido)));
+}
+
+/* Descarga en PDF el cuadro de la liguilla que se está viendo. Arma una
+   versión propia para papel (hoja horizontal, una columna por ronda) porque
+   las clases "lg:" de pantalla no se activan al imprimir. Sin botones de
+   edición. Se guarda con el diálogo de impresión ("Guardar como PDF"). */
+function imprimeLiguilla() {
+  const panel = $('#panel-liguilla');
+  const cont = $('.imprimir-tabla', panel);
+  const liga = LIGUILLAS.find(l => l.id === estado.liga) || LIGUILLAS[0];
+  const equipos = equiposDe(liga.id);
+  const m = bracketResuelto(liga.id);
+  const rondas = rondasDeLiga(equipos);
+  if (rondas.flatMap(r => r.llaves).some(k => !m[k])) { avisaFlotante('La liguilla todavía no está lista para descargar.', true); return; }
+
+  const logo = MARCA_LOCAL || MARCA_LOGO;
+  const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+  const sinEditar = h => h.replace(/<button[^>]*data-editar-partido[\s\S]*?<\/button>/g, '');
+  const final = m[rondas[rondas.length - 1].llaves[0]];
+  const campeon = jugado(final) && final.local && final.visita ? ganador(final) : '';
+  const { primero, segundo, tercero } = lugaresDePodio(liga);
+
+  const columnas = rondas.map(r => `
+    <div class="itl-col">
+      <div class="itl-fase">${FASES[r.fase]}</div>
+      <div class="itl-llaves">${r.llaves.map(k => `<div class="itl-llave">${sinEditar(bloqueLlave(m[k]))}</div>`).join('')}</div>
+    </div>`).join('');
+
+  const lugares = [[1, primero], [2, segundo], [3, tercero]].filter(([, e]) => e)
+    .map(([n, e]) => `<span><b>${n}°</b> ${esc(e)}</span>`).join('');
+
+  cont.innerHTML = `
+    <style>
+      @media print { @page { size: letter landscape; margin: 0; } }
+      .itl{box-sizing:border-box;width:100%;padding:10mm 12mm 8mm;background:#fff;color:#0E2647;font-family:'Public Sans',sans-serif}
+      .itl *{animation:none !important;transition:none !important}
+      .itl-top{position:relative;text-align:center;margin-bottom:6mm;font-family:'Barlow Condensed',sans-serif}
+      .itl-top img{position:absolute;left:0;top:0;width:17mm;height:17mm;border-radius:9px;object-fit:cover}
+      .itl-top h1{margin:0;font-size:44px;line-height:1;letter-spacing:2px;color:#000}
+      .itl-top .sub{margin-top:4px;font-size:28px;line-height:1;letter-spacing:1px;text-transform:uppercase;color:#000}
+      .itl-top .lg{margin-top:4px;font-size:19px;letter-spacing:1px;text-transform:uppercase;opacity:.9;color:#000}
+      .itl-cuadro{display:flex;gap:10mm;align-items:stretch;min-height:120mm}
+      .itl-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column}
+      .itl-fase{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:21px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4mm;color:#000}
+      .itl-llaves{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:6mm}
+      .itl-llave{break-inside:avoid}
+      .itl-camp{margin-top:7mm;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:24px;letter-spacing:1px;text-transform:uppercase;color:#000}
+      .itl-lug{margin-top:3mm;display:flex;justify-content:center;gap:10mm;font-size:14px}
+      .itl-pie{margin-top:6mm;border-top:2px solid #000;padding-top:8px;text-align:center;font-weight:700;font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:#000}
+    </style>
+    <div class="itl">
+      <div class="itl-top">
+        ${logo ? `<img src="${logo}" alt="">` : ''}
+        <h1>LIGUILLA</h1>
+        <div class="sub">${esc(liga.nombre)}</div>
+        <div class="lg">${esc(MARCA_NOMBRE)} · ${esc(MARCA_TEMPORADA)}</div>
+      </div>
+      <div class="itl-cuadro">${columnas}</div>
+      ${campeon ? `<div class="itl-camp">Campeón: ${esc(campeon)}</div>` : ''}
+      ${lugares ? `<div class="itl-lug">${lugares}</div>` : ''}
+      <div class="itl-pie">${esc(MARCA_NOMBRE)} • Liguilla ${esc(liga.nombre)} • ${hoy}</div>
+    </div>`;
+
+  panel.classList.add('panel-imprime');
+  cont.classList.remove('hidden');
+  setTimeout(() => window.print(), 350);
+  window.addEventListener('afterprint', () => {
+    cont.classList.add('hidden'); cont.innerHTML = ''; panel.classList.remove('panel-imprime');
+  }, { once: true });
 }
 
 /* ---------- Podio: 1°, 2° y 3° lugar de la liguilla que se está viendo ---------- */
@@ -4736,6 +4813,7 @@ $('#filtro-rol-select').addEventListener('change', e => {
   pintaRol();
 });
 
+$('#pdf-liguilla').addEventListener('click', imprimeLiguilla);
 grupoBotones($('#filtro-liguilla'), LIGUILLAS.map(l => ({ valor: l.id, texto: l.nombre })), estado.liga, valor => {
   estado.liga = valor;
   marcaGrupo($('#filtro-liguilla'), valor);
