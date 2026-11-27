@@ -2016,7 +2016,7 @@ function montaRama(rama) {
         </div>
         <p class="mt-1 max-w-[62ch] text-[14px] leading-relaxed text-muted">
           Solo cuenta la fase de grupos, y cada grupo tiene su propia tabla.
-          Se ordena por partidos ganados; si hay empate, por puntos; después por cociente de sets (SF ÷ SC) y, al final, por cociente de puntos (PF ÷ PC).
+          Se ordena por partidos ganados; si hay empate, por puntos a favor (PF); después por puntos en contra (PC, menos es mejor), por puntos de posición (Pts), por cociente de sets (SF ÷ SC) y, al final, por cociente de puntos (PF ÷ PC).
         </p>
         <div data-tabla class="mt-4"></div>
       </div>
@@ -2254,12 +2254,15 @@ function filasDeGrupo(rama, g) {
      idénticos en todo lo anterior (caso rarísimo). */
   /* Orden de la tabla de posiciones:
        1) Partidos ganados (PG)
-       2) Puntos de posición (Pts)
-       3) Cociente de sets (SF ÷ SC) — solo entra si lo anterior está empatado
-       4) Cociente de puntos (PF ÷ PC) — solo entra si lo anterior también está empatado */
+       2) Puntos a favor (PF) — más es mejor
+       3) Puntos en contra (PC) — menos es mejor
+       4) Puntos de posición (Pts)
+       5) Cociente de sets (SF ÷ SC)
+       6) Cociente de puntos (PF ÷ PC)
+     Cada criterio solo entra si todos los anteriores están empatados. */
   return Object.values(t)
     .map(f => ({ ...f, rs: proporcion(f.sf, f.sc), rp: proporcion(f.pf, f.pc) }))
-    .sort((a, b) => (b.pg - a.pg) || (b.pts - a.pts) || desc(a.rs, b.rs) || desc(a.rp, b.rp));
+    .sort((a, b) => (b.pg - a.pg) || (b.pf - a.pf) || (a.pc - b.pc) || (b.pts - a.pts) || desc(a.rs, b.rs) || desc(a.rp, b.rp));
 }
 
 function htmlTabla(filas, descripcion, clave = '') {
